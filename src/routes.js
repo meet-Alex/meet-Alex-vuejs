@@ -5,5 +5,5 @@ import CollectionDetail from './components/collection/CollectionDetail.vue';
 export const routes = [
     { path: '/', component: Home },
     { path: '/collections', component: Collections },
-    { path: '/collections/:id', component: CollectionDetail }
+    { path: '/collections/:id', component: CollectionDetail, name: 'collectionDetail' }
 ];

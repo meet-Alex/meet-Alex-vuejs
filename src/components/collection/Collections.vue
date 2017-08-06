@@ -13,7 +13,7 @@
                   <tbody>
                       <tr v-for="collection in collections">
                           <td>
-                              <router-link :to="'/collections/' + collection.id">{{ collection.collection_name }}</router-link>
+                              <router-link :to="{ name: 'collectionDetail', params: { id: collection.id } }">{{ collection.collection_name }}</router-link>
                           </td>
                           <td>
                               {{ collection.collection_description }}
