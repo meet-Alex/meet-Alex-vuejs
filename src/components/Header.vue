@@ -12,7 +12,7 @@
 
           <ul class="nav navbar-nav navbar-right">
             <li><a href="#">Link</a></li>
-            <li class="dropdown">
+            <li class="dropdown" :class="{open: isDropdownOpen}" @click="isDropdownOpen = !isDropdownOpen">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
               <ul class="dropdown-menu">
                 <li><a href="#">Action</a></li>
@@ -24,3 +24,13 @@
       </div>
     </nav>
 </template>
+
+<script>
+    export default {
+        data() {
+            return {
+                isDropdownOpen: false
+            }
+        }
+    }
+</script>
