@@ -1,8 +1,8 @@
 <template>
     <div class="container">
         <ul class="list-group">
-            <div v-if="collections">
-                <h4>Collections overview</h4>
+            <h4>Collections overview</h4>
+            <div v-if="collections[0]">
                 <table class="table table-striped table-bordered">
                   <thead>
                     <tr class="success">
@@ -21,7 +21,9 @@
                       </tr>
                   </tbody>
                 </table>
-
+            </div>
+            <div v-else>
+                <p>No collections found.</p>
             </div>
         </ul>
     </div>
