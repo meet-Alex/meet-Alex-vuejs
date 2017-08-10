@@ -46,7 +46,7 @@
         },
         methods: {
             fetchCollections: function() {
-                this.$http.get('http://localhost/meet-alex/public/index.php/api/collections')
+                this.$http.get('collections')
                 .then(response => {
                     return response.json();
                 })
