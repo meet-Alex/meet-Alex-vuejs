@@ -8,6 +8,14 @@
 
         <h4>Collections detail</h4>
         <h5>{{ $route.params.id }}</h5>
+
+        <div class="text-center">
+            <ul class="pagination">
+                <li v-for="letter in letters">
+                    <a>{{ letter }}</a>
+                </li>
+            </ul>
+        </div>
     </div>
 </template>
 
@@ -15,11 +23,13 @@
     export default {
         data() {
             return {
-                collection: []
+                collection: [],
+                letters: []
             }
         },
         created: function () {
             this.fetchCollection();
+            this.fetchCollectionLetters();
         },
         methods: {
             fetchCollection: function() {
@@ -29,6 +39,15 @@
                 })
                 .then (data => {
                     this.collection = data;
+                });
+            },
+            fetchCollectionLetters: function() {
+                this.$http.get('collections/' + this.$route.params.id + '/letters')
+                .then(response => {
+                    return response.json();
+                })
+                .then (data => {
+                    this.letters = data;
                 });
             }
         }
