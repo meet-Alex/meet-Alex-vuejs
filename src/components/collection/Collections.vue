@@ -42,18 +42,12 @@
         methods: {
             fetchCollections: function() {
                 this.$http.get('http://localhost/meet-alex/public/index.php/api/collections')
-                    .then(response => {
-                        return response.json();
-                    })
-                    .then (data => {
-                        console.log(data);
-                        const restultArray = [];
-                        for (let key in data) {
-                            restultArray.push(data[key]);
-                        }
-                        this.collections = data;
-                        console.log(restultArray);
-                    });
+                .then(response => {
+                    return response.json();
+                })
+                .then (data => {
+                    this.collections = data;
+                });
             }
         }
     }
