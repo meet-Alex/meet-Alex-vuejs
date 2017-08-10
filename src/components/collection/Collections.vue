@@ -1,5 +1,10 @@
 <template>
     <div class="container">
+        <ul class="breadcrumb breadcrumb-section">
+            <li><router-link :to="{ name: 'Home' }">Home</router-link></li>
+            <li class="active">Collections</li>
+        </ul>
+
         <ul class="list-group">
             <h4>Collections overview</h4>
             <div v-if="collections[0]">
