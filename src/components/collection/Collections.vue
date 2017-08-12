@@ -1,26 +1,33 @@
+<style>
+.name1 {
+     width:250px;
+    font-weight: 400;
+    padding-right: 10px;
+}
+.subscript {
+    font-size: 0.7em;
+    color:grey;
+}
+</style>
+
+
 <template>
     <div class="container">
-       
-           <b-breadcrumb :items="breadCrum"/>
+        <b-breadcrumb :items="breadCrum"/>
         
-
-        <ul class="list-group">
-            <h4>Collections overview</h4>
             <div v-if="collections[0]">
                 <table class="table table-striped table-bordered">
-                  <thead>
-                    <tr class="success">
-                      <th>Name</th>
-                      <th>Description</th>
-                    </tr>
-                  </thead>
                   <tbody>
                       <tr v-for="collection in collections">
-                          <td>
+                          <td class="name1">
                               <router-link :to="{ name: 'collectionDetail', params: { id: collection.id } }">{{ collection.collection_name }}</router-link>
                           </td>
                           <td>
-                              {{ collection.collection_description }}
+                              {{ collection.collection_description }} <br>
+                              <span class="subscript">
+                                  Owner:meet-Alex |
+                                  #terms: 99 |
+                                  Updated:{{collection.updated_at}}</span>
                           </td>
                       </tr>
                   </tbody>
@@ -29,7 +36,7 @@
             <div v-else>
                 <p>No collections found.</p>
             </div>
-        </ul>
+        
     </div>
 </template>
 
