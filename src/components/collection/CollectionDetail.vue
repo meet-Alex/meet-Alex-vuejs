@@ -5,6 +5,7 @@
     overflow:hidden;
     text-overflow: ellipsis;
     width: auto;
+    color:grey;
 }
 .table{
     margin:0;
@@ -16,8 +17,7 @@
 }
 .name{
     width:150px;
-       
-  width: 150px;
+    font-weight: 500;
 }
 .table>tbody>tr>td {
    padding:2px;
