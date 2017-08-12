@@ -4,8 +4,12 @@
     white-space: nowrap;
     overflow:hidden;
     text-overflow: ellipsis;
-    width: auto;
+   
+}
+.def{
+     width: auto;
     color:grey;
+
 }
 .table{
     margin:0;
@@ -18,10 +22,6 @@
 .name{
     width:180px;
     font-weight: 400;
-      display:table-cell;
-    white-space: nowrap;
-    overflow:hidden;
-    text-overflow: ellipsis;
 }
 .table>tbody>tr>td {
    padding:2px;
@@ -42,24 +42,25 @@
                   buttons
                   v-model="viewType"
                   :options="viewOptions" />
-        <span>Picked: {{ viewType }}</span>
-
-
-        <table class="table table-striped table-bordered">
-                  
+    
+        <table v-if="viewType<2" class="table table-striped table-bordered">   
                   <tbody>
                       <tr class="" v-for="term in collection.terms">
-                          <td class="name">
+                          <td v-bind:class="{compact:viewType===1, name:1}">
                               {{ term.term_name }}
                           </td>
-                          <td class="compact">
+                          <td v-bind:class="{compact:viewType===1, def:1}">
                               {{ term.term_definition }}
                           </td>
                       </tr>
                   </tbody>
-                </table>
+        </table>
 
        
+
+
+
+
     </div>
 </template>
 
@@ -89,7 +90,7 @@
                         ],
                 viewOptions: [{ text: 'Full', value: 0 },
                 { text: 'Compact', value: 1 },
-                { text: 'Terms', value: 2 }]
+                { text: 'Index', value: 2 }]
             }
         },
         created: function () {
