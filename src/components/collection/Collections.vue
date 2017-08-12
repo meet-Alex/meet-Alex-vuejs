@@ -1,9 +1,8 @@
 <template>
     <div class="container">
-        <ul class="breadcrumb breadcrumb-section">
-            <li><router-link :to="{ name: 'Home' }">Home</router-link></li>
-            <li class="active">Collections</li>
-        </ul>
+       
+           <b-breadcrumb :items="breadCrum"/>
+        
 
         <ul class="list-group">
             <h4>Collections overview</h4>
@@ -38,7 +37,16 @@
     export default {
         data() {
             return {
-                collections: []
+                collections: [],
+                breadCrum : [
+                            {
+                                text: 'Home',
+                                href: '/',
+                            }, {
+                                text: 'Collections',
+                                 active: true
+                            }
+                        ]
             }
         },
         created: function () {

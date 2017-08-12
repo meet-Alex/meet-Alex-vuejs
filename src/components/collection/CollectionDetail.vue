@@ -16,8 +16,12 @@
     max-width:100%;
 }
 .name{
-    width:150px;
-    font-weight: 500;
+    width:180px;
+    font-weight: 400;
+      display:table-cell;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
 }
 .table>tbody>tr>td {
    padding:2px;
@@ -30,12 +34,16 @@
 
 <template>
     <div class="container">
-        <ul class="breadcrumb breadcrumb-section">
-            <li><router-link :to="{ name: 'Home' }">Home</router-link></li>
-            <router-link to="/collections" activeClass="active" tag="li"><a>Collections</a></router-link>
-            <li class="active">{{ collection.collection_name }}</li>
-            <li class="active"> Terms </li>
-        </ul>
+         <b-breadcrumb :items="breadCrum"/>
+
+       
+       <b-form-radio id="btnradios1"
+                  class="mb-4"
+                  buttons
+                  v-model="viewType"
+                  :options="viewOptions" />
+        <span>Picked: {{ viewType }}</span>
+
 
         <table class="table table-striped table-bordered">
                   
@@ -60,12 +68,34 @@
         data() {
             return {
                 collection: [],
-                letters: []
+                letters: [],
+                viewType:1,
+                breadCrum : [
+                            {
+                                text: 'Home',
+                                href: '/',
+                            }, {
+                                text: 'Collections',
+                                 href: '/collections',
+                            },
+                            {
+                                text: '',
+                                 active:true
+                            },
+                            {
+                                text: 'terms',
+                                 active:true
+                            }
+                        ],
+                viewOptions: [{ text: 'Full', value: 0 },
+                { text: 'Compact', value: 1 },
+                { text: 'Terms', value: 2 }]
             }
         },
         created: function () {
             this.fetchCollection();
-            this.fetchCollectionLetters();
+            this.init();
+
         },
         methods: {
             fetchCollection: function() {
@@ -76,16 +106,11 @@
                 .then (data => {
                     console.log(data);
                     this.collection = data;
+                    this.breadCrum[2].text=this.collection.collection_name;
                 });
             },
-            fetchCollectionLetters: function() {
-                this.$http.get('collections/' + this.$route.params.id)
-                .then(response => {
-                    return response.json();
-                })
-                .then (data => {
-                    this.letters = data;
-                });
+            init: function() {
+               
             }
         }
     }
