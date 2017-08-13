@@ -8,8 +8,6 @@
 }
 .def{
      width: auto;
-  
-
 }
 .table{
     margin:0;
@@ -31,63 +29,152 @@
     width:2em;
 }
 .greyRow {
-    background-color: rgba(0, 0, 0, 0.05);
+  /*  border-top: 1px solid rgba(0, 0, 0, 0.05); */
+}
+.borderless tr td {
+    border: none !important;
+    padding: 0px !important;
+}
+.label {
+    margin-top:2em;
+    font-weight:800;
+}
+.infotable {
+    font-size:0.8em;
+}
+.infotable tr td:nth-child(1) {
+    padding-right:2em;
+}
+.infotable tr td:nth-child(2) {
+    color:grey;
+}
+.relationtable {
+    width: auto !important;
+}
+.relationtable tr td:nth-child(2) {
+    min-width: 16em;
+}
+.relationtable tr td:nth-child(1) {
+    min-width: 30em;
+}
+.relationtable tr td:nth-child(3) {
+    min-width: 30em;
+}
+
+.filterInput {
+    padding:0.1rem 0.5rem 0.1rem 0.5rem !important;
+}
+.highlight {
+  background-color: yellow;
 }
 </style>
-
-
 
 <template>
     <div class="container">
          <b-breadcrumb :items="breadCrum"/>
+         <b-tabs>
+            <b-tab title="Terms">
+                
+                <table style="width: 100%;"> 
+                    <tr>
+                    <td v-if="viewType<2" style="width: 20em" >
+                        <input v-model="filter" class="form-control filterInput" placeholder="Filter on term/description">
+                    </td>
+                    <td align="right">
+                        <b-form-radio id="btnradios1"
+                        buttons
+                        size="sm"
+                        v-model="viewType"
+                        :options="viewOptions" />
+                    </td>
+                   
+                    </tr>
+                </table>
+                <table v-if="viewType<2" class="table">   
+                        <tbody>
+                            <tr class="" v-for="term in filteredList">
+                                <td v-bind:class="{compact:viewType===1, name:1}">
+                                    <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, filter)"></router-link>
+                                </td>
+                                <td v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(term.term_definition, filter)">
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+                <table v-if="viewType===2" class="table borderless">   
+                        <tbody>
+                            <tr v-bind:class="{greyRow:indexLine.letter!==''}" v-for="indexLine in termIndex">
+                                <td class="letter">
+                                    {{ indexLine.letter }}
+                                </td>
+                                <td class="compact" v-for="term in indexLine.col">
+                                    <router-link :to="{ name: 'termDetail', params: { id: term.id } }">{{ term.name }}</router-link>
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+               
+            </b-tab>
+            <b-tab title="Relations">
+                 <table style="width: 100%;"> 
+                    <tr>
+                    <td v-if="viewType<2" style="width: 20em" >
+                        <input v-model="filterRelation" class="form-control filterInput" placeholder="Filter on term/relation">
+                    </td>
+                    <td>
+                    </td>
+                    </tr>
+                 </table>
+                 <table class="table relationtable">
+                        <tbody>
+                            <tr class="" v-for="relation in filteredRelationList">
+                                <td>
+                                    <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, filterRelation)"></router-link>         
+                                </td>
+                                <td v-html="$options.filters.highlight(relation.relation.relation_name, filterRelation)">
+                                </td>
+                                <td>
+                                      <router-link :to="{ name: 'termDetail', params: { id: relation.object.id } }" v-html="$options.filters.highlight(relation.object.term_name, filterRelation)"></router-link>
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+            </b-tab>
+            <b-tab title="Collection" >
+               <div class="label">Name</div>
+                <b-form-input :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input>
+                 <div class="label">Description</div>
+               <!-- This contains a bug: https://github.com/bootstrap-vue/bootstrap-vue/issues/833
+                   <b-form-input textarea :readonly="Boolean(false)" v-model="collection.collection_description"></b-form-input> -->
+                {{collection.collection_description}}
+                <br><br>
+                 <table class="infotable">
+                  
+                    <tr>
+                         <td>Nr of terms</td>
+                         <td>{{collection.terms?collection.terms.length:0}}</td>
+                    </tr>
+                    
+                    <tr>
+                         <td>Nr of relations</td>
+                         <td>{{collection.ontologies?collection.ontologies.length:0}}</td>
+                    </tr>
+                      <tr>
+                         <td>Created by</td>
+                         <td>{{collection.owner?collection.owner.name:""}}</td>
+                    </tr>
+                     <tr>
+                         <td>Creation date</td>
+                         <td>{{collection.created_at}}</td>
+                    </tr>
+                     <tr>
+                         <td>Last update</td>
+                         <td>{{collection.updated_at}}</td>
+                    </tr>
+                </table>
 
-       
-       <b-form-radio id="btnradios1"
-                  class="mb-4"
-                  buttons
-                  size="sm"
-                  v-model="viewType"
-                  :options="viewOptions" />
-    
-        <table v-if="viewType<2" class="table table-striped table-bordered">   
-                  <tbody>
-                      <tr class="" v-for="term in collection.terms">
-                          <td v-bind:class="{compact:viewType===1, name:1}">
-                              <router-link :to="{ name: 'termDetail', params: { id: term.id } }">{{ term.term_name }}</router-link>
-                          </td>
-                          <td v-bind:class="{compact:viewType===1, def:1}">
-                              {{ term.term_definition }}
-                          </td>
-                      </tr>
-                  </tbody>
-        </table>
-         <table v-if="viewType===2" class="table">   
-                  <tbody>
-                      <tr v-bind:class="{greyRow:term.alternate}" v-for="term in termIndex">
-                          <td class="letter">
-                              {{ term.letter }}
-                          </td>
-                          <td class="compact">
-                              <router-link :to="{ name: 'termDetail', params: { id: term.id0 } }">{{ term.name0 }}</router-link>
-                          </td>
-                             <td class="compact">
-                               <router-link :to="{ name: 'termDetail', params: { id: term.id1 } }">{{ term.name1 }}</router-link>
-                          </td>
-                             <td class="compact">
-                                <router-link :to="{ name: 'termDetail', params: { id: term.id2 } }">{{ term.name2 }}</router-link>
-                          </td>
-                             <td class="compact">
-                                <router-link :to="{ name: 'termDetail', params: { id: term.id3 } }">{{ term.name3 }}</router-link>
-                          </td>
-                      </tr>
-                  </tbody>
-        </table>
-
-       
-
-
-
-
+            </b-tab>
+        </b-tabs>
     </div>
 </template>
 
@@ -97,8 +184,11 @@
             return {
                 collection: [],
                 letters: [],
-                viewType:1,
+                viewType:0,
                 termIndex:[],
+                relationList:[],
+                filter:"",
+                filterRelation:"",
                 breadCrum : [
                             {
                                 text: 'Home',
@@ -110,10 +200,6 @@
                             {
                                 text: '',
                                  active:true
-                            },
-                            {
-                                text: 'terms',
-                                 active:true
                             }
                         ],
                 viewOptions: [{ text: 'Full', value: 0 },
@@ -123,8 +209,30 @@
         },
         created: function () {
             this.fetchCollection();
-            this.init();
+         
+        },
+        computed: {
+            filteredList: function(){
+                if (!this.collection.terms) return null;
+                var self=this;
+                return this.collection.terms.filter(
+                    function(term){
+                        return (term.term_name.toLowerCase().indexOf(self.filter.toLowerCase())>=0) ||
+                               (term.term_definition.toLowerCase().indexOf(self.filter.toLowerCase())>=0)
 
+                    });
+            },
+             filteredRelationList: function(){
+                if (!this.relationList.length) return null;
+                var self=this;
+                return this.relationList.filter(
+                    function(relation){
+                        return (relation.subject.term_name.toLowerCase().indexOf(self.filterRelation.toLowerCase())>=0) ||
+                               (relation.object.term_name.toLowerCase().indexOf(self.filterRelation.toLowerCase())>=0) ||
+                                (relation.relation.relation_name.toLowerCase().indexOf(self.filterRelation.toLowerCase())>=0)
+
+                    });
+            }
         },
         methods: {
             fetchCollection: function() {
@@ -137,56 +245,61 @@
                     this.collection = data;
                     //fill breadcrum
                     this.breadCrum[2].text=this.collection.collection_name;
-
-
-                    //calculate index with 4 columns and a first letter
-                    var indexLine={};
-                    
-                    var thisTerm, prevTerm, prevAlternate;
-                    var col=1;
+                    this.makeIndex(4);
+                    this.makeRelations();
+                });
+            },
+            makeIndex: function(nrOfColumns) {
+                    var thisTerm, prevTerm;
                     thisTerm=this.collection.terms[0];
                     var indexLine={letter:thisTerm.term_name[0],
-                                name0:thisTerm.term_name,
-                                id0:thisTerm.id,
-                                name1:"",
-                                id1:null,
-                                name2:"",
-                                id2:null,
-                                name3:"",
-                                id3:null,
-                                alternate:0
+                                col:[]
                     };
+                    indexLine.col.push({
+                      name:thisTerm.term_name,
+                                id:thisTerm.id
+                                });
                     for(var i=1;i<this.collection.terms.length;i++) {
                         thisTerm=this.collection.terms[i];
                         prevTerm=this.collection.terms[i-1];
-                        if (thisTerm.term_name[0]!=prevTerm.term_name[0]||col===4) {
+                        if (thisTerm.term_name[0]!=prevTerm.term_name[0]||indexLine.col.length>=nrOfColumns) {
                             this.termIndex.push(indexLine);
-                            col=0;
-                            
                             indexLine={letter:(thisTerm.term_name[0]!=prevTerm.term_name[0])?thisTerm.term_name[0]:"",
-                                name0:"",
-                                id0:null,
-                                name1:"",
-                                id1:null,
-                                name2:"",
-                                id2:null,
-                                name3:"",
-                                id3:null,
-                                alternate:(thisTerm.term_name[0]!=prevTerm.term_name[0])?1-indexLine.alternate:indexLine.alternate
+                               col:[]
                             }
                         }
-                        indexLine["name"+col]=thisTerm.term_name;
-                        indexLine["id"+col]=thisTerm.id;
-
-                        col++;
+                        indexLine.col.push({name:thisTerm.term_name, id:thisTerm.id});
                     }
                      this.termIndex.push(indexLine);
-
-                    console.log(this.termIndex);
-                });
             },
-            init: function() {
-               
+            makeRelations: function() {
+                var ontology, term, orgRelation;
+                var relation={}, relationList=[];
+                var i,a;
+                 for(i=0;i<this.collection.ontologies.length;i++) {
+                     ontology=this.collection.ontologies[i];
+                     // replace ids by the objects
+                     for(a=0;a<this.collection.terms.length;a++) {
+                        term=this.collection.terms[a];
+                        if (ontology.subject_id===term.id) {
+                            relation.subject=term;
+                        }
+                        if (ontology.object_id===term.id) {
+                            relation.object=term;
+                        }
+                        if (ontology.subject && ontology.subject) {
+                            break;
+                        }
+                    }
+                    for(a=0;a<this.collection.relations.length;a++) {
+                        orgRelation=this.collection.relations[a];
+                        if (ontology.relation_id===orgRelation.id) {
+                            relation.relation=orgRelation;
+                            break;
+                        }
+                    }
+                     this.relationList.push(JSON.parse( JSON.stringify( relation ) ));
+                }
             }
         }
     }

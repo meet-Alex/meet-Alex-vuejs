@@ -16,7 +16,7 @@
         <b-breadcrumb :items="breadCrum"/>
         
             <div v-if="collections[0]">
-                <table class="table table-striped table-bordered">
+                <table class="table">
                   <tbody>
                       <tr v-for="collection in collections">
                           <td class="name1">
@@ -25,8 +25,8 @@
                           <td>
                               {{ collection.collection_description }} <br>
                               <span class="subscript">
+                                    {{collection.term_count}} terms |
                                   Owner:meet-Alex |
-                                  #terms: 99 |
                                   Updated:{{collection.updated_at}}</span>
                           </td>
                       </tr>

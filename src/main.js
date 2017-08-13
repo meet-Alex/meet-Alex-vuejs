@@ -23,8 +23,17 @@ const router = new VueRouter({
     routes
 });
 
+Vue.filter('highlight', function(words, query) {
+    if (query.length <= 2) return words;
+    var iQuery = new RegExp(query, "ig");
+    return words.toString().replace(iQuery, function(matchedTxt, a, b) {
+        return ('<span class=\'highlight\'>' + matchedTxt + '</span>');
+    });
+});
+
 new Vue({
     el: '#app',
     router,
     render: h => h(App)
+
 });
