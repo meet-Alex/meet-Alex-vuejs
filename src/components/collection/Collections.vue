@@ -26,7 +26,8 @@
                               {{ collection.collection_description }} <br>
                               <span class="subscript">
                                     {{collection.term_count}} terms |
-                                  Owner:meet-Alex |
+                                    {{collection.ontologies_count}} relations |
+                                  Owner:{{collection.owner_name}} |
                                   Updated:{{collection.updated_at}}</span>
                           </td>
                       </tr>

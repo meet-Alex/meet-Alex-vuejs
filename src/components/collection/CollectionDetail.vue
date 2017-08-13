@@ -78,7 +78,7 @@
                 <table style="width: 100%;"> 
                     <tr>
                     <td v-if="viewType<2" style="width: 20em" >
-                        <input v-model="filter" class="form-control filterInput" placeholder="Filter on term/description">
+                        <input v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
                     </td>
                     <td align="right">
                         <b-form-radio id="btnradios1"
@@ -119,7 +119,7 @@
                  <table style="width: 100%;"> 
                     <tr>
                     <td v-if="viewType<2" style="width: 20em" >
-                        <input v-model="filterRelation" class="form-control filterInput" placeholder="Filter on term/relation">
+                        <input v-model="filterRelation" class="form-control filterInput" placeholder="Type to filter...">
                     </td>
                     <td>
                     </td>
