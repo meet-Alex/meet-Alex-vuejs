@@ -67,29 +67,36 @@
 .highlight {
   background-color: yellow;
 }
+.relationtable th {
+    padding:0px !important;
+}
 </style>
 
 <template>
     <div class="container">
          <b-breadcrumb :items="breadCrum"/>
+         <h4> Collection: {{this.collection.collection_name}} </h4>
+         <span class="fa fa-plus" aria-hidden="true"></span>
          <b-tabs>
+        <!-- Terms Tab =================== -->
             <b-tab title="Terms">
                 
                 <table style="width: 100%;"> 
                     <tr>
-                    <td v-if="viewType<2" style="width: 20em" >
-                        <input v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
-                    </td>
-                    <td align="right">
-                        <b-form-radio id="btnradios1"
-                        buttons
-                        size="sm"
-                        v-model="viewType"
-                        :options="viewOptions" />
-                    </td>
-                   
+                        <td v-if="viewType<2" style="width: 20em" >
+                            <input v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
+                        </td>
+                        <td align="right">
+                            <b-form-radio id="btnradios1"
+                            buttons
+                            size="sm"
+                            v-model="viewType"
+                            :options="viewOptions" />
+                        </td>
                     </tr>
                 </table>
+            
+
                 <table v-if="viewType<2" class="table">   
                         <tbody>
                             <tr class="" v-for="term in filteredList">
@@ -113,8 +120,9 @@
                             </tr>
                         </tbody>
                 </table>
-               
             </b-tab>
+ 
+        <!-- Relations Tab =================== -->
             <b-tab title="Relations">
                  <table style="width: 100%;"> 
                     <tr>
@@ -126,7 +134,14 @@
                     </tr>
                  </table>
                  <table class="table relationtable">
+                     <thead>
+                         <tr><th v-for="column in ['Subject', 'Relation', 'Object']">
+                         <a href="#" v-on:click="sortBy(column)" v-bind:class="{active: sortKey == column}">{{column}}</a>
+                         
+                         </th></tr>
+                     </thead>
                         <tbody>
+                            
                             <tr class="" v-for="relation in filteredRelationList">
                                 <td>
                                     <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, filterRelation)"></router-link>         
@@ -140,6 +155,8 @@
                         </tbody>
                 </table>
             </b-tab>
+
+        <!-- Collection Tab =================== -->
             <b-tab title="Collection" >
                <div class="label">Name</div>
                 <b-form-input :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input>
@@ -189,22 +206,25 @@
                 relationList:[],
                 filter:"",
                 filterRelation:"",
+                relationTableSort:{column:"Subject", o1:"subject", o2:"term_name", order:1},
                 breadCrum : [
-                            {
-                                text: 'Home',
-                                href: '/',
-                            }, {
-                                text: 'Collections',
-                                 href: '/collections',
-                            },
-                            {
-                                text: '',
-                                 active:true
-                            }
-                        ],
-                viewOptions: [{ text: 'Full', value: 0 },
-                { text: 'Compact', value: 1 },
-                { text: 'Index', value: 2 }]
+                                {
+                                    text: 'Home',
+                                    href: '/',
+                                }, {
+                                    text: 'Collections',
+                                    href: '/collections',
+                                },
+                                {
+                                    text: '',
+                                    active:true
+                                }
+                            ],
+                viewOptions: [  
+                                { text: 'Full', value: 0 },
+                                { text: 'Compact', value: 1 },
+                                { text: 'Index', value: 2 }
+                             ]
             }
         },
         created: function () {
@@ -225,13 +245,14 @@
              filteredRelationList: function(){
                 if (!this.relationList.length) return null;
                 var self=this;
-                return this.relationList.filter(
+                var result= this.relationList.filter(
                     function(relation){
                         return (relation.subject.term_name.toLowerCase().indexOf(self.filterRelation.toLowerCase())>=0) ||
                                (relation.object.term_name.toLowerCase().indexOf(self.filterRelation.toLowerCase())>=0) ||
                                 (relation.relation.relation_name.toLowerCase().indexOf(self.filterRelation.toLowerCase())>=0)
 
                     });
+                    return result.sort((a, b) => this.relationTableSort.order * a[this.relationTableSort.o1][this.relationTableSort.o2].localeCompare(b[this.relationTableSort.o1][this.relationTableSort.o2]));
             }
         },
         methods: {
@@ -300,6 +321,12 @@
                     }
                      this.relationList.push(JSON.parse( JSON.stringify( relation ) ));
                 }
+            },
+            sortBy: function(column) {
+                this.relationTableSort.order=(this.relationTableSort.column===column)?this.relationTableSort.order*-1:1;
+                this.relationTableSort.column=column;
+                this.relationTableSort.o1=(column=="Object")?"object":(column=="Subject")?"subject":"relation";
+                this.relationTableSort.o2=(column=="Object")?"term_name":(column=="Subject")?"term_name":"relation_name";
             }
         }
     }

@@ -71,7 +71,7 @@
             <div class="term-title-div">{{term.term_name}} </div>
             <div class="term-desciption-div">{{term.term_definition}} </div>
             <div class="term-addinfo-div" v-if="viewType>0">{{term.term_definition}} </div>
-            <div class="term-addinfo-div" v-if="viewType>1">Relations+other information</div>
+            <div class="term-addinfo-div" v-if="viewType>1">**Todo** <br>Relations+other information</div>
         </div>
     </div>
 </template>
