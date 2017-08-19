@@ -1,40 +1,5 @@
 <style>
 
-.term-container-div {
-    border:1px solid grey;
-    border-radius:5px;
-    padding:0.1em 1em 1em 1em;
-}
-.term-header-div {
-    font-size:1.2em;
-    font-weight: 600;
-}
-.term-title-div {
-    font-size:1.2em;
-    font-weight: 600;
-    margin-top:-10px;
-}
-.term-description-div {
-    font-size:1em;
-    font-weight: 400;
-}
-.term-addinfo-div {
-    font-size:0.8em;
-    font-weight: 200;
-    border-top:1px solid lightgrey;
-    margin-top: 0.3em;
-}
-.term-header-div .nav-link {
-    font-size:0.8em;
-    padding:0px;
-    font-weight: 400;
-    color:grey;
-    margin-top:-14px;
-}
-.term-header-div .dropdown-menu {
-    font-size:0.7em;
-}
-
 </style>
 
 
@@ -43,7 +8,7 @@
     <div class="container">
          <b-breadcrumb :items="breadCrum"/>
         <div class="term-container-div">
-             <div class="term-header-div">
+            <div class="term-header-div">
                   <table style="width: 100%;"> 
                     <tr>
                     <td>
@@ -67,7 +32,7 @@
                     </tr>
                 </table>
                  
-                  </div>
+            </div>
             <div class="term-title-div">{{term.term_name}} </div>
             <div class="term-desciption-div">{{term.term_definition}} </div>
             <div class="term-addinfo-div" v-if="viewType>0">{{term.term_definition}} </div>

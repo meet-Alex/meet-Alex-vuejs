@@ -1,100 +1,41 @@
 <style>
-.compact{
-    display:table-cell;
-    white-space: nowrap;
-    overflow:hidden;
-    text-overflow: ellipsis;
-   
-}
-.def{
-     width: auto;
-}
-.table{
-    margin:0;
-    padding:0;
-    display:table;
-    table-layout: fixed;
-    width:100%;
-    max-width:100%;
-}
-.name{
-    width:180px;
-    font-weight: 400;
-}
-.table>tbody>tr>td {
-   padding:2px;
-}
-.letter {
-    font-weight: 800;
-    width:2em;
-}
-.greyRow {
-  /*  border-top: 1px solid rgba(0, 0, 0, 0.05); */
-}
-.borderless tr td {
-    border: none !important;
-    padding: 0px !important;
-}
-.label {
-    margin-top:2em;
-    font-weight:800;
-}
-.infotable {
-    font-size:0.8em;
-}
-.infotable tr td:nth-child(1) {
-    padding-right:2em;
-}
-.infotable tr td:nth-child(2) {
-    color:grey;
-}
-.relationtable {
-    width: auto !important;
-}
-.relationtable tr td:nth-child(2) {
-    min-width: 16em;
-}
-.relationtable tr td:nth-child(1) {
-    min-width: 30em;
-}
-.relationtable tr td:nth-child(3) {
-    min-width: 30em;
-}
 
-.filterInput {
-    padding:0.1rem 0.5rem 0.1rem 0.5rem !important;
-}
-.highlight {
-  background-color: yellow;
-}
-.relationtable th {
-    padding:0px !important;
-}
 </style>
 
 <template>
     <div class="container">
          <b-breadcrumb :items="breadCrum"/>
-         <h4> Collection: {{this.collection.collection_name}} </h4>
-         <span class="fa fa-plus" aria-hidden="true"></span>
+         <div class="title-header">
+              Collection: {{this.collection.collection_name}}
+         </div>
          <b-tabs>
         <!-- Terms Tab =================== -->
             <b-tab title="Terms">
                 
                 <table style="width: 100%;"> 
                     <tr>
-                        <td v-if="viewType<2" style="width: 20em" >
-                            <input v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
+                        <td style="width: 20em" >
+                            <input :disabled="viewType === 2" v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
                         </td>
                         <td align="right">
-                            <b-form-radio id="btnradios1"
-                            buttons
-                            size="sm"
-                            v-model="viewType"
-                            :options="viewOptions" />
+                            <b-nav class="float-right">
+                            <b-nav-item title='Create a new term in this collection'>Create term</b-nav-item>
+                            <b-nav-item-dropdown :disabled="viewType===2" text="Sort" right title='Sort the collections'>
+                                <b-dropdown-item v-on:click="sortType=1">Name</b-dropdown-item>
+                                <b-dropdown-item v-on:click="sortType=2">Created</b-dropdown-item>
+                                <b-dropdown-item v-on:click="sortType=3">Changed</b-dropdown-item>
+                            </b-nav-item-dropdown>
+                            <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
+                                <b-dropdown-item v-on:click="viewType=0">Full</b-dropdown-item>
+                                <b-dropdown-item v-on:click="viewType=1">Compact</b-dropdown-item>
+                                 <b-dropdown-item v-on:click="viewType=2">Index</b-dropdown-item>
+                            </b-nav-item-dropdown>
+                            </b-nav>
                         </td>
                     </tr>
+                    
                 </table>
+                        
             
 
                 <table v-if="viewType<2" class="table">   
@@ -126,22 +67,23 @@
             <b-tab title="Relations">
                  <table style="width: 100%;"> 
                     <tr>
-                    <td v-if="viewType<2" style="width: 20em" >
+                    <td style="width: 20em" >
                         <input v-model="filterRelation" class="form-control filterInput" placeholder="Type to filter...">
                     </td>
                     <td>
                     </td>
                     </tr>
                  </table>
-                 <table class="table relationtable">
+                 <table class="table">
                      <thead>
                          <tr><th v-for="column in ['Subject', 'Relation', 'Object']">
-                         <a href="#" v-on:click="sortBy(column)" v-bind:class="{active: sortKey == column}">{{column}}</a>
-                         
+                            <a href="#" v-on:click="sortBy(column)">{{column}}</a>
+                            <i v-if="column===relationTableSort.column&&relationTableSort.order===1" class="fa fa-sort-desc"></i>
+                            <i v-if="column===relationTableSort.column&&relationTableSort.order===-1" class="fa fa-sort-asc"></i>
+                            <i v-if="column!==relationTableSort.column" class="fa fa-sort unactive"></i>
                          </th></tr>
                      </thead>
                         <tbody>
-                            
                             <tr class="" v-for="relation in filteredRelationList">
                                 <td>
                                     <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, filterRelation)"></router-link>         
@@ -158,38 +100,61 @@
 
         <!-- Collection Tab =================== -->
             <b-tab title="Collection" >
-               <div class="label">Name</div>
-                <b-form-input :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input>
-                 <div class="label">Description</div>
-               <!-- This contains a bug: https://github.com/bootstrap-vue/bootstrap-vue/issues/833
-                   <b-form-input textarea :readonly="Boolean(false)" v-model="collection.collection_description"></b-form-input> -->
-                {{collection.collection_description}}
-                <br><br>
-                 <table class="infotable">
+                <br>
+                <div class="term-container-div">
+                    <div class="term-header-div">
+                        <table style="width: 100%;"> 
+                            <tr>
+                            <td>
+                                <b-nav>
+                                    <b-nav-item-dropdown id="nav7_ddown" text="Actions" left>
+                                        <b-dropdown-item>Bookmark</b-dropdown-item>
+                                        <b-dropdown-item>Contribute</b-dropdown-item>
+                                        <b-dropdown-item>Edit</b-dropdown-item>
+                                        <b-dropdown-divider></b-dropdown-divider>
+                                        <b-dropdown-item>Archive</b-dropdown-item>
+                                    </b-nav-item-dropdown>
+                                    </b-nav>
+                            </td>
+                            </tr>
+                        </table>
+                        
+                    </div>
                   
-                    <tr>
-                         <td>Nr of terms</td>
-                         <td>{{collection.terms?collection.terms.length:0}}</td>
-                    </tr>
+                    <h3>Name</h3>
+                   <!-- <b-form-input :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input> -->
+                   {{collection.collection_name}}
+                     <br><br>
+                    <h3>Description</h3>
+                <!-- This contains a bug: https://github.com/bootstrap-vue/bootstrap-vue/issues/833
+                    <b-form-input textarea :readonly="Boolean(false)" v-model="collection.collection_description"></b-form-input> -->
+                    {{collection.collection_description}}
+                    <br><br>
+                    <table class="infotable">
                     
-                    <tr>
-                         <td>Nr of relations</td>
-                         <td>{{collection.ontologies?collection.ontologies.length:0}}</td>
-                    </tr>
-                      <tr>
-                         <td>Created by</td>
-                         <td>{{collection.owner?collection.owner.name:""}}</td>
-                    </tr>
-                     <tr>
-                         <td>Creation date</td>
-                         <td>{{collection.created_at}}</td>
-                    </tr>
-                     <tr>
-                         <td>Last update</td>
-                         <td>{{collection.updated_at}}</td>
-                    </tr>
-                </table>
-
+                        <tr>
+                            <td>Nr of terms</td>
+                            <td>{{collection.terms?collection.terms.length:0}}</td>
+                        </tr>
+                        
+                        <tr>
+                            <td>Nr of relations</td>
+                            <td>{{collection.ontologies?collection.ontologies.length:0}}</td>
+                        </tr>
+                        <tr>
+                            <td>Created by</td>
+                            <td>{{collection.owner?collection.owner.name:""}}</td>
+                        </tr>
+                        <tr>
+                            <td>Creation date</td>
+                            <td>{{collection.created_at}}</td>
+                        </tr>
+                        <tr>
+                            <td>Last update</td>
+                            <td>{{collection.updated_at}}</td>
+                        </tr>
+                    </table>
+                </div>
             </b-tab>
         </b-tabs>
     </div>
@@ -237,8 +202,9 @@
                 var self=this;
                 return this.collection.terms.filter(
                     function(term){
+                        console.log(term, self.filter);
                         return (term.term_name.toLowerCase().indexOf(self.filter.toLowerCase())>=0) ||
-                               (term.term_definition.toLowerCase().indexOf(self.filter.toLowerCase())>=0)
+                               (term.term_definition && term.term_definition.toLowerCase().indexOf(self.filter.toLowerCase())>=0)
 
                     });
             },

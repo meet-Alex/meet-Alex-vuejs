@@ -1,55 +1,46 @@
 <style>
-.name1 {
-     width:250px;
-    font-weight: 400;
-    padding-right: 10px;
-}
-.subscript {
-    font-size: 0.7em;
-    color:grey;
-}
-.table1 {
-    margin:0px!important;
-    padding:0px;
-}
-.table1 tr td {
-    padding:0px !important;
-    height:0.7em !important;
-   
-}
-.table1 tr {
-     margin-top:-10px !important;
-      height:0.7em !important;
-          line-height: 1;
-}
 
 </style>
 
 <template>
     <div class="container">
         <b-breadcrumb :items="breadCrum"/>
-        <h4> Overview collections </h4>
-            <table style="width: 100%;"> 
-                <tr>
-                    <td v-if="viewType<2" style="width: 20em" >
-                        <input v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
+       
+        <div class='title-header'>
+                Overview collections
+                       
+        </div>  <table style="width: 100%;">   
+                    <td  style="width: 20em" >
+                        <input v-if="viewType<2" v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
                     </td>
                     <td align="right">
-                        <b-form-radio id="btnradios1"
-                        buttons
-                        size="sm"
-                        v-model="viewType"
-                        :options="viewOptions" />
+                     <b-nav class="float-right">
+                            <b-nav-item title='Create a new collection'>Create collection</b-nav-item>
+                            <b-nav-item-dropdown :disabled="viewType===2" text="Sort" right title='Sort the collections'>
+                                <b-dropdown-item v-on:click="sortType=0">Authorisation</b-dropdown-item>
+                                <b-dropdown-item v-on:click="sortType=1">Name</b-dropdown-item>
+                                <b-dropdown-item v-on:click="sortType=2">Created</b-dropdown-item>
+                                <b-dropdown-item v-on:click="sortType=3">Changed</b-dropdown-item>
+                            </b-nav-item-dropdown>
+                           
+                            <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
+                                <b-dropdown-item v-on:click="viewType=0">Full</b-dropdown-item>
+                                <b-dropdown-item v-on:click="viewType=1">Compact</b-dropdown-item>
+                                 <b-dropdown-item v-on:click="viewType=2">Index</b-dropdown-item>
+                            </b-nav-item-dropdown>
+                            </b-nav>
                     </td>
-                </tr>
-            </table>        
+                </table>
             <div v-if="collections[0]">
                 <table  v-if="viewType<2" class="table">
                      <tbody>
                             <tr v-for="collection in filteredList">
                               
                                         <td v-bind:class="{compact:viewType===1, name1:1}">
-                                            <router-link :to="{ name: 'collectionDetail', params: { id: collection.id } }">{{ collection.collection_name }}</router-link>
+                                            <router-link :to="{ name: 'collectionDetail', params: { id: collection.id } }">{{ collection.collection_name }} </router-link><br>
+                                            <span class='info-badge' v-if="collection.authorisation===1" variant="info" title="You have bookmarked this collection. You cannot edit it">Bookmarked</span>
+                                            <span class='info-badge' v-if="collection.authorisation===2" variant="info" title="You can edit this collection">Contributor</span>
+                                            <span class='info-badge' v-if="collection.authorisation===3" variant="info" title="You are the owner of this collection">Owner</span>
                                         </td>
                                         <td v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(collection.collection_description, filter)+collectionDetails(collection)">
                                         </td>
@@ -84,6 +75,7 @@
                 collections: [],
                 viewType:0,
                 filter:"",
+                sortType:0,
                 termIndex:[],
                 breadCrum : [
                                 {
@@ -109,15 +101,32 @@
                 console.log(this.collections);
              //   if (!this.collections.length) return null;
                 var self=this;
-                return this.collections.filter(
+                var list=this.collections.filter(
                     function(collection){
                         return (collection.collection_name.toLowerCase().indexOf(self.filter.toLowerCase())>=0) ||
                                (collection.collection_description.toLowerCase().indexOf(self.filter.toLowerCase())>=0)
 
                     });
+                list.sort(function (a, b) {
+                       var result;
+                       if (self.sortType===0) {
+                        result=(a.authorisation===b.authorisation)?a.collection_name.localeCompare(b.collection_name):b.authorisation-a.authorisation;
+                        } else if (self.sortType===1) {
+                            result=a.collection_name.localeCompare(b.collection_name);
+                        }  else if (self.sortType===2) {
+                            result=b.created_at.localeCompare(a.created_at);
+                        } else if (self.sortType===3) {
+                            result=b.updated_at.localeCompare(a.updated_at);
+                           
+                        }
+                        return result;
+                    });
+
+                return list;
             }
          },
         methods: {
+           
             fetchCollections: function() {
                 var self=this;
                 this.$http.get('collections')
@@ -128,6 +137,17 @@
                     //data is an object, change it to array
                     self.collections = Object.keys(data).map(key => data[key]);
                      this.makeIndex(4);
+                    //TODO: faked bookmark
+
+                    self.collections.forEach(function(collection) {
+                        collection.authorisation=0;
+                    });
+                    self.collections[3].authorisation=1;
+                    self.collections[1].authorisation=1;
+                    self.collections[6].authorisation=2;
+                    self.collections[8].authorisation=3;
+                    self.collections[9].authorisation=3;
+                  
                 });
             },
              makeIndex: function(nrOfColumns) {
@@ -157,8 +177,9 @@
                 return (this.viewType===1)?"":"<br> <span class='subscript'>" +
                 collection.term_count + " terms | "+
                 collection.ontologies_count +" relations | "+
-                "Owner:"+collection.owner_name+ " | "+
-                "Updated:"+collection.updated_at+"</span>"
+                "<i class='fa fa-user-circle' title='Collection owner'> "+ collection.owner_name+ " </i>  | "+
+                "<i class='fa fa-calendar-o' title='Last update'> "+ collection.updated_at+ " </i>"+
+               "</span>"
             }
         }
     }
