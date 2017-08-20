@@ -7,64 +7,65 @@
         <b-breadcrumb :items="breadCrum"/>
        
         <div class='title-header'>
-                Overview collections
-                       
-        </div>  <table style="width: 100%;">   
-                    <td  style="width: 20em" >
-                        <input v-if="viewType<2" v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
-                    </td>
-                    <td align="right">
-                     <b-nav class="float-right">
-                            <b-nav-item title='Create a new collection'>Create collection</b-nav-item>
-                            <b-nav-item-dropdown :disabled="viewType===2" text="Sort" right title='Sort the collections'>
-                                <b-dropdown-item v-on:click="sortType=0">Authorisation</b-dropdown-item>
-                                <b-dropdown-item v-on:click="sortType=1">Name</b-dropdown-item>
-                                <b-dropdown-item v-on:click="sortType=2">Created</b-dropdown-item>
-                                <b-dropdown-item v-on:click="sortType=3">Changed</b-dropdown-item>
-                            </b-nav-item-dropdown>
-                           
-                            <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
-                                <b-dropdown-item v-on:click="viewType=0">Full</b-dropdown-item>
-                                <b-dropdown-item v-on:click="viewType=1">Compact</b-dropdown-item>
-                                 <b-dropdown-item v-on:click="viewType=2">Index</b-dropdown-item>
-                            </b-nav-item-dropdown>
-                            </b-nav>
-                    </td>
-                </table>
-            <div v-if="collections[0]">
-                <table  v-if="viewType<2" class="table">
-                     <tbody>
-                            <tr v-for="collection in filteredList">
-                              
-                                        <td v-bind:class="{compact:viewType===1, name1:1}">
-                                            <router-link :to="{ name: 'collectionDetail', params: { id: collection.id } }">{{ collection.collection_name }} </router-link><br>
-                                            <span class='info-badge' v-if="collection.authorisation===1" variant="info" title="You have bookmarked this collection. You cannot edit it">Bookmarked</span>
-                                            <span class='info-badge' v-if="collection.authorisation===2" variant="info" title="You can edit this collection">Contributor</span>
-                                            <span class='info-badge' v-if="collection.authorisation===3" variant="info" title="You are the owner of this collection">Owner</span>
-                                        </td>
-                                        <td v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(collection.collection_description, filter)+collectionDetails(collection)">
-                                        </td>
+                Overview collections               
+        </div>  
+        <table style="width: 100%;">   
+            <tr>
+                <td  style="width: 20em" >
+                    <input :disabled="viewType === 2" v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
+                </td>
+                <td align="right">
+                    <b-nav class="float-right">
+                        <b-nav-item href="\collections\new" title='Create a new collection'>Create collection</b-nav-item>
+                        <b-nav-item-dropdown :disabled="viewType===2" text="Sort" right title='Sort the collections'>
+                            <b-dropdown-item v-on:click="sortType=0">Authorisation</b-dropdown-item>
+                            <b-dropdown-item v-on:click="sortType=1">Name</b-dropdown-item>
+                            <b-dropdown-item v-on:click="sortType=2">Created</b-dropdown-item>
+                            <b-dropdown-item v-on:click="sortType=3">Changed</b-dropdown-item>
+                        </b-nav-item-dropdown>
                         
-                            </tr>
-                        </tbody>
-                </table>
-                <table v-if="viewType===2" class="table borderless">   
-                        <tbody>
-                            <tr v-bind:class="{greyRow:indexLine.letter!==''}" v-for="indexLine in termIndex">
-                                <td class="letter">
-                                    {{ indexLine.letter }}
-                                </td>
-                                <td class="compact" v-for="term in indexLine.col">
-                                    <router-link :to="{ name: 'collectionDetail', params: { id: term.id } }">{{ term.name }}</router-link>
-                                </td>
-                            </tr>
-                        </tbody>
-                </table>
-            </div>
-            <div v-else>
-                <p>No collections found.</p>
-            </div>
-        
+                        <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
+                            <b-dropdown-item v-on:click="viewType=0">Full</b-dropdown-item>
+                            <b-dropdown-item v-on:click="viewType=1">Compact</b-dropdown-item>
+                                <b-dropdown-item v-on:click="viewType=2">Index</b-dropdown-item>
+                        </b-nav-item-dropdown>
+                        </b-nav>
+                </td>
+            </tr>
+        </table>
+        <div v-if="collections[0]">
+            <table  v-if="viewType<2" class="table">
+                    <tbody>
+                        <tr v-for="collection in filteredList">
+                            
+                                    <td v-bind:class="{compact:viewType===1, name1:1}">
+                                        <router-link :to="{ name: 'collectionDetail', params: { id: collection.id } }" v-html="$options.filters.highlight(collection.collection_name, filter)"> </router-link><br>
+                                        <span class='info-badge' v-if="collection.authorisation===1" variant="info" title="You have bookmarked this collection. You cannot edit it">Bookmarked</span>
+                                        <span class='info-badge' v-if="collection.authorisation===2" variant="info" title="You can edit this collection">Contributor</span>
+                                        <span class='info-badge' v-if="collection.authorisation===3" variant="info" title="You are the owner of this collection">Owner</span>
+                                    </td>
+                                    <td v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(collection.collection_description, filter)+collectionDetails(collection)">
+                                    </td>
+                    
+                        </tr>
+                    </tbody>
+            </table>
+            <table v-if="viewType===2" class="table borderless">   
+                    <tbody>
+                        <tr v-bind:class="{greyRow:indexLine.letter!==''}" v-for="indexLine in termIndex">
+                            <td class="letter">
+                                {{ indexLine.letter }}
+                            </td>
+                            <td class="compact" v-for="term in indexLine.col">
+                                <router-link :to="{ name: 'collectionDetail', params: { id: term.id } }">{{ term.name }}</router-link>
+                            </td>
+                        </tr>
+                    </tbody>
+            </table>
+        </div>
+        <div v-else>
+            <p>No collections found.</p>
+        </div>
     </div>
 </template>
 

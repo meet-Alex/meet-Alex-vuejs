@@ -1,12 +1,30 @@
 <style>
 
+body {
+    overflow: hidden;
+}
+.container0 {
 
+
+
+}
+.container {
+    padding-left: calc(100vw - 100%)!important;
+    height: 100vw;
+    overflow: auto;
+}
 .alex {
 font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word-spacing:3em;font-size:78px;text-align:left;font-family:trebuchet MS, sans-serif;line-height:0;
 }
+.alex-below {
+    background-color: #292b2c;
+    width:100%;
+    height: 4em;
+    margin-top: 10em;
+}
 
 
-   .compact{
+.compact{
     display:table-cell;
     white-space: nowrap;
     overflow:hidden;
@@ -26,7 +44,6 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
 }
 .name{
     width:180px;
-    font-weight: 400;
 }
 .table>tbody>tr>td {
    padding:2px;
@@ -130,7 +147,7 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
     color:#0275d8;
 }
 .form-control {
-        font-size: 0.8rem !important;
+        font-size: 0.9rem !important;
 }
 .name1 {
      width:250px;
@@ -140,6 +157,14 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
 .subscript {
     font-size: 0.7em;
     color:#b3b3b3;
+}
+.editIcons {
+    color:#b3b3b3;
+    letter-spacing:0.5em;
+  
+}
+.button-xs {
+        padding: 0rem 0.5rem !important;
 }
 .table1 {
     margin:0px!important;

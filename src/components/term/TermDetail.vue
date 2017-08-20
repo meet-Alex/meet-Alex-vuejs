@@ -8,28 +8,30 @@
     <div class="container">
          <b-breadcrumb :items="breadCrum"/>
         <div class="term-container-div">
-            <div class="term-header-div">
+            <div>
                   <table style="width: 100%;"> 
                     <tr>
-                    <td>
-                        <b-nav>
-                            <b-nav-item-dropdown id="nav7_ddown" text="Actions" left>
+                        <td style="width: 20em" >
+                          
+                        </td>
+                        <td align="right">
+                            <b-nav class="float-right">
+                            <b-nav-item-dropdown :disabled="viewType===2" text="Actions" right title='Sort the collections'>
                                 <b-dropdown-item>Copy</b-dropdown-item>
                                 <b-dropdown-item>Edit</b-dropdown-item>
                                 <b-dropdown-divider></b-dropdown-divider>
                                 <b-dropdown-item>Archive</b-dropdown-item>
                             </b-nav-item-dropdown>
+                            <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
+                                <b-dropdown-item v-on:click="viewType=0">Description</b-dropdown-item>
+                                <b-dropdown-item v-on:click="viewType=1">Notes</b-dropdown-item>
+                                <b-dropdown-item v-on:click="viewType=2">All</b-dropdown-item>
+                                <b-dropdown-item v-on:click="viewType=3" title="***todo***">Visual</b-dropdown-item>
+                            </b-nav-item-dropdown>
                             </b-nav>
-                    </td>
-                    <td align="right">
-                        <b-form-radio id="btnradios1"
-                        buttons
-                        size="sm"
-                        v-model="viewType"
-                        :options="viewOptions" />
-                    </td>
-                   
+                        </td>
                     </tr>
+                    
                 </table>
                  
             </div>

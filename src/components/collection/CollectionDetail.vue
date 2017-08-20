@@ -4,139 +4,65 @@
 
 <template>
     <div class="container">
-         <b-breadcrumb :items="breadCrum"/>
-         <div class="title-header">
-              Collection: {{this.collection.collection_name}}
-         </div>
+        <b-breadcrumb :items="breadCrum"/>
+        <!-- Collection title and action menu -->
+        <div class="title-header">
+            <table style="width: 100%;"> 
+                <tr>
+                    <td>  
+                        Collection: {{collection.collection_name}}
+                    </td>
+                    <td align="right">
+                        <b-nav class="float-right">
+                        <b-nav-item-dropdown :disabled ="$route.params.id==='new'"   text="Actions" right title='Actions for this collection'>
+                            <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
+                            <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
+                            <b-dropdown-item v-if="editMode" v-on:click="editMode=false" title="Switch to view mode">View</b-dropdown-item>
+                            <b-dropdown-item v-if="!editMode" v-on:click="editMode=true" title="Edit this collection">Edit</b-dropdown-item>
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-item title="***todo***">Archive</b-dropdown-item>
+                        </b-nav-item-dropdown>
+                        </b-nav>
+                    </td>
+                </tr>
+            </table>
+        </div>
          <b-tabs>
-        <!-- Terms Tab =================== -->
-            <b-tab title="Terms">
-                
-                <table style="width: 100%;"> 
-                    <tr>
-                        <td style="width: 20em" >
-                            <input :disabled="viewType === 2" v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
-                        </td>
-                        <td align="right">
-                            <b-nav class="float-right">
-                            <b-nav-item title='Create a new term in this collection'>Create term</b-nav-item>
-                            <b-nav-item-dropdown :disabled="viewType===2" text="Sort" right title='Sort the collections'>
-                                <b-dropdown-item v-on:click="sortType=1">Name</b-dropdown-item>
-                                <b-dropdown-item v-on:click="sortType=2">Created</b-dropdown-item>
-                                <b-dropdown-item v-on:click="sortType=3">Changed</b-dropdown-item>
-                            </b-nav-item-dropdown>
-                            <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
-                                <b-dropdown-item v-on:click="viewType=0">Full</b-dropdown-item>
-                                <b-dropdown-item v-on:click="viewType=1">Compact</b-dropdown-item>
-                                 <b-dropdown-item v-on:click="viewType=2">Index</b-dropdown-item>
-                            </b-nav-item-dropdown>
-                            </b-nav>
-                        </td>
-                    </tr>
-                    
-                </table>
-                        
-            
-
-                <table v-if="viewType<2" class="table">   
-                        <tbody>
-                            <tr class="" v-for="term in filteredList">
-                                <td v-bind:class="{compact:viewType===1, name:1}">
-                                    <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, filter)"></router-link>
-                                </td>
-                                <td v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(term.term_definition, filter)">
-                                </td>
-                            </tr>
-                        </tbody>
-                </table>
-                <table v-if="viewType===2" class="table borderless">   
-                        <tbody>
-                            <tr v-bind:class="{greyRow:indexLine.letter!==''}" v-for="indexLine in termIndex">
-                                <td class="letter">
-                                    {{ indexLine.letter }}
-                                </td>
-                                <td class="compact" v-for="term in indexLine.col">
-                                    <router-link :to="{ name: 'termDetail', params: { id: term.id } }">{{ term.name }}</router-link>
-                                </td>
-                            </tr>
-                        </tbody>
-                </table>
-            </b-tab>
- 
-        <!-- Relations Tab =================== -->
-            <b-tab title="Relations">
-                 <table style="width: 100%;"> 
-                    <tr>
-                    <td style="width: 20em" >
-                        <input v-model="filterRelation" class="form-control filterInput" placeholder="Type to filter...">
-                    </td>
-                    <td>
-                    </td>
-                    </tr>
-                 </table>
-                 <table class="table">
-                     <thead>
-                         <tr><th v-for="column in ['Subject', 'Relation', 'Object']">
-                            <a href="#" v-on:click="sortBy(column)">{{column}}</a>
-                            <i v-if="column===relationTableSort.column&&relationTableSort.order===1" class="fa fa-sort-desc"></i>
-                            <i v-if="column===relationTableSort.column&&relationTableSort.order===-1" class="fa fa-sort-asc"></i>
-                            <i v-if="column!==relationTableSort.column" class="fa fa-sort unactive"></i>
-                         </th></tr>
-                     </thead>
-                        <tbody>
-                            <tr class="" v-for="relation in filteredRelationList">
-                                <td>
-                                    <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, filterRelation)"></router-link>         
-                                </td>
-                                <td v-html="$options.filters.highlight(relation.relation.relation_name, filterRelation)">
-                                </td>
-                                <td>
-                                      <router-link :to="{ name: 'termDetail', params: { id: relation.object.id } }" v-html="$options.filters.highlight(relation.object.term_name, filterRelation)"></router-link>
-                                </td>
-                            </tr>
-                        </tbody>
-                </table>
-            </b-tab>
-
-        <!-- Collection Tab =================== -->
+            <!-- Collection Tab =================== -->
             <b-tab title="Collection" >
                 <br>
-                <div class="term-container-div">
-                    <div class="term-header-div">
-                        <table style="width: 100%;"> 
-                            <tr>
-                            <td>
-                                <b-nav>
-                                    <b-nav-item-dropdown id="nav7_ddown" text="Actions" left>
-                                        <b-dropdown-item>Bookmark</b-dropdown-item>
-                                        <b-dropdown-item>Contribute</b-dropdown-item>
-                                        <b-dropdown-item>Edit</b-dropdown-item>
-                                        <b-dropdown-divider></b-dropdown-divider>
-                                        <b-dropdown-item>Archive</b-dropdown-item>
-                                    </b-nav-item-dropdown>
-                                    </b-nav>
-                            </td>
-                            </tr>
-                        </table>
-                        
-                    </div>
-                  
+                <div>                  
                     <h3>Name</h3>
-                   <!-- <b-form-input :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input> -->
-                   {{collection.collection_name}}
+                    <!--  :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input> -->
+                    <b-form-input v-if="editMode" v-model="collection.collection_name" class="form-control filterInput" placeholder="Provide name"></b-form-input>
+                    <span v-if="!editMode">{{collection.collection_name}}</span>
                      <br><br>
                     <h3>Description</h3>
-                <!-- This contains a bug: https://github.com/bootstrap-vue/bootstrap-vue/issues/833
+                    <!-- This contains a bug: https://github.com/bootstrap-vue/bootstrap-vue/issues/833
                     <b-form-input textarea :readonly="Boolean(false)" v-model="collection.collection_description"></b-form-input> -->
-                    {{collection.collection_description}}
+                    <!-- <input :disabled="!editMode" v-model="collection.collection_description" class="form-control filterInput" placeholder="Provide name"> -->
+                    <b-form-input v-if="editMode" v-model="collection.collection_description" placeholder="Provide description"></b-form-input>
+                    <span v-if="!editMode">{{collection.collection_description}}</span>
                     <br><br>
+                    <h3>Settings</h3>
+                  
+                    <b-form-checkbox :disabled="!editMode" id="checkbox1" v-model="collection.receive_notifications" value="1" unchecked-value="0">
+                        Notifications
+                    </b-form-checkbox> <br>
+                    <b-form-checkbox :disabled="!editMode" id="checkbox1" v-model="collection.public" value="1" unchecked-value="0">
+                        Public
+                    </b-form-checkbox>
+                    <br>
+                     
+                    <b-button v-if="$route.params.id==='new'" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
+                    <b-button v-if="editMode&&$route.params.id!=='new'" variant="primary" size="sm">Update</b-button>          
+                    <br><br>
+                    <h3>Statistics</h3>
                     <table class="infotable">
-                    
                         <tr>
                             <td>Nr of terms</td>
                             <td>{{collection.terms?collection.terms.length:0}}</td>
                         </tr>
-                        
                         <tr>
                             <td>Nr of relations</td>
                             <td>{{collection.ontologies?collection.ontologies.length:0}}</td>
@@ -154,7 +80,147 @@
                             <td>{{collection.updated_at}}</td>
                         </tr>
                     </table>
+                    <br>
+                    <h3>Followers</h3>
+                    ***todo***
                 </div>
+            </b-tab>
+        <!-- Terms Tab =================== -->
+            <b-tab :disabled ="$route.params.id==='new'" title="Terms">
+                <!-- Filter input and menu =================== -->
+                <table style="width: 100%;"> 
+                    <tr>
+                        <td style="width: 20em" >
+                            <input :disabled="viewType === 2" v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
+                        </td>
+                        <td align="right">
+                            <b-nav class="float-right">
+                            <b-nav-item-dropdown :disabled="viewType===2" text="Sort" right title='Sort the collections'>
+                                <b-dropdown-item v-on:click="sortType=1">Name</b-dropdown-item>
+                                <b-dropdown-item v-on:click="sortType=2">Created</b-dropdown-item>
+                                <b-dropdown-item v-on:click="sortType=3">Changed</b-dropdown-item>
+                            </b-nav-item-dropdown>
+                            <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
+                                <b-dropdown-item v-on:click="viewType=0">Full</b-dropdown-item>
+                                <b-dropdown-item v-on:click="viewType=1">Compact</b-dropdown-item>
+                                 <b-dropdown-item v-on:click="viewType=2">Index</b-dropdown-item>
+                            </b-nav-item-dropdown>
+                            </b-nav>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                        
+                <!-- List of terms =================== -->
+                <table v-if="viewType<2" class="table">  
+                    <thead>
+                        <tr><th class="name">Term name</th>
+                        <th class="def">Term description</th>
+                        </tr>
+                    </thead>
+                     
+                    <tbody>
+                        <tr v-if="editMode">
+                            <td class="name">
+                                <input v-model="newTerm.name" class="form-control filterInput" placeholder="New term...">
+                                <span class="editIcons"> 
+                                    <b-button size="sm" class="button-xs">     
+                                    <i class="fa fa-check-circle" title="Add this term"></i>
+                                    </b-button> 
+                                        <b-button size="sm" class="button-xs">     
+                                    <i class="fa fa-expand" title="Edit in form with extra options"></i> 
+                                    </b-button> 
+                                        <b-button size="sm" class="button-xs">    
+                                            <i class="fa fa-times-circle" title="Cancel"></i>   
+                                    </b-button> 
+                                </span>     
+                            </td>
+                            <td class="def">
+                                    <input v-model="newTerm.description" class="form-control filterInput" placeholder="New description...">  
+                                    
+                            </td>
+                        <tr class="" v-for="term in filteredList">
+                            <td v-bind:class="{compact:viewType===1, name:1}">
+                                <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, filter)"></router-link>
+                            </td>
+                            <td v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(term.term_definition, filter)">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Index of terms =================== -->
+                <table v-if="viewType===2" class="table borderless">   
+                        <tbody>
+                            <tr v-bind:class="{greyRow:indexLine.letter!==''}" v-for="indexLine in termIndex">
+                                <td class="letter">
+                                    {{ indexLine.letter }}
+                                </td>
+                                <td class="compact" v-for="term in indexLine.col">
+                                    <router-link :to="{ name: 'termDetail', params: { id: term.id } }">{{ term.name }}</router-link>
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
+            </b-tab>
+ 
+            <!-- Relations Tab =================== -->
+            <b-tab :disabled ="$route.params.id==='new'" title="Relations">
+                <!-- Filter input and menu =================== -->
+                <table style="width: 100%;"> 
+                    <tr>
+                        <td style="width: 20em" >
+                            <input v-model="filterRelation" class="form-control filterInput" placeholder="Type to filter...">
+                        </td>
+                        <td>
+                           
+                        </td>
+                    </tr>
+                </table>
+                <!-- List of relations =================== -->
+                 <table class="table">
+                     <thead>
+                         <tr><th v-for="column in ['Subject', 'Relation', 'Object']">
+                            <a href="#" v-on:click="sortBy(column)">{{column}}</a>
+                            <i v-if="column===relationTableSort.column&&relationTableSort.order===1" class="fa fa-sort-desc"></i>
+                            <i v-if="column===relationTableSort.column&&relationTableSort.order===-1" class="fa fa-sort-asc"></i>
+                            <i v-if="column!==relationTableSort.column" class="fa fa-sort unactive"></i>
+                         </th></tr>
+                     </thead>
+                        <tbody>
+                            <tr v-if="editMode"> <!-- show input fields, to create a relation ifin edit mode -->
+                                <td>
+                                    <input v-model="newRelation.subject" class="form-control filterInput" placeholder="Enter term...">    
+                                    <span class="editIcons"> 
+                                    <b-button size="sm" class="button-xs">     
+                                    <i class="fa fa-check-circle" title="Add this term"></i>
+                                    </b-button> 
+                                        <b-button size="sm" class="button-xs">     
+                                    <i class="fa fa-expand" title="Edit in form with extra options"></i> 
+                                    </b-button> 
+                                        <b-button size="sm" class="button-xs">    
+                                            <i class="fa fa-times-circle" title="Cancel"></i>   
+                                    </b-button> 
+                                </span>                                
+                                </td>
+                                <td>
+                                    <input v-model="newRelation.name" class="form-control filterInput" placeholder="Enter relation...">
+                                </td>
+                                <td>
+                                     <input v-model="newRelation.object" class="form-control filterInput" placeholder="Enter term....">
+                                </td>
+                            </tr>
+                            <tr class="" v-for="relation in filteredRelationList">
+                                <td>
+                                    <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, filterRelation)"></router-link>         
+                                </td>
+                                <td v-html="$options.filters.highlight(relation.relation.relation_name, filterRelation)">
+                                </td>
+                                <td>
+                                      <router-link :to="{ name: 'termDetail', params: { id: relation.object.id } }" v-html="$options.filters.highlight(relation.object.term_name, filterRelation)"></router-link>
+                                </td>
+                            </tr>
+                        </tbody>
+                </table>
             </b-tab>
         </b-tabs>
     </div>
@@ -164,11 +230,15 @@
     export default {
         data() {
             return {
+                newRelation:{subject:"", name:"", object:""},
+                newTerm:{name:"", description:""},
                 collection: [],
                 letters: [],
                 viewType:0,
                 termIndex:[],
+                editMode:false,
                 relationList:[],
+                sortType:1,
                 filter:"",
                 filterRelation:"",
                 relationTableSort:{column:"Subject", o1:"subject", o2:"term_name", order:1},
@@ -193,20 +263,47 @@
             }
         },
         created: function () {
-            this.fetchCollection();
-         
+            if (this.$route.params.id!=='new') {
+                this.fetchCollection();
+            } else {
+                this.editMode=true;
+
+                //***todo*** this should come from the API
+                this.collection={
+                    
+                    "id": -1,
+                    "parent_id": null,
+                    "collection_name": "",
+                    "collection_description": "",
+                    "public": "1",
+                    "receive_notifications": "1",
+                    "created_by": -1,
+                    "created_at": "",
+                    "updated_at": "",
+                    "term_count": 0,
+                    "ontologies_count": 0,
+                    "owner_name": "",
+                    "bookmarked": true,
+                    "relations": [],
+                    "ontologies": [],
+                    "terms": [],
+                    "owner": {},
+                    "links": []
+                    }
+            }
         },
         computed: {
             filteredList: function(){
                 if (!this.collection.terms) return null;
                 var self=this;
-                return this.collection.terms.filter(
+                var result= this.collection.terms.filter(
                     function(term){
                         console.log(term, self.filter);
                         return (term.term_name.toLowerCase().indexOf(self.filter.toLowerCase())>=0) ||
                                (term.term_definition && term.term_definition.toLowerCase().indexOf(self.filter.toLowerCase())>=0)
 
                     });
+                return result.sort((a, b) => (this.sortType===2)?a.created_at.localeCompare(b.created_at):(this.sortType===3)?a.updated_at.localeCompare(b.updated_at):a.term_name.localeCompare(b.term_name));
             },
              filteredRelationList: function(){
                 if (!this.relationList.length) return null;
@@ -234,6 +331,8 @@
                     this.breadCrum[2].text=this.collection.collection_name;
                     this.makeIndex(4);
                     this.makeRelations();
+                    this.collection.public=this.collection.public.toString();
+                     this.collection.receive_notifications=this.collection.receive_notifications.toString();
                 });
             },
             makeIndex: function(nrOfColumns) {
