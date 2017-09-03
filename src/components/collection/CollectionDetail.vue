@@ -333,7 +333,22 @@
                     this.makeRelations();
                     this.collection.public=this.collection.public.toString();
                      this.collection.receive_notifications=this.collection.receive_notifications.toString();
+                }
+                ,
+                function(error){
+                    console.log(error);
+                       var data=error.data;
+ this.collection = data;
+                    //fill breadcrum
+                    this.breadCrum[2].text=this.collection.collection_name;
+                    this.makeIndex(4);
+                    this.makeRelations();
+                    this.collection.public=this.collection.public.toString();
+                     this.collection.receive_notifications=this.collection.receive_notifications.toString();
                 });
+                
+                
+                
             },
             makeIndex: function(nrOfColumns) {
                     var thisTerm, prevTerm;

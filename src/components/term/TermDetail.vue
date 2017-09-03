@@ -87,6 +87,14 @@
                     this.breadCrum[2].text=this.term.collection.collection_name;
                     this.breadCrum[2].href="/collections/"+this.term.collection.id;
                      this.breadCrum[3].text=this.term.term_name;
+                },
+                function(error){
+                    console.log(error);
+                       var data=error.data;
+                    this.term=data;
+                    this.breadCrum[2].text=this.term.collection.collection_name;
+                    this.breadCrum[2].href="/collections/"+this.term.collection.id;
+                     this.breadCrum[3].text=this.term.term_name;
                 });
             }
         }

@@ -1,17 +1,19 @@
 <style>
 
+html {
+    height: 100%;
+}
 body {
-    overflow: hidden;
+    height: 100%;
+    
+
 }
 .container0 {
-
-
-
 }
 .container {
-    padding-left: calc(100vw - 100%)!important;
-    height: 100vw;
-    overflow: auto;
+    flex:1 0 auto;
+    display:flex;
+    flex-flow: column;
 }
 .alex {
 font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word-spacing:3em;font-size:78px;text-align:left;font-family:trebuchet MS, sans-serif;line-height:0;
@@ -190,11 +192,9 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
 }
 .title-header {
     letter-spacing:1px;
-  
     font-size:1.3em !important;
     font-weight: 500!important;
        font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif !important;
-
 }
 .nav {
     display: inline-block;
@@ -227,10 +227,33 @@ h3  {
        margin:0px !important;
 }
 
+.my-scrollbar {
+    max-height:777px;
+  
+}
+.scroll-me {
+    
+}
+#tableContent{
+     position: relative;
+  height: auto;
+  min-height: 100% !important;
+  flex:1 1 auto;
+}
+#app {
+    display:flex;
+    flex-flow: column;
+    height:100%;
+}
+.div-flex01 {
+    flex: 0 1 auto;
+   
+}
 
 </style>
 
 <template>
+    <div class="div-flex01">
     <b-navbar toggleable type="inverse" variant="inverse" toggle-breakpoint="md" class="my-nav">
       <b-nav-toggle target="nav_collapse"></b-nav-toggle>
       <b-navbar-brand href="/">Home</b-navbar-brand>
@@ -240,6 +263,7 @@ h3  {
         </b-nav>
       </b-collapse>
     </b-navbar>
+    </div>
 </template>
 
 <script>
