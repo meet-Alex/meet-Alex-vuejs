@@ -8,12 +8,13 @@ body {
     
 
 }
-.container0 {
-}
-.container {
+
+.flex {
     flex:1 0 auto;
     display:flex;
     flex-flow: column;
+    position: relative;
+    box-sizing: inherit;
 }
 .alex {
 font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word-spacing:3em;font-size:78px;text-align:left;font-family:trebuchet MS, sans-serif;line-height:0;
@@ -224,7 +225,8 @@ h3  {
      font-size:1.1em !important;
     font-weight: 500!important;
        font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif !important;
-       margin:0px !important;
+       margin:10px 0px 0px 0px !important;
+
 }
 
 .my-scrollbar {
@@ -234,7 +236,7 @@ h3  {
 .scroll-me {
     
 }
-#tableContent{
+.tableContent{
      position: relative;
   height: auto;
   min-height: 100% !important;
@@ -249,6 +251,13 @@ h3  {
     flex: 0 1 auto;
    
 }
+#viewTab .btn {
+    padding:0.2rem 0.5rem;
+}
+.menu-right {
+    font-size: 1rem;
+    margin-right: 0px;
+}
 
 </style>
 
@@ -260,17 +269,22 @@ h3  {
       <b-collapse is-nav id="nav_collapse">
         <b-nav is-nav-bar>
           <b-nav-item href="/collections">Collections</b-nav-item>
+            <b-nav-item href="/login">Login</b-nav-item>
         </b-nav>
       </b-collapse>
     </b-navbar>
     </div>
+   
 </template>
 
 <script>
+
+
     export default {
         data() {
             return {
-                isDropdownOpen: false
+                isDropdownOpen: false,
+                userEmail:""
             }
         }
     }

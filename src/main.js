@@ -37,6 +37,9 @@ Vue.filter('highlight', function(words, query) {
 
 new Vue({
     el: '#app',
+    data:{login:{email:"", token:""}
+    
+    },
     router,
     render: h => h(App)
 
