@@ -140,26 +140,33 @@
                                     <td class="name">
                                         <input v-model="newTerm.name" class="form-control filterInput" placeholder="New term...">
                                         <span class="editIcons">
-                                            <b-button size="sm" class="button-xs">
-                                                <i class="fa fa-check-circle" title="Add this term"></i>
+                                            <b-button size="sm" class="button-xs" v-on:click="addTerm()">
+                                                <i class="fa fa-check-circle"  title="Add this term"></i>
                                             </b-button>
                                             <b-button size="sm" class="button-xs">
                                                 <i class="fa fa-expand" title="Edit in form with extra options"></i>
                                             </b-button>
-                                            <b-button size="sm" class="button-xs">
+                                            <b-button size="sm" class="button-xs" v-on:click="newTerm={name:'', description:''}">
                                                 <i class="fa fa-times-circle" title="Cancel"></i>
                                             </b-button>
                                         </span>
                                     </td>
                                     <td class="def">
                                         <input v-model="newTerm.description" class="form-control filterInput" placeholder="New description...">
-
                                     </td>
-                                    <tr class="" v-for="term in filteredList">
-                                        <td v-bind:class="{compact:viewType===1, name:1}">
+                                    <tr class="" v-for="term in filteredList" v-on:click="editTermId=editMode?term.id:0">
+                                        <td v-if="!editMode" v-bind:class="{compact:viewType===1, name:1}">
                                             <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, filter)"></router-link>
                                         </td>
-                                        <td v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(term.term_definition, filter)">
+                                        <td v-if="editMode && editTermId != term.id" v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(term.term_name, filter)">
+                                        </td>
+                                        <td v-if="editMode && editTermId == term.id">
+                                               <input v-model="term.term_name" class="form-control filterInput">
+                                        </td>
+                                        <td v-if="editTermId != term.id" v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(term.term_definition, filter)">
+                                        </td>
+                                        <td v-if="editTermId == term.id">
+                                               <input v-model="term.term_definition" class="form-control filterInput">
                                         </td>
                                     </tr>
                             </tbody>
@@ -265,6 +272,7 @@ require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
                   tabheight:500,
                 newRelation:{subject:"", name:"", object:""},
                 newTerm:{name:"", description:""},
+                editTermId:0,
                 collection: [],
                 letters: [],
                 viewType:0,
@@ -307,7 +315,6 @@ require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
             this.handleWindowResize();
         },
         created: function () {
-            
             if (this.$route.params.id!=='new') {
                 this.fetchCollection();
                   if (this.$route.params.tab&&this.$route.params.tab==='terms') {
@@ -371,6 +378,9 @@ require('vue2-scrollbar/dist/style/vue2-scrollbar.css');
             }
         },
         methods: {
+            addTerm: function() {
+                console.log(this.newTerm);
+            },
             handleWindowResize: function(){
                 var that=this;
                // this.$nextTick(function() {

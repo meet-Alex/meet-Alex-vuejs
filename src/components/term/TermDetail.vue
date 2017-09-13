@@ -5,7 +5,7 @@
 
 
 <template>
-    <div class="container">
+    <div class="container flex">
          <b-breadcrumb :items="breadCrum"/>
         <div class="term-container-div">
             <div>
