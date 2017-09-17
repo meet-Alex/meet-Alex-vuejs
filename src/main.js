@@ -10,6 +10,13 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'font-awesome/css/font-awesome.css';
 
 
+import VueTinymce from './plugins/vue-tinymce';
+import EditTermList from './plugins/edit-term-list';
+import Autocomplete from './plugins/autocomplete';
+
+Vue.use(VueTinymce);
+Vue.use(Autocomplete);
+Vue.use(EditTermList);
 Vue.use(BootstrapVue);
 Vue.use(VueRouter);
 Vue.use(VueResource);

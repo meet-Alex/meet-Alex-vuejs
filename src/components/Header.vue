@@ -5,7 +5,9 @@ html {
 }
 body {
     height: 100%;
-    
+   
+    overflow-y: scroll;
+
 
 }
 
@@ -35,8 +37,8 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
    
 }
 .def{
-     width: auto;
 }
+
 .table{
     margin:0;
     padding:0;
@@ -48,6 +50,8 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
 .name{
     width:180px;
 }
+
+
 .table>tbody>tr>td {
    padding:2px;
 }
@@ -241,6 +245,10 @@ h3  {
   height: auto;
   min-height: 100% !important;
   flex:1 1 auto;
+  border-top: 2px solid grey;
+}
+.bold {
+    font-weight: bold;
 }
 #app {
     display:flex;

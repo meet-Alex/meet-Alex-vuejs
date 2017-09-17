@@ -34,8 +34,10 @@
             </table>
         </div>
         <div class='tableContent' ref='tabcontent'>
+            <!--
             <vue-scrollbar classes="my-scrollbar" v-bind:style="{ 'max-height': tabheight + 'px' }">
                 <div class='scroll-me'>
+            -->
                     <div v-if="collections[0]">
                         <table v-if="viewType<2" class="table">
                             <tbody>
@@ -81,8 +83,10 @@
                         <p>No collections found.</p>
                     </div>
                 </div>
+            <!--
             </vue-scrollbar>
         </div>
+        -->
     </div>
 
 </template>

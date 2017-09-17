@@ -10,5 +10,4 @@ export const routes = [
     { path: '/collections', component: Collections },
     { path: '/collections/:id', component: CollectionDetail, name: 'collectionDetail' },
     { path: '/terms/:id', component: TermDetail, name: 'termDetail' }
-
 ];
