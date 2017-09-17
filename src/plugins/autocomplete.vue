@@ -30,16 +30,19 @@
 .active {
     color:red;
 }
+.inline {
+  
+}
 </style>
 
 <template>
-    <div style="position:relative" v-bind:class="{'open':openSuggestion}">
-        <input class="form-control" type="text" v-model="searchName" @input="updateValue($event.target.value)"
+    <div style="position:relative" v-bind:class="{'open':openSuggestion, 'inline':1}">
+        <input class="form-control lightblue" type="text" v-model="searchName" @input="updateValue($event.target.value)"
           @keydown.enter = 'enter'
           @keydown.down = 'down'
           @keydown.up = 'up'
         >
-        <ul v-if="displayName.length && open" class="dropdown-menu1" style="width:100%">
+        <ul v-if="open" class="dropdown-menu1" style="width:100%">
             <li v-for="(suggestion, index) in matches"
                 v-bind:class="{'active': isActive(index)}"
                 @click="suggestionClick(index, $event)"
@@ -64,6 +67,10 @@ export default {
         type: String,
         required:true
     },
+    new : {
+        type: Boolean,
+        required:true
+    },
 
     suggestions: {
       type: Array,
@@ -82,7 +89,7 @@ export default {
   },
   created:function(){
       console.log(this.displayName);
-      this.searchName=JSON.parse(JSON.stringify(this.displayName));
+      this.searchName=JSON.parse(JSON.stringify(this.value.term_name));
   },
 
   computed: {
@@ -145,9 +152,12 @@ export default {
         console.log("selection clicked", index);
       
       this.$emit('input', this.matches[index]);
-        this.searchName=this.matches[index].term_name;
+      this.searchName=this.matches[index].term_name;
       this.open = false;
        if (event) event.stopPropagation();
+
+      if (this.new) this.$root.$emit('addRelation');
+
     }
 
   }

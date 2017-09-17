@@ -35,19 +35,20 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
 .fa-trash {
-   color:red !important;
+    color: red !important;
 }
 </style>
 
 <template>
     <div class="inline-edit">
         <div class="inline-edit-row">
-            <div class="inline-edit-cell name tinymce-inline"  >
-                <tinymce id="nameEditor" v-model="editTerm.term_name" :options="tinymceOptionsBasic" @change="changed" :content="initTerm.term_name"></tinymce>
+            <div class="inline-edit-cell name">
+                <textarea ref="termNameInput" class="form-control lightblue" type="text" v-model="editTerm.term_name" v-on:keydown="preventEnter($event)"></textarea>
             </div>
             <div class="inline-edit-cell def tinymce-inline">
-                <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed" :content="initTerm.term_definition"></tinymce>
+                <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
             </div>
         </div>
     </div>
@@ -69,90 +70,28 @@ export default {
     data() {
         var that = this;
         return {
-             tinymceOptionsBasic:{
+         
+            tinymceOptions: {
                 setup: function(ed) {
-                    ed.addButton('apply', {
-                        icon: 'fa fa-check-circle',
-                        cmd: 'mceApply',
-                        title: 'Apply changes'
-                    });
                     ed.addButton('expand', {
+                        tooltip: 'Edit all properties of this term',
                         icon: 'fa fa-expand',
-                        cmd: 'mceExpand',
-                        title: 'Full-screen edit'
+                        onclick: function() {
+                            that.$router.push({name:'termDetail', params:{id:that.editTerm.id, edit:true}});
+                        }
                     });
-                     ed.addButton('trash', {
-                        icon: 'fa fa-trash',
-                        cmd: 'mceRemove',
-                        title: 'Remove term'
-                    });
-                    ed.addButton('cancel', {
-                        icon: 'fa fa-times-circle',
-                        cmd: 'mceCancel',
-                        title: 'Cancel'
-                    });
-                    ed.addCommand('mceApply', function() {
-                        that.updateTerm();
-                    });
-                      ed.addCommand('mceRemove', function() {
-                        that.removeTerm();
-                    });
-                },
-                inline: true,
-                plugins: 'advlist autolink link image lists charmap print preview paste',
-                skin: 'lightgray',
-                menubar: false,
-                toolbar: 'apply expand cancel | trash | undo redo',
-                statusbar: false,
-                branding: false,
-                theme: 'modern',
-                content_css: 'css/app_mce.css',
-                paste_as_text: true,
-                mode: "textareas",
-                force_br_newlines: false,
-                force_p_newlines: false,
-                forced_root_block: ''
-            },
-             tinymceOptions: {
-                setup: function(ed) {
-                    ed.addButton('apply', {
-                        icon: 'fa fa-check-circle',
-                        cmd: 'mceApply',
-                        title: 'Apply changes'
-                    });
-                    ed.addButton('expand', {
-                        icon: 'fa fa-expand',
-                        cmd: 'mceExpand',
-                        title: 'Full-screen edit'
-                    });
-                     ed.addButton('trash', {
-                        icon: 'fa fa-trash',
-                        cmd: 'mceRemove',
-                        title: 'Remove term'
-                    });
-                    ed.addButton('cancel', {
-                        icon: 'fa fa-times-circle',
-                        cmd: 'mceCancel',
-                        title: 'Cancel'
-                    });
-                    ed.addCommand('mceApply', function() {
-                        that.updateTerm();
-                    });
-                      ed.addCommand('mceRemove', function() {
-                        that.removeTerm();
-                    });
-                    ed.on("keydown", function(e){
-                        if (this.id!=='descriptionEditor') return;
+                    ed.on("keydown", function(e) {
+                        if (this.id !== 'descriptionEditor') return;
                         var keynum;
-                        if(window.event) { // IE                    
-                        keynum = e.keyCode;
-                        } else if(e.which){ // Netscape/Firefox/Opera                   
-                        keynum = e.which;
+                        if (window.event) { // IE                    
+                            keynum = e.keyCode;
+                        } else if (e.which) { // Netscape/Firefox/Opera                   
+                            keynum = e.which;
                         }
-                        if (keynum===9) {
+                        if (keynum === 9) {
                             that.updateTerm();
-                            tinymce.get('nameEditor').focus();
-                             e.preventDefault();  
+                            that.$refs.termNameInput.focus();
+                            e.preventDefault();
                         }
                     });
                 },
@@ -160,7 +99,7 @@ export default {
                 plugins: 'advlist autolink link image lists charmap print preview paste',
                 skin: 'lightgray',
                 menubar: false,
-                toolbar: 'apply expand cancel | trash | undo redo | bold italic underline | bullist numlist',
+                toolbar: 'expand | undo redo | bold italic underline | bullist numlist',
                 statusbar: false,
                 branding: false,
                 theme: 'modern',
@@ -178,31 +117,37 @@ export default {
     created: function() {
         this.initTerm = JSON.parse(JSON.stringify(this.editTerm));
         tinymce.baseURL = "../node_modules/tinymce";
-       
+
         console.log('created');
-       
+
     },
     mounted: function() {
-       
+
     },
     methods: {
+        preventEnter: function(e) {
+            if (e.keyCode === 13) {
+                console.log(e);
+                e.preventDefault();
+            }
+        },
         changed: function() { },
         addTerm: function() {
             this.$emit('input', this.editTerm);
+        },
+        expand: function() {
+            this.$router.push('home');
         },
         updateTerm: function() {
             if (this.editTerm.id == 0 && this.editTerm.term_name.length) {
                 var addedTerm = JSON.parse(JSON.stringify(this.editTerm));
                 addedTerm.id = this.generateId();
                 this.termList.push(addedTerm);
-                this.initTerm = JSON.parse(JSON.stringify(this.emptyTerm));
-                tinymce.get('nameEditor').setContent('');
+               // this.initTerm = JSON.parse(JSON.stringify(this.emptyTerm));
+                this.editTerm.term_name = "";
+                this.editTerm.term_description = "";
                 tinymce.get('descriptionEditor').setContent('');
             }
-        },
-        removeTerm: function() {
-            // emit remove request to parent
-            this.$root.$emit('removeTerm', this.editTerm.id);
         },
         generateId: function() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -214,6 +159,6 @@ export default {
     },
     watch: {
     }
-   
+
 }
 </script>

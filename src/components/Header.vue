@@ -5,10 +5,7 @@ html {
 }
 body {
     height: 100%;
-   
     overflow-y: scroll;
-
-
 }
 
 .flex {
@@ -46,11 +43,19 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
     table-layout: fixed;
     width:100%;
     max-width:100%;
+    border-collapse: separate;
 }
 .name{
-    width:180px;
+    width:220px;
+    padding: 0px;
+    vertical-align: top;
 }
 
+.lightblue {
+    padding:5px !important;
+    line-height: 1.3;
+    font-size:1rem;
+}
 
 .table>tbody>tr>td {
    padding:2px;
@@ -77,14 +82,11 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
     color:grey;
 }
 
-.relationtable tr td:nth-child(2) {
-    min-width: 16em;
+.relationtable tbody tr td:nth-child(4) {
+    width:40px;
 }
-.relationtable tr td:nth-child(1) {
-    min-width: 30em;
-}
-.relationtable tr td:nth-child(3) {
-    min-width: 30em;
+.termtable tbody tr td:nth-child(3) {
+    width:40px;
 }
 
 
@@ -108,6 +110,15 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
 }
 .unactive {
     color:lightgrey;
+}
+.overflow {
+    overflow: hidden;
+}
+.iconbutton {
+    width:50px;
+}
+.lightblue {
+    border-color:lightblue !important;
 }
 .filterInput {
     padding:0.1rem 0.5rem 0.1rem 0.5rem !important;
@@ -210,6 +221,9 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
 .float-right {
     float:right;
 }
+.div-border {
+    border: 1px solid grey;
+}
 
 
 .nav .dropdown-item {
@@ -265,6 +279,19 @@ h3  {
 .menu-right {
     font-size: 1rem;
     margin-right: 0px;
+}
+.lineContainer {
+    overflow: hidden; /* clear the float */
+  
+}
+.left {
+    padding-top:6px;
+    width: 30px;
+
+}
+.right {
+    overflow: hidden;
+    background: #ccc
 }
 
 </style>
