@@ -50,6 +50,11 @@
             <div class="inline-edit-cell def tinymce-inline">
                 <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
             </div>
+            <div v-if="editTerm.id===0" class="inline-edit-cell iconbutton">
+                 <a  href="#" class='iconbutton'  v-on:click="updateTerm()" >
+                                    <i class="fa fa-check-circle" aria-hidden="true"></i>
+                </a>
+            </div>
         </div>
     </div>
 </template>

@@ -97,6 +97,8 @@ export default {
                 statusbar: false,
                 branding: false,
                 theme: 'modern',
+                  statusbar: true,
+                  resize:true,
                 content_css: 'css/app_mce.css',
                 paste_as_text: true,
                 mode: "textareas",

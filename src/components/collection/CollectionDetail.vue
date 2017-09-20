@@ -148,10 +148,10 @@
                             <td></td>
                         </tr>
                         <tr v-if="editMode&&editTermId===0">
-                            <td colspan="2">
+                            <td colspan="3">
                                 <editTermList :editTerm="newTerm" :termList="collection.terms"></editTermList>
                             </td>
-                            <td></td>
+                          
                         </tr>
                         <tr class="" v-for="term in filteredList" v-on:click="editTermId=editMode?term.id:0">
                             <td v-if="!editMode" v-bind:class="{compact:viewType===1, name:1}">
@@ -357,8 +357,9 @@ export default {
                 skin: 'lightgray',
                 menubar: false,
                 toolbar: 'undo redo | bold italic underline | bullist numlist',
-                statusbar: false,
+                statusbar: true,
                 branding: false,
+                 resize: true,
                 theme: 'modern',
                 content_css: 'css/app_mce.css',
                 paste_as_text: true,
