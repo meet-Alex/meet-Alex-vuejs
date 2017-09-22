@@ -1,38 +1,33 @@
 <style>
 
 </style>
-
 <template>
     <div class="container flex">
-        <div class="flex01">
-            <b-breadcrumb :items="breadCrum" />
-        </div>
+        <b-breadcrumb :items="breadCrum" />
         <!-- Collection title and action menu -->
-        <div class="flex01">
-            <table style="width: 100%;">
-                <tr>
-                    <td class="compact title-header">
-                        Collection: {{collection.collection_name}}
-                    </td>
-                    <td align="right">
-                        <b-form-checkbox id="checkbox1" v-model="editMode">
-                            Edit
-                        </b-form-checkbox>
-                        <b-nav class="float-right">
-                            <b-nav-item-dropdown :disabled="$route.params.id==='new'" text="Actions" right title='Actions for this collection'>
-                                <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
-                                <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
-                                <b-dropdown-divider></b-dropdown-divider>
-                                <b-dropdown-item title="***todo***">Archive</b-dropdown-item>
-                            </b-nav-item-dropdown>
-                        </b-nav>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="flex01">
-            <b-form-radio id="viewTab" class="mb-4" v-on:change="changeTab" buttons v-model="selectedTab" :options="showTab" />
-        </div>
+
+        <table style="width: 100%;">
+            <tr>
+                <td class="compact title-header">
+                    Collection: {{collection.collection_name}}
+                </td>
+                <td align="right">
+                    <b-form-checkbox id="checkbox1" v-model="editMode">
+                        Edit
+                    </b-form-checkbox>
+                    <b-nav class="float-right">
+                        <b-nav-item-dropdown :disabled="$route.params.id==='new'" text="Actions" right title='Actions for this collection'>
+                            <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
+                            <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
+                            <b-dropdown-divider></b-dropdown-divider>
+                            <b-dropdown-item title="***todo***">Archive</b-dropdown-item>
+                        </b-nav-item-dropdown>
+                    </b-nav>
+                </td>
+            </tr>
+        </table>
+
+        <b-form-radio id="viewTab" class="mb-4" v-on:change="changeTab" buttons v-model="selectedTab" :options="showTab" />
 
         <!-- Collection Tab =================== -->
 
@@ -45,14 +40,8 @@
                 <span v-if="!editMode">{{collection.collection_name}}</span>
 
                 <h3>Description</h3>
-                <!-- This contains a bug: https://github.com/bootstrap-vue/bootstrap-vue/issues/833
-                                                                        <b-form-input textarea :readonly="Boolean(false)" v-model="collection.collection_description"></b-form-input> -->
-                <!-- <input :disabled="!editMode" v-model="collection.collection_description" class="form-control filterInput" placeholder="Provide name"> -->
-                <!--
-                                        <b-form-input v-if="editMode" v-model="collection.collection_description" placeholder="Provide description"></b-form-input>
-                                    -->
                 <div v-if="editMode">
-                    <tinymce id="nameEditor" v-model="collection.collection_description" :options="tinymceOptions" @change="changed" ></tinymce>
+                    <tinymce id="nameEditor" v-model="collection.collection_description" :options="tinymceOptions" @change="changed"></tinymce>
                 </div>
                 <div v-if="!editMode" v-html="collection.collection_description"></div>
 
@@ -100,40 +89,11 @@
 
         <!-- Terms Tab =================== -->
         <div v-if="selectedTab==='terms'" class="flex">
-            <!-- Filter input and menu =================== -->
-            <div class="flex01 ">
-                <table style="width: 100%;">
-                    <tr>
-                        <td style="width: 20em">
-                            <input :disabled="viewType === 2" v-model="filter" class="form-control filterInput" placeholder="Type to filter...">
-                        </td>
-                        <td align="right">
-                            <b-nav class="float-right">
-                                <b-nav-item-dropdown :disabled="viewType===2" text="Sort" right title='Sort the collections'>
-                                    <b-dropdown-item v-on:click="sortType=1">Name</b-dropdown-item>
-                                    <b-dropdown-item v-on:click="sortType=2">Created</b-dropdown-item>
-                                    <b-dropdown-item v-on:click="sortType=3">Changed</b-dropdown-item>
-                                </b-nav-item-dropdown>
-                                <b-nav-item-dropdown text="Display" right title='Change the overview of the collections'>
-                                    <b-dropdown-item v-on:click="viewType=0">Full</b-dropdown-item>
-                                    <b-dropdown-item v-on:click="viewType=1">Compact</b-dropdown-item>
-                                    <b-dropdown-item v-on:click="viewType=2">Index</b-dropdown-item>
-                                </b-nav-item-dropdown>
-                            </b-nav>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class='tableContent' ref='tabcontent'>
-                <!--    <vue-scrollbar classes="my-scrollbar" v-bind:style="{ 'max-height': tabheight + 'px' }">
-                                        <div class='scroll-me'>
-                                -->
-                <!-- add new term -->
 
-                <!--   <editTermList v-if="editMode" :editTerm="newTerm"></editTermList> -->
+            <tablemenu v-model="tableMenu" :showSortAuth='false' :showMenu="true" />
+            <div class='tableContent' ref='tabcontent'>
                 <!-- List of terms =================== -->
-                <table v-if="viewType<2" class="table termtable">
+                <table v-if="tableMenu.viewType!==globalData.VIEWTYPE.INDEX" class="table termtable">
                     <tbody>
                         <tr>
                             <td class="name bold">Term name</td>
@@ -151,21 +111,21 @@
                             <td colspan="3">
                                 <editTermList :editTerm="newTerm" :termList="collection.terms"></editTermList>
                             </td>
-                          
+
                         </tr>
                         <tr class="" v-for="term in filteredList" v-on:click="editTermId=editMode?term.id:0">
-                            <td v-if="!editMode" v-bind:class="{compact:viewType===1, name:1}">
-                                <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, filter)"></router-link>
+                            <td v-if="!editMode" v-bind:class="{compact:tableMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}">
+                                <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, tableMenu.filter)"></router-link>
                             </td>
-                            <td v-if="editMode && editTermId != term.id" v-bind:class="{compact:viewType===1, name:1}" v-html="$options.filters.highlight(term.term_name, filter)">
+                            <td v-if="editMode && editTermId != term.id" v-bind:class="{compact:tableMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}" v-html="$options.filters.highlight(term.term_name, tableMenu.filter)">
                             </td>
-                            <td v-if="editTermId != term.id" v-bind:class="{compact:viewType===1, def:1}" v-html="$options.filters.highlight(term.term_definition, filter)">
+                            <td v-if="editTermId != term.id" v-bind:class="{compact:tableMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}" v-html="$options.filters.highlight(term.term_definition, tableMenu.filter)">
                             </td>
                             <td colspan="2" v-if="editTermId == term.id && editMode">
                                 <editTermList :editTerm="term" :termList="collection.terms"></editTermList>
                             </td>
                             <td>
-                                 <a v-if="editTermId == term.id && editMode" href="#" class='iconbutton'  v-on:click="removeTerm(term.id, $event)" >
+                                <a v-if="editTermId == term.id && editMode" href="#" class='iconbutton' v-on:click="removeTerm(term.id, $event)">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </a>
                             </td>
@@ -173,39 +133,16 @@
                     </tbody>
                 </table>
                 <!-- Index of terms =================== -->
-                <table v-if="viewType===2" class="table borderless">
-                    <tbody>
-                        <tr v-bind:class="{greyRow:indexLine.letter!==''}" v-for="indexLine in termIndex">
-                            <td class="letter">
-                                {{ indexLine.letter }}
-                            </td>
-                            <td class="compact" v-for="term in indexLine.col">
-                                <router-link :to="{ name: 'termDetail', params: { id: term.id } }">{{ term.name }}</router-link>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <tableindex v-if="tableMenu.viewType===globalData.VIEWTYPE.INDEX && collection.terms.length" :displayName="'term_name'" :routerName="'termDetail'" :inputArray="collection.terms" />
             </div>
-            <!--        
-                                    </vue-scrollbar>
-                                </div>
-                                -->
-            <!--tableContent-->
         </div>
 
         <!-- Relations Tab =================== -->
-        <div v-if="selectedTab==='relations'" class="flex">
+        <div v-if="selectedTab==='relations'">
             <!-- Filter input and menu =================== -->
-            <table style="width: 100%;">
-                <tr>
-                    <td style="width: 20em">
-                        <input v-model="filterRelation" class="form-control filterInput" placeholder="Type to filter...">
-                    </td>
-                    <td>
 
-                    </td>
-                </tr>
-            </table>
+            <input style="width: 20em" v-model="filterRelation" class="form-control filterInput" placeholder="Type to filter...">
+
             <!-- List of relations =================== -->
 
             <div class='tableContent' ref='tabcontent'>
@@ -228,7 +165,7 @@
                             </td>
                             <td></td>
                             <td></td>
-                             <td></td>
+                            <td></td>
                         </tr>
                         <tr v-if="editMode&&editRelationId===0">
                             <td ref='newRelFocus'>
@@ -240,7 +177,7 @@
                             <td>
                                 <autocomplete :new="true" :suggestions="collection.terms" v-model="newRelation.object" :displayName="newRelation.object.term_name"></autocomplete>
                             </td>
-                             <td></td>
+                            <td></td>
                         </tr>
                         <tr v-if="!editMode" class="" v-for="relation in filteredRelationList">
                             <td>
@@ -251,7 +188,7 @@
                             <td>
                                 <router-link :to="{ name: 'termDetail', params: { id: relation.object.id } }" v-html="$options.filters.highlight(relation.object.term_name, filterRelation)"></router-link>
                             </td>
-                             <td></td>
+                            <td></td>
                         </tr>
                         <tr v-if="editMode" v-on:click="clickTest(relation.id)" v-for="(relation, index) in filteredRelationList">
                             <td v-if="relation.id!==editRelationId">
@@ -274,9 +211,9 @@
                             <td v-if="relation.id===editRelationId">
                                 <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.object" :displayName="relation.object.term_name"></autocomplete>
                             </td>
-                            
+
                             <td>
-                                <a v-if="relation.id===editRelationId" href="#" class='iconbutton'  v-on:click="removeRelation(relation.id, $event)">
+                                <a v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="removeRelation(relation.id, $event)">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </a>
                             </td>
@@ -291,14 +228,16 @@
 
 <script>
 
-//import VueTinyMCE from 'vue-tinymce';
-
-
+import globalData from '../../global_data';
+import tablemenu from '../../plugins/tablemenu.vue';
+import tableindex from '../../plugins/tableindex.vue';
 
 export default {
-
+    components: { tablemenu, tableindex, globalData },
     data() {
         return {
+            tableMenu: { filter: "", viewType: globalData.VIEWTYPE.FULL, sortType: globalData.SORTTYPE.NAME },
+            globalData: globalData,
             selection: '',
             suggestions: [
                 { city: 'Bangalore', state: 'Karnataka' },
@@ -314,13 +253,9 @@ export default {
             editRelationId: 0,
             collection: [],
             letters: [],
-            viewType: 0,
             termIndex: [],
             editMode: false,
             relationList: [],
-  
-            sortType: 1,
-            filter: "",
             content: '',
             filterRelation: "",
             relationTableSort: { column: "Subject", o1: "subject", o2: "term_name", order: 1 },
@@ -359,7 +294,7 @@ export default {
                 toolbar: 'undo redo | bold italic underline | bullist numlist',
                 statusbar: true,
                 branding: false,
-                 resize: true,
+                resize: true,
                 theme: 'modern',
                 content_css: 'css/app_mce.css',
                 paste_as_text: true,
@@ -375,10 +310,7 @@ export default {
     created: function() {
         tinymce.baseURL = "../node_modules/tinymce";
         var that = this;
-       
         this.$root.$on('addRelation', function() {
-            console.log('addRelation', that.newRelation);
-
             if (that.newRelation.subject.term_name.length &&
                 that.newRelation.subject.term_name.length &&
                 that.newRelation.name.length) {
@@ -410,7 +342,6 @@ export default {
 
             //***todo*** this should come from the API
             this.collection = {
-
                 "id": -1,
                 "parent_id": null,
                 "collection_name": "",
@@ -431,7 +362,6 @@ export default {
                 "links": []
             }
         }
-
     },
     computed: {
         filteredList: function() {
@@ -439,11 +369,10 @@ export default {
             var self = this;
             var result = this.collection.terms.filter(
                 function(term) {
-                    return (term.term_name.toLowerCase().indexOf(self.filter.toLowerCase()) >= 0) ||
-                        (term.term_definition && term.term_definition.toLowerCase().indexOf(self.filter.toLowerCase()) >= 0)
-
+                    return (term.term_name.toLowerCase().indexOf(self.tableMenu.filter.toLowerCase()) >= 0) ||
+                        (term.term_definition && term.term_definition.toLowerCase().indexOf(self.tableMenu.filter.toLowerCase()) >= 0)
                 });
-            return result.sort((a, b) => (this.sortType === 2) ? a.created_at.localeCompare(b.created_at) : (this.sortType === 3) ? a.updated_at.localeCompare(b.updated_at) : a.term_name.localeCompare(b.term_name));
+            return result.sort((a, b) => (this.tableMenu.sortType === globalData.SORTTYPE.CREATED) ? a.created_at.localeCompare(b.created_at) : (this.tableMenu.sortType === globalData.SORTTYPE.UPDATED) ? a.updated_at.localeCompare(b.updated_at) : a.term_name.localeCompare(b.term_name));
         },
         filteredRelationList: function() {
             if (!this.relationList.length) return null;
@@ -467,19 +396,16 @@ export default {
     methods: {
         removeTerm: function(id, event) {
             this.collection.terms = this.collection.terms.filter(function(term) {
-                // console.log(term);
                 return term.id != id;
-                
+
             });
-             if (event) event.stopPropagation();
+            if (event) event.stopPropagation();
         },
-         removeRelation: function(id, event) {
+        removeRelation: function(id, event) {
             this.relationList = this.relationList.filter(function(relation) {
-                // console.log(term);
                 return relation.id != id;
-                
             });
-             if (event) event.stopPropagation();
+            if (event) event.stopPropagation();
         },
         generateId: function() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -494,16 +420,11 @@ export default {
         },
         addTerm: function() {
             console.log(this.newTerm);
-
-
         },
-        changed: function(editor, content) { },
-
-
+        changed: function(editor, content) { 
+        },
         changeTab: function(value) {
-
         },
-
         fetchCollection: function() {
             this.$http.get('collections/' + this.$route.params.id)
                 .then(response => {
@@ -514,52 +435,16 @@ export default {
                     this.collection = data;
                     //fill breadcrum
                     this.breadCrum[2].text = this.collection.collection_name;
-                    this.makeIndex(4);
+                 
                     this.makeRelations();
                     this.collection.public = this.collection.public.toString();
                     this.collection.receive_notifications = this.collection.receive_notifications.toString();
-                    
+
                 }
                 ,
                 function(error) {
                     console.log(error);
-                    var data = error.data;
-                    this.collection = data;
-                    //fill breadcrum
-                    this.breadCrum[2].text = this.collection.collection_name;
-                    this.makeIndex(4);
-                    this.makeRelations();
-                    this.collection.public = this.collection.public.toString();
-                    this.collection.receive_notifications = this.collection.receive_notifications.toString();
                 });
-
-
-
-        },
-        makeIndex: function(nrOfColumns) {
-            var thisTerm, prevTerm;
-            thisTerm = this.collection.terms[0];
-            var indexLine = {
-                letter: thisTerm.term_name[0],
-                col: []
-            };
-            indexLine.col.push({
-                name: thisTerm.term_name,
-                id: thisTerm.id
-            });
-            for (var i = 1; i < this.collection.terms.length; i++) {
-                thisTerm = this.collection.terms[i];
-                prevTerm = this.collection.terms[i - 1];
-                if (thisTerm.term_name[0] != prevTerm.term_name[0] || indexLine.col.length >= nrOfColumns) {
-                    this.termIndex.push(indexLine);
-                    indexLine = {
-                        letter: (thisTerm.term_name[0] != prevTerm.term_name[0]) ? thisTerm.term_name[0] : "",
-                        col: []
-                    }
-                }
-                indexLine.col.push({ name: thisTerm.term_name, id: thisTerm.id });
-            }
-            this.termIndex.push(indexLine);
         },
         makeRelations: function() {
             var ontology, term, orgRelation;
@@ -578,7 +463,6 @@ export default {
                         relation.object = term;
                     }
                     if (ontology.subject && ontology.subject) {
-
                         break;
                     }
                 }
@@ -590,7 +474,6 @@ export default {
                     }
                 }
                 this.relationList.push({ id: relation.id, object: relation.object, name: relation.name, subject: relation.subject });
-
             }
             console.log(this.relationList);
         },

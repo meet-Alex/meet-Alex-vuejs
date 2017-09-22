@@ -13,6 +13,7 @@ import 'font-awesome/css/font-awesome.css';
 import VueTinymce from './plugins/vue-tinymce';
 import EditTermList from './plugins/edit-term-list';
 import Autocomplete from './plugins/autocomplete';
+import store from './store/store';
 
 Vue.use(VueTinymce);
 Vue.use(Autocomplete);
@@ -21,11 +22,7 @@ Vue.use(BootstrapVue);
 Vue.use(VueRouter);
 Vue.use(VueResource);
 
-
 /*Vue.http.options.root = 'http://localhost/meet-alex/public/index.php/api/';*/
-
-
-
 
 Vue.http.options.root = 'http://localhost/meet-Alex/public/index.php/api/';
 

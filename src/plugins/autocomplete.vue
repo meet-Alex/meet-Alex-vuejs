@@ -115,14 +115,10 @@ export default {
         this.open = true
         this.current = 0
       }
-      console.log(value);
-    // this.$emit('input', value)
-    // this.$emit('input', this.matches[this.current])
     },
 
     // When enter pressed on the input
     enter () {
-        console.log(this.matches[this.current]);
       this.$emit('input', this.matches[this.current])
       this.searchName=this.matches[this.current].term_name;
       this.open = false
