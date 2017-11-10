@@ -55,7 +55,7 @@
                      globalData.userInfo.email=this.form.email;
                      globalData.userInfo.token=data.token;
                      console.log(globalData.userInfo)})
-                    this.$router.push('collections')
+                  //  this.$router.push('collections')
             },
             onSubmit: function(evt) {
                 evt.preventDefault();

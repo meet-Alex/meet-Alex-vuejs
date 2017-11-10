@@ -22,8 +22,6 @@ Vue.use(BootstrapVue);
 Vue.use(VueRouter);
 Vue.use(VueResource);
 
-/*Vue.http.options.root = 'http://localhost/meet-alex/public/index.php/api/';*/
-
 Vue.http.options.root = 'http://localhost/meet-Alex/public/index.php/api/';
 
 const router = new VueRouter({

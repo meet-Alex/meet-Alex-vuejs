@@ -1,10 +1,12 @@
 <template>
     <div class="container">
-
+        <br>
         <b-breadcrumb :items="breadCrum" />
+        
 
         <span class='title-header'>Overview collections</span>
-        <a class="float-right" href="\collections\new" title='Create a new collection'>Create collection</a>
+        <a class="btn btn-primary btn-xs float-right" href="\collections\new" title='Create a new collection'>Create collection</a> <br>
+       
 
         <tablemenu v-model="tableMenu" :showSortAuth='true' :showMenu="true" />
         <div class='tableContent' ref='tabcontent'>
@@ -19,7 +21,7 @@
                                 <span class='info-badge' v-if="collection.authorisation===globalData.AUTHTYPE.CONTRIBUTOR" variant="info" title="You can edit this collection">Contributor</span>
                                 <span class='info-badge' v-if="collection.authorisation===globalData.AUTHTYPE.OWNER" variant="info" title="You are the owner of this collection">Owner</span>
                             </td>
-                            <td v-bind:class="{compact:tableMenu.viewType===1, def:1}">
+                            <td v-bind:class="{compact:tableMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}">
                                 <div v-html="$options.filters.highlight(collection.collection_description, tableMenu.filter)"> </div>
                                 <div>
                                     <span class='subscript'>
@@ -126,3 +128,9 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.table {
+    border:1px solid grey;
+}
+</style>
