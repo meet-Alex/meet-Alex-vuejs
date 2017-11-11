@@ -27,9 +27,7 @@
     display: default;
     color:grey;
 }
-.active {
-    color:red;
-}
+
 .inline {
   
 }

@@ -12,11 +12,11 @@
                 <td align="right">
 
                     <b-nav class="float-right">
-                      
+
                         <b-form-checkbox v-model="editMode">
                             Edit
                         </b-form-checkbox>
-                    
+
                         <b-nav-item-dropdown :disabled="$route.params.id==='new'" text="Actions" right title='Actions for this collection'>
                             <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
                             <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
@@ -28,200 +28,203 @@
             </tr>
         </table>
 
-        <b-form-radio-group id="viewTab" class="mb-4"  v-on:change="changeTab" buttons v-model="selectedTab" :options="showTab" />
+        <b-card no-body>
+            <b-tabs small card v-model="selectedTab">
+                <!-- Collection Tab =================== -->
+                <b-tab title="Collection">
+                    <h3>Name</h3>
+                    <!--  :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input> -->
+                    <b-form-input v-if="editMode" v-model="collection.collection_name" class="form-control filterInput" placeholder="Provide name"></b-form-input>
+                    <span v-if="!editMode">{{collection.collection_name}}</span>
 
-        <!-- Collection Tab =================== -->
+                    <h3>Description</h3>
+                    <div v-if="editMode">
+                        <tinymce id="nameEditor" v-model="collection.collection_description" :options="tinymceOptions" @change="tinyMCE_Changed"></tinymce>
+                    </div>
+                    <div v-if="!editMode" v-html="collection.collection_description"></div>
 
-        <div v-if="selectedTab==='collection'" class="flex">
-            <div class='tableContent' ref='tabcontent'>
+                    <h3>Settings</h3>
 
-                <h3>Name</h3>
-                <!--  :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input> -->
-                <b-form-input v-if="editMode" v-model="collection.collection_name" class="form-control filterInput" placeholder="Provide name"></b-form-input>
-                <span v-if="!editMode">{{collection.collection_name}}</span>
+                    <b-form-checkbox :disabled="!editMode" v-model="collection.receive_notifications" value="1" unchecked-value="0">
+                        Notifications
+                    </b-form-checkbox> <br>
+                    <b-form-checkbox :disabled="!editMode" v-model="collection.public" value="1" unchecked-value="0">
+                        Public
+                    </b-form-checkbox>
+                    <br>
 
-                <h3>Description</h3>
-                <div v-if="editMode">
-                    <tinymce id="nameEditor" v-model="collection.collection_description" :options="tinymceOptions" @change="changed"></tinymce>
-                </div>
-                <div v-if="!editMode" v-html="collection.collection_description"></div>
+                    <b-button v-if="$route.params.id==='new'" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
+                    <b-button v-if="editMode&&$route.params.id!=='new'" variant="primary" size="sm">Update</b-button>
 
-                <h3>Settings</h3>
-
-                <b-form-checkbox :disabled="!editMode"  v-model="collection.receive_notifications" value="1" unchecked-value="0">
-                    Notifications
-                </b-form-checkbox> <br>
-                <b-form-checkbox :disabled="!editMode"  v-model="collection.public" value="1" unchecked-value="0">
-                    Public
-                </b-form-checkbox>
-                <br>
-
-                <b-button v-if="$route.params.id==='new'" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
-                <b-button v-if="editMode&&$route.params.id!=='new'" variant="primary" size="sm">Update</b-button>
-
-                <h3>Statistics</h3>
-                <table class="infotable">
-                    <tr>
-                        <td>Nr of terms</td>
-                        <td>{{collection.terms?collection.terms.length:0}}</td>
-                    </tr>
-                    <tr>
-                        <td>Nr of relations</td>
-                        <td>{{collection.ontologies?collection.ontologies.length:0}}</td>
-                    </tr>
-                    <tr>
-                        <td>Created by</td>
-                        <td>{{collection.owner?collection.owner.name:""}}</td>
-                    </tr>
-                    <tr>
-                        <td>Creation date</td>
-                        <td>{{collection.created_at}}</td>
-                    </tr>
-                    <tr>
-                        <td>Last update</td>
-                        <td>{{collection.updated_at}}</td>
-                    </tr>
-                </table>
-                <br>
-                <h3>Followers</h3>
-                ***todo***
-            </div>
-        </div>
-
-        <!-- Terms Tab =================== -->
-        <div v-if="selectedTab==='terms'" class="flex">
-
-            <tablemenu v-model="termMenu" :showSortAuth='false' :showMenu="true" />
-            <div class='tableContent' ref='tabcontent'>
-                <!-- List of terms =================== -->
-                <table v-if="termMenu.viewType!==globalData.VIEWTYPE.INDEX" class="table termtable">
-                    <tbody>
+                    <h3>Statistics</h3>
+                    <table class="infotable">
                         <tr>
-                            <td class="name bold">Term name</td>
-                            <td class="def bold">Term description</td>
-                            <td></td>
+                            <td>Nr of terms</td>
+                            <td>{{collection.terms?collection.terms.length:0}}</td>
                         </tr>
-                        <tr v-if="editMode&&editTermId!==0">
-                            <td>
-                                <b-button v-on:click="editTermId=0" variant="default" size="sm">New term</b-button>
-                            </td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr v-if="editMode&&editTermId===0">
-                            <td colspan="3">
-                                <editTermList :editTerm="newTerm" :termList="collection.terms"></editTermList>
-                            </td>
-
-                        </tr>
-                        <tr class="" v-for="term in filteredList" v-on:click="editTermId=editMode?term.id:0">
-                            <td v-if="!editMode" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}">
-                                <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, termMenu.filter)"></router-link>
-                            </td>
-                            <td v-if="editMode && editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}" v-html="$options.filters.highlight(term.term_name, termMenu.filter)">
-                            </td>
-                            <td v-if="editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}" v-html="$options.filters.highlight(term.term_definition, termMenu.filter)">
-                            </td>
-                            <td colspan="2" v-if="editTermId == term.id && editMode">
-                                <editTermList :editTerm="term" :termList="collection.terms"></editTermList>
-                            </td>
-                            <td>
-                                <a v-if="editTermId == term.id && editMode" href="#" class='iconbutton' v-on:click="removeTerm(term.id, $event)">
-                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <!-- Index of terms =================== -->
-                <tableindex v-if="termMenu.viewType===globalData.VIEWTYPE.INDEX && collection.terms.length" :displayName="'term_name'" :routerName="'termDetail'" :inputArray="collection.terms" />
-            </div>
-        </div>
-
-        <!-- Relations Tab =================== -->
-        <div v-if="selectedTab==='relations'">
-            <!-- Filter input and menu =================== -->
-             <tablemenu v-model="relationMenu" :showSortAuth='false' :showMenu="false" />
-            <!-- List of relations =================== -->
-
-            <div class='tableContent' ref='tabcontent'>
-
-                <table class="table relationtable">
-                    <tbody>
                         <tr>
-                            <td v-for="column in ['Subject', 'Relation', 'Object']">
-                                <a href="#" v-on:click="sortBy(column)">{{column}}</a>
-                                <i v-if="column===relationTableSort.column&&relationTableSort.order===1" class="fa fa-sort-desc"></i>
-                                <i v-if="column===relationTableSort.column&&relationTableSort.order===-1" class="fa fa-sort-asc"></i>
-                                <i v-if="column!==relationTableSort.column" class="fa fa-sort unactive"></i>
-                            </td>
-                            <td>
-                            </td>
+                            <td>Nr of relations</td>
+                            <td>{{collection.ontologies?collection.ontologies.length:0}}</td>
                         </tr>
-                        <tr v-if="editMode&&editRelationId!==0">
-                            <td>
-                                <b-button v-on:click="editRelationId=0" variant="default" size="sm">New Relation</b-button>
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                        <tr>
+                            <td>Created by</td>
+                            <td>{{collection.owner?collection.owner.name:""}}</td>
                         </tr>
-                        <tr v-if="editMode&&editRelationId===0">
-                            <td ref='newRelFocus'>
-                                <autocomplete :new="true" :suggestions="collection.terms" v-model="newRelation.subject" :displayName="newRelation.subject.term_name"></autocomplete>
-                            </td>
-                            <td>
-                                <input class="form-control lightblue" type="text" v-model="newRelation.name">
-                            </td>
-                            <td>
-                                <autocomplete :new="true" :suggestions="collection.terms" v-model="newRelation.object" :displayName="newRelation.object.term_name"></autocomplete>
-                            </td>
-                            <td></td>
+                        <tr>
+                            <td>Creation date</td>
+                            <td>{{collection.created_at}}</td>
                         </tr>
-                        <tr v-if="!editMode" class="" v-for="relation in filteredRelationList">
-                            <td>
-                                <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, relationMenu.filter)"></router-link>
-                            </td>
-                            <td v-html="$options.filters.highlight(relation.name, relationMenu.filter)">
-                            </td>
-                            <td>
-                                <router-link :to="{ name: 'termDetail', params: { id: relation.object.id } }" v-html="$options.filters.highlight(relation.object.term_name, relationMenu.filter)"></router-link>
-                            </td>
-                            <td></td>
+                        <tr>
+                            <td>Last update</td>
+                            <td>{{collection.updated_at}}</td>
                         </tr>
-                        <tr v-if="editMode" v-on:click="clickTest(relation.id)" v-for="(relation, index) in filteredRelationList">
-                            <td v-if="relation.id!==editRelationId">
-                                {{relation.subject.term_name}}
-                            </td>
-                            <td v-if="relation.id===editRelationId">
-                                <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.subject" :displayName="relation.subject.term_name"></autocomplete>
-                            </td>
+                    </table>
+                    <br>
+                    <h3>Followers</h3>
+                    ***todo***
+                </b-tab>
 
-                            <td v-if="relation.id!==editRelationId">
-                                {{relation.name}}
-                            </td>
-                            <td v-if="relation.id===editRelationId">
-                                <input class="form-control lightblue" type="text" v-model="relation.name">
-                            </td>
+                <!-- Terms Tab =================== -->
 
-                            <td v-if="relation.id!==editRelationId">
-                                {{relation.object.term_name}}
-                            </td>
-                            <td v-if="relation.id===editRelationId">
-                                <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.object" :displayName="relation.object.term_name"></autocomplete>
-                            </td>
+                <b-tab title="Terms" class='nopadding'>
 
-                            <td>
-                                <a v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="removeRelation(relation.id, $event)">
-                                    <i class="fa fa-trash" aria-hidden="true"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <a href="#"></a>
-            </div>
-        </div>
+                    <tablemenu v-model="termMenu" :showSortAuth='false' :showMenu="true" />
+                    <div class='tableContent' ref='tabcontent'>
+                        <!-- List of terms =================== -->
+                        <table v-if="termMenu.viewType!==globalData.VIEWTYPE.INDEX" class="table termtable">
+                            <tbody>
+                                <tr>
+                                    <td class="name bold">Term name</td>
+                                    <td class="def bold">Term description</td>
+                                    <td></td>
+                                </tr>
+                                <tr v-if="editMode&&editTermId!==0">
+                                    <td>
+                                        <b-button v-on:click="editTermId=0" variant="default" size="sm">New term</b-button>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr v-if="editMode&&editTermId===0">
+                                    <td colspan="3">
+                                        <editTermList :editTerm="newTerm" :termList="collection.terms"></editTermList>
+                                    </td>
+
+                                </tr>
+                                <tr class="" v-for="term in filteredList" v-on:click="editTermId=editMode?term.id:0">
+                                    <td v-if="!editMode" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}">
+                                        <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, termMenu.filter)"></router-link>
+                                    </td>
+                                    <td v-if="editMode && editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}" v-html="$options.filters.highlight(term.term_name, termMenu.filter)">
+                                    </td>
+                                    <td v-if="editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}" v-html="$options.filters.highlight(term.term_definition, termMenu.filter)">
+                                    </td>
+                                    <td colspan="2" v-if="editTermId == term.id && editMode">
+                                        <editTermList :editTerm="term" :termList="collection.terms"></editTermList>
+                                    </td>
+                                    <td>
+                                        <a v-if="editTermId == term.id && editMode" href="#" class='iconbutton' v-on:click="removeTerm(term.id, $event)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!-- Index of terms =================== -->
+                        <tableindex v-if="termMenu.viewType===globalData.VIEWTYPE.INDEX && collection.terms.length" :displayName="'term_name'" :routerName="'termDetail'" :inputArray="collection.terms" />
+                    </div>
+                </b-tab>
+
+                <!-- Relations Tab =================== -->
+                <b-tab title="Relations">
+                    <!-- Filter input and menu =================== -->
+                    <tablemenu v-model="relationMenu" :showSortAuth='false' :showMenu="false" />
+                    <!-- List of relations =================== -->
+
+                    <div class='tableContent' ref='tabcontent'>
+
+                        <table class="table relationtable">
+                            <tbody>
+                                <tr>
+                                    <td v-for="column in ['Subject', 'Relation', 'Object']">
+                                        <a href="#" v-on:click="sortBy(column)">{{column}}</a>
+                                        <i v-if="column===relationTableSort.column&&relationTableSort.order===1" class="fa fa-sort-desc"></i>
+                                        <i v-if="column===relationTableSort.column&&relationTableSort.order===-1" class="fa fa-sort-asc"></i>
+                                        <i v-if="column!==relationTableSort.column" class="fa fa-sort unactive"></i>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr v-if="editMode&&editRelationId!==0">
+                                    <td>
+                                        <b-button v-on:click="editRelationId=0" variant="default" size="sm">New Relation</b-button>
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <tr v-if="editMode&&editRelationId===0">
+                                    <td ref='newRelFocus'>
+                                        <autocomplete :new="true" :suggestions="collection.terms" v-model="newRelation.subject" :displayName="newRelation.subject.term_name"></autocomplete>
+                                    </td>
+                                    <td>
+                                        <input class="form-control lightblue" type="text" v-model="newRelation.name">
+                                    </td>
+                                    <td>
+                                        <autocomplete :new="true" :suggestions="collection.terms" v-model="newRelation.object" :displayName="newRelation.object.term_name"></autocomplete>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr v-if="!editMode" class="" v-for="relation in filteredRelationList">
+                                    <td>
+                                        <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, relationMenu.filter)"></router-link>
+                                    </td>
+                                    <td v-html="$options.filters.highlight(relation.name, relationMenu.filter)">
+                                    </td>
+                                    <td>
+                                        <router-link :to="{ name: 'termDetail', params: { id: relation.object.id } }" v-html="$options.filters.highlight(relation.object.term_name, relationMenu.filter)"></router-link>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr v-if="editMode" v-on:click="clickTest(relation.id)" v-for="(relation, index) in filteredRelationList">
+                                    <td v-if="relation.id!==editRelationId">
+                                        {{relation.subject.term_name}}
+                                    </td>
+                                    <td v-if="relation.id===editRelationId">
+                                        <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.subject" :displayName="relation.subject.term_name"></autocomplete>
+                                    </td>
+
+                                    <td v-if="relation.id!==editRelationId">
+                                        {{relation.name}}
+                                    </td>
+                                    <td v-if="relation.id===editRelationId">
+                                        <input class="form-control lightblue" type="text" v-model="relation.name">
+                                    </td>
+
+                                    <td v-if="relation.id!==editRelationId">
+                                        {{relation.object.term_name}}
+                                    </td>
+                                    <td v-if="relation.id===editRelationId">
+                                        <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.object" :displayName="relation.object.term_name"></autocomplete>
+                                    </td>
+
+                                    <td>
+                                        <a v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="removeRelation(relation.id, $event)">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <a href="#"></a>
+                    </div>
+                </b-tab>
+                <!-- Graph Tab =================== -->
+                <b-tab title="Graph" disabled>
+                </b-tab>
+            </b-tabs>
+        </b-card>
+
     </div>
 </template>
 
@@ -238,25 +241,13 @@ export default {
             termMenu: { filter: "", viewType: globalData.VIEWTYPE.FULL, sortType: globalData.SORTTYPE.NAME },
             relationMenu: { filter: "", viewType: globalData.VIEWTYPE.FULL, sortType: globalData.SORTTYPE.NAME },
             globalData: globalData,
-            selection: '',
-            suggestions: [
-                { city: 'Bangalore', state: 'Karnataka' },
-                { city: 'Chennai', state: 'Tamil Nadu' },
-                { city: 'Delhi', state: 'Delhi' },
-                { city: 'Kolkata', state: 'West Bengal' },
-                { city: 'Mumbai', state: 'Maharashtra' }
-            ],
-            tabheight: 500,
             newRelation: { subject: { term_name: "" }, name: "", object: { term_name: "" }, id: 0 },
             newTerm: { id: 0, term_name: "", term_definition: "" },
             editTermId: 0,
             editRelationId: 0,
             collection: [],
-            letters: [],
-            termIndex: [],
             editMode: false,
             relationList: [],
-            content: '',
             relationTableSort: { column: "Subject", o1: "subject", o2: "term_name", order: 1 },
             breadCrum: [
                 {
@@ -271,18 +262,7 @@ export default {
                     active: true
                 }
             ],
-            viewOptions: [
-                { text: 'Full', value: 0 },
-                { text: 'Compact', value: 1 },
-                { text: 'Index', value: 2 }
-            ],
-            selectedTab: 'collection',
-            showTab: [
-                { text: 'Collection', value: 'collection' },
-                { text: 'Terms', value: 'terms' },
-                { text: 'Relations', value: 'relations' },
-                { text: 'Graph', value: 'graph', disabled: true }
-            ],
+            selectedTab: 0,
             tinymceOptions: {
                 setup: function(ed) {
                 },
@@ -295,7 +275,7 @@ export default {
                 branding: false,
                 resize: true,
                 theme: 'modern',
-                content_css: 'css/app_mce.css',
+                content_css: '/app_mce.css',
                 paste_as_text: true,
                 mode: "textareas",
                 force_br_newlines: false,
@@ -331,9 +311,9 @@ export default {
         if (this.$route.params.id !== 'new') {
             this.fetchCollection();
             if (this.$route.params.tab && this.$route.params.tab === 'terms') {
-                this.selectedTab = 'terms';
+                this.selectedTab = 1;
             } else if (this.$route.params.tab && this.$route.params.tab === 'relations') {
-                this.selectedTab = 'relations';
+                this.selectedTab = 2;
             }
 
         } else {
@@ -393,6 +373,9 @@ export default {
         }
     },
     methods: {
+        tinyMCE_Changed : function() {
+
+        },
         removeTerm: function(id, event) {
             this.collection.terms = this.collection.terms.filter(function(term) {
                 return term.id != id;
@@ -419,10 +402,6 @@ export default {
         },
         addTerm: function() {
             console.log(this.newTerm);
-        },
-        changed: function(editor, content) {
-        },
-        changeTab: function(value) {
         },
         fetchCollection: function() {
             this.$http.get('collections/' + this.$route.params.id)
@@ -487,9 +466,10 @@ export default {
 </script>
 <style scoped>
 .table {
-    border:1px solid grey;
+    border: 1px solid grey;
 }
+
 .nav-link {
-    padding:0px !important;
+    padding: 0px !important;
 }
 </style>
