@@ -10,13 +10,10 @@
                     Collection: {{collection.collection_name}}
                 </td>
                 <td align="right">
-
                     <b-nav class="float-right">
-
                         <b-form-checkbox v-model="editMode">
                             Edit
                         </b-form-checkbox>
-
                         <b-nav-item-dropdown :disabled="$route.params.id==='new'" text="Actions" right title='Actions for this collection'>
                             <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
                             <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
@@ -33,18 +30,14 @@
                 <!-- Collection Tab =================== -->
                 <b-tab title="Collection">
                     <h3>Name</h3>
-                    <!--  :readonly="Boolean(true)" v-model.trim="collection.collection_name"></b-form-input> -->
                     <b-form-input v-if="editMode" v-model="collection.collection_name" class="form-control filterInput" placeholder="Provide name"></b-form-input>
                     <span v-if="!editMode">{{collection.collection_name}}</span>
-
                     <h3>Description</h3>
                     <div v-if="editMode">
                         <tinymce id="nameEditor" v-model="collection.collection_description" :options="tinymceOptions" @change="tinyMCE_Changed"></tinymce>
                     </div>
                     <div v-if="!editMode" v-html="collection.collection_description"></div>
-
                     <h3>Settings</h3>
-
                     <b-form-checkbox :disabled="!editMode" v-model="collection.receive_notifications" value="1" unchecked-value="0">
                         Notifications
                     </b-form-checkbox> <br>
@@ -52,10 +45,8 @@
                         Public
                     </b-form-checkbox>
                     <br>
-
                     <b-button v-if="$route.params.id==='new'" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
                     <b-button v-if="editMode&&$route.params.id!=='new'" variant="primary" size="sm">Update</b-button>
-
                     <h3>Statistics</h3>
                     <table class="infotable">
                         <tr>
@@ -220,7 +211,8 @@
                     </div>
                 </b-tab>
                 <!-- Graph Tab =================== -->
-                <b-tab title="Graph" disabled>
+                <b-tab title="Graph">
+                     <visual v-if="selectedTab===3" id="aa" :collectionId="''+$route.params.id"  />
                 </b-tab>
             </b-tabs>
         </b-card>

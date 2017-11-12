@@ -1,0 +1,113 @@
+.tt-menu,
+.gist {
+    text-align: left;
+    font: normal normal normal 14px/1.5 "Arial", Gadget, sans-serif;
+}
+
+.typeahead,
+.tt-query,
+.tt-hint {
+    padding: 0px 2px;
+    margin: 0px 0px;
+    font-size: 14px;
+    line-height: 20px;
+    border: 1px solid red;
+    -webkit-border-radius: 0px;
+    -moz-border-radius: 0px;
+    border-radius: 0px;
+    outline: none;
+}
+
+.typeahead {
+    background-color: #ffffff;
+    float: left;
+    display: inline-block;
+}
+
+.typeahead:focus {
+    border: 1px solid #243040;
+}
+
+.tt-parent-name {
+    color: grey;
+    font-size: 10px;
+}
+
+.tt-query {
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+
+
+/* position and size of selection box */
+
+.tt-menu {
+    width: 300px;
+    margin: -5px 10px;
+    padding: 2px 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+}
+
+.tt-suggestion {
+    padding: 5px 10px;
+    font-size: 14px;
+    line-height: 16px;
+    /*  background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #eeeeee), color-stop(1, #ffffff));*/
+    opacity: 1.0;
+    color: black;
+    display: block;
+    border-top: 1px solid #ffffff;
+    border-bottom: 1px solid #dedede;
+}
+
+.tt-menu p {
+    padding: 2px;
+    margin: 0px;
+}
+
+.tt-suggestion .tt-selectable {
+    padding: 0px;
+    margin: 0px;
+}
+
+.tt-suggestion strong {
+    font-weight: normal;
+    background: rgba(255, 230, 0, 0.8);
+    box-shadow: 0 0 0 1px #c7dcea;
+}
+
+.tt-suggestion .tt-parent-name strong {
+    font-weight: normal;
+    background: transparent;
+    box-shadow: none;
+}
+
+.tt-suggestion:hover {
+    cursor: pointer;
+    background: #c7dcea;
+}
+
+.typeahead .tt-input {
+    color: black;
+}
+
+.tt-suggestion.tt-cursor {
+    background: #c7dcea;
+}
+
+.tt-suggestion p {
+    margin: 0px;
+    paddin: 0px;
+}
+
+.gist {
+    font-size: 14px;
+}
