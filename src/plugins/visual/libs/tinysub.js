@@ -1,5 +1,5 @@
-(function() {
-  const $= require("./jquery-2.1.1.min");
+var tinysub=function($) {
+ 
   var o = $({});
 
   $.subscribe = function() {
@@ -14,4 +14,5 @@
     o.trigger.apply(o, arguments);
   };
 
-}());
+};
+exports.tinysub=tinysub;

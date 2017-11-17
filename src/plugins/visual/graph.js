@@ -1,20 +1,5 @@
-var Mgraph = (function() {
-    const d3= require("./libs/d3.v4");
-    const $= require("./libs/jquery-2.1.1.min");
-    var o = $({});
-    
-      $.subscribe = function() {
-        o.on.apply(o, arguments);
-      };
-    
-      $.unsubscribe = function() {
-        o.off.apply(o, arguments);
-      };
-    
-      $.publish = function() {
-        o.trigger.apply(o, arguments);
-      };
-    
+var Mgraph = function(d3,$) {
+
     var FIX_PIN_SVG = "m3,9v11h14V9M4,9V6c0-3.3 2.7-6 6-6c3.3,0 6,2.7 6,6v3H14V6c0-2.2-1.8-4-4-4-2.2,0-4,1.8-4,4v3";
     var NODETYPE = { relation: 0, term: 1 },
         NODECLUSTER = { in: 1, out: 2, none: 0 };
@@ -1317,7 +1302,7 @@ var Mgraph = (function() {
         //@todo: if relations are clustered, this can cause drifting, because it tries to reposition in between all the related terms.
         gLinks.each(function(d) {
             if (d.source.nodeType === NODETYPE.relation && !d.source.fixed && !d.source.dragging) { // do not reposition relation box if fixed or dragging
-                console.log(d.source, d.target, d.real_source);
+               
                 if (d.target.id === d.real_source.id) return;
                 d.source.x = (d.target.x + d.real_source.x) / 2 + 30 * d.source.repeat; // there are more relations between the same 2 terms, adjust the relations boxes
                 d.source.y = (d.target.y + d.real_source.y) / 2 + 30 * d.source.repeat;
@@ -1997,4 +1982,5 @@ var Mgraph = (function() {
     };
 
 
-})();
+};
+exports.Mgraph=Mgraph;

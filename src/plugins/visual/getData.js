@@ -1,4 +1,4 @@
- (function() {
+var getData= function($) {
     var G_termList = [];
     var G_relList = [];
     var G_parms;
@@ -600,4 +600,5 @@
         init: init
     };
 
-})();
+};
+exports.getData=getData;
