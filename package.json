@@ -12,6 +12,7 @@
     "bootstrap": "4.0.0-beta.2",
     "bootstrap-vue": "^1.0.2",
     "font-awesome": "^4.7.0",
+    "jquery": "^3.2.1",
     "popper.js": "^1.11.1",
     "querystringify": "^1.0.0",
     "tinymce": "^4.6.7",
