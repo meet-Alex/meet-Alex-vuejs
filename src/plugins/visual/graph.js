@@ -1,4 +1,4 @@
-var Mgraph = function(d3,$) {
+var Mgraph = function(d3,$, getData) {
 
     var FIX_PIN_SVG = "m3,9v11h14V9M4,9V6c0-3.3 2.7-6 6-6c3.3,0 6,2.7 6,6v3H14V6c0-2.2-1.8-4-4-4-2.2,0-4,1.8-4,4v3";
     var NODETYPE = { relation: 0, term: 1 },
@@ -50,21 +50,7 @@ var Mgraph = function(d3,$) {
 
     function initGraph(parms) {
         G_graph = { nodes: [], links: [] };
-        $.subscribe("/graph/show/termId", showTerms);
-        $.subscribe("/graph/show/collectionId", showModel);
-        //$.subscribe("/graph/show/collectionId", loadLayout);
-
-        $.subscribe("/graph/set/hierarchy", setHierarchy);
-        $.subscribe("/graph/set/editMode", setEditMode);
-        $.subscribe("/graph/set/termsLock", setAllNodesLock);
-        $.subscribe("/graph/set/clusterRelations", setClusterRelations);
-        $.subscribe("/graph/set/zoom", setZoom);
-        $.subscribe("/graph/set/highlightTerm", setHighlitedTerm);
-        $.subscribe("/graph/set/autoFixTerms", setAutoFixOfNodes);
-        $.subscribe("/graph/set/showFixpins", setShowLocks);
-        $.subscribe("/graph/save/layout", saveLayout);
-        $.subscribe("/graph/load/layout", loadLayout);
-        $.subscribe("/graph/delete/layout", deleteLayout);
+     
 
         initParms = parms; // make parms global
         // fill interface variables with defaults. These can be changed by provided functions
@@ -293,33 +279,29 @@ var Mgraph = function(d3,$) {
      * @param {any} collectionId 
      * @param {String} name 
      */
-    function loadLayout(event, collectionId, name) {
+    function loadLayout(collectionId, name) {
         G_modelId = collectionId;
-        $.publish("/data/get/sketches", [collectionId, showIt]);
-
-        //$.publish("/data/get/sketch", [collectionId, name, showIt]);
+        getData.getSketches(collectionId, showIt);
 
         function showIt(newData) {
             if (newData) {
                 G_graph = newData.G_graph;
                 G_clusterRelations = newData.G_clusterRelations;
             }
-            showModel(null, G_modelId, true);
+            showModel( G_modelId, true);
         }
     }
 
     function deleteLayout(event, collectionId, name) {
         G_modelId = collectionId;
-        $.publish("/data/delete/sketches", [collectionId, showIt]);
-
-        //$.publish("/data/get/sketch", [collectionId, name, showIt]);
+        getData.deleteSketches(collectionId, showIt);
 
         function showIt(newData) {
             if (newData) {
                 G_graph = newData.G_graph;
                 G_clusterRelations = newData.G_clusterRelations;
             }
-            showModel(null, G_modelId, true);
+            showModel( G_modelId, true);
         }
     }
 
@@ -332,9 +314,11 @@ var Mgraph = function(d3,$) {
      * @param {any} collectionId 
      * @param {Sting} name 
      */
-    function saveLayout(event, collectionId, name) {
-        $.publish("/data/put/sketch", [collectionId, name, { G_termid: G_termid, G_graph: G_graph, G_nodelist: G_nodelist, G_clusterRelations: G_clusterRelations }]);
+    function saveLayout(collectionId, name) {
+        getData.saveSketch(collectionId, name, { G_termid: G_termid, G_graph: G_graph, G_nodelist: G_nodelist, G_clusterRelations: G_clusterRelations });
     }
+
+
 
     /**
      * Sets the graphical edit mode, and fix all elements
@@ -342,12 +326,13 @@ var Mgraph = function(d3,$) {
      * @param {Object} event
      * @param {Boolean} active
      */
-    function setEditMode(event, active) {
+    function setEditMode( active) {
         G_editMode = active;
         if (active) {
             d3.selectAll('.menuItems').remove();
-            $.publish("/graph/set/showFixpins", [false]);
-            $.publish("/graph/set/termsLock", [true]);
+            setShowLocks(false);
+            setAllNodesLock(true);
+
             svg0.selectAll('.zoomRect').style('stroke', 'red');
         } else {
             svg0.selectAll('.zoomRect').style('stroke', 'grey');
@@ -379,7 +364,7 @@ var Mgraph = function(d3,$) {
      *
      * @param {boolean} active
      */
-    function setShowLocks(event, active) {
+    function setShowLocks( active) {
         showLocks = active;
         resetElements();
     }
@@ -445,7 +430,7 @@ var Mgraph = function(d3,$) {
      */
     function getOneTerm(toFetchIDs) {
         $('#alexlogo').show();
-        $.publish("/data/get/termsWithRelations", [toFetchIDs, showIt]);
+        getData.fetchAllTerms(toFetchIDs, showIt);
 
         function showIt(newData) {
             G_data = newData;
@@ -534,7 +519,8 @@ var Mgraph = function(d3,$) {
                 if (d.name.length < 10) model = 1;
                 else if (d.name.length < 15) model = 2;
                 else model = 3;
-                d.model = G_remote ? model : 1;
+              // d.model = G_remote ? model  : 1;
+                d.model=model;
             });
         }
 
@@ -580,20 +566,21 @@ var Mgraph = function(d3,$) {
                 .radius(200)
                 .distortion(1 / panzoom.k);
         }
-        $.publish("/graph/event/changedZoom", [panzoom.k]);
+       // $.publish("/graph/event/changedZoom", [panzoom.k]);
     }
 
-    function showModel(event, modelId, restorePositions) {
+    function showModel( modelId, restorePositions) {
         G_modelId = modelId;
         restorePositions = (typeof restorePositions === 'undefined') ? false : restorePositions;
 
         $('#alexlogo').show();
 
-        $.publish("/data/get/modelId", [modelId, showIt]);
+        getData.getModelId(modelId, showIt);
 
         function showIt(newData) {
             //		 G_nodelist=?;
             //
+            console.log('showit', newData);
             G_data = newData;
             G_nodelist = [];
             $.each(newData.terms, function(i, term) {
@@ -670,7 +657,7 @@ var Mgraph = function(d3,$) {
      *
      * @param {Array.<string>} termIds
      */
-    function showTerms(event, termIds) {
+    function showTerms(termIds) {
         updateNodeList(termIds);
         // updateGraph();
     }
@@ -1058,7 +1045,7 @@ var Mgraph = function(d3,$) {
                 d3.event.stopPropagation();
                 d3object.selectAll('.menuItems').remove();
 
-                $.publish("/show/description/termId", [d.id]);
+               // $.publish("/show/description/termId", [d.id]);
             });
         menuDef.append("text")
             .text("description")
@@ -1461,7 +1448,7 @@ var Mgraph = function(d3,$) {
      *
      * @param {boolean} fixed
      */
-    function setAutoFixOfNodes(event, fixed) {
+    function setAutoFixOfNodes(fixed) {
         autoFix = fixed;
     }
 
@@ -1470,7 +1457,7 @@ var Mgraph = function(d3,$) {
      *
      * @param {boolean} fixed - true=lock all, false=free all
      */
-    function setAllNodesLock(event, fixed) {
+    function setAllNodesLock( fixed) {
 
         svg.selectAll('.gnode').each(function(d) {
             if (d.relationCount) { // leave the terms without relations as is
@@ -1502,7 +1489,7 @@ var Mgraph = function(d3,$) {
      *
      * @param {number} clusterType
      */
-    function setClusterRelations(event, clusterType) {
+    function setClusterRelations(clusterType) {
         G_clusterRelations = clusterType;
         // updateNodeList(getNodeList());
         displayTerms(G_nodelist);
@@ -1558,7 +1545,8 @@ var Mgraph = function(d3,$) {
                 subject: nodes.mousedown_node.id,
                 object: nodes.mouseup_node.id,
             };
-            $.publish("/data/put/relation", [G_modelId, relation, showIt]);
+            getData.saveRelation(G_modelId, relation, showIt);
+
         } else {
             resetMouseVars();
         }
@@ -1584,7 +1572,7 @@ var Mgraph = function(d3,$) {
         if (name !== null && name.length > 1) {
             //@TODO: move this to getData.js
             //@TODO: proper error handling
-            $.publish("/data/put/term", [G_modelId, { name: name, description: description }, showIt]);
+              saveTerm(G_modelId, { name: name, description: description }, showIt);
         }
 
         function showIt(term) {
@@ -1604,7 +1592,7 @@ var Mgraph = function(d3,$) {
     }
 
     function deleteTerm(term) {
-        $.publish("/data/delete/term", [G_modelId, { id: term.id }, showIt]);
+        getData.deleteTerm(G_modelId, { id: term.id }, showIt);
 
         function showIt(term) {
             G_data.terms = $.grep(G_data.terms, function(d) { return d.id != term.id; });
@@ -1615,8 +1603,7 @@ var Mgraph = function(d3,$) {
     }
 
     function deleteRelation(relation) {
-
-        $.publish("/data/delete/relation", [G_modelId, { id: relation.orgId }, showIt]);
+        getData.deleteRelation(G_modelId, { id: relation.orgId }, showIt);
 
         function showIt(relation) {
             G_data.relations = $.grep(G_data.relations, function(d) { return d.id != relation.id; });
@@ -1628,7 +1615,7 @@ var Mgraph = function(d3,$) {
     function changeTerm(name, description, oldTerm) {
         if (name === null) return;
         if (name.length) {
-            $.publish("/data/update/term", [G_modelId, { name: name, id: oldTerm.id, description: description }, showIt]);
+             getData.updateTerm(G_modelId, { name: name, id: oldTerm.id, description: description }, showIt);
         }
 
         function showIt(term) {
@@ -1659,7 +1646,7 @@ var Mgraph = function(d3,$) {
         var relation = $.grep(G_data.relations, function(d) { return d.id == oldRelation.orgId; })[0];
 
         if (name.length) {
-            $.publish("/data/update/relation", [G_modelId, { name: name, id: relation.id, subject: relation.subject, object: relation.object }, showIt]);
+            getData.updateRelation(G_modelId, { name: name, id: relation.id, subject: relation.subject, object: relation.object }, showIt);
         }
 
         function showIt(newRelation) {
@@ -1829,7 +1816,7 @@ var Mgraph = function(d3,$) {
     }
 
     function termBorderRect_mousedown(node, that) {
-        setAllNodesLock(null, true);
+        setAllNodesLock(true);
         d3.event.preventDefault();
         d3.event.stopPropagation();
         resetMouseVars();
@@ -1978,9 +1965,33 @@ var Mgraph = function(d3,$) {
 
     return {
         initGraph: initGraph,
-        NODECLUSTER: NODECLUSTER
+        NODECLUSTER: NODECLUSTER,
+        setAutoFixOfNodes,
+        setAllNodesLock,
+        setShowLocks,
+        setClusterRelations,
+        showModel,
+        loadLayout,
+        showTerms,
+        saveLayout,
+        setEditMode
     };
 
+   // $.subscribe("/graph/show/termId", showTerms);
+   // $.subscribe("/graph/show/collectionId", showModel);
+   // $.subscribe("/graph/set/editMode", setEditMode);
+   // $.subscribe("/graph/set/termsLock", setAllNodesLock);
+  //  $.subscribe("/graph/set/clusterRelations", setClusterRelations);
+  //  $.subscribe("/graph/set/autoFixTerms", setAutoFixOfNodes);
+    //$.subscribe("/graph/set/showFixpins", setShowLocks);
+   // $.subscribe("/graph/save/layout", saveLayout);
+   // $.subscribe("/graph/load/layout", loadLayout);
 
+   /*
+   $.subscribe("/graph/set/hierarchy", setHierarchy);
+   $.subscribe("/graph/set/zoom", setZoom);
+    $.subscribe("/graph/delete/layout", deleteLayout);
+    $.subscribe("/graph/set/highlightTerm", setHighlitedTerm);
+    */
 };
 exports.Mgraph=Mgraph;

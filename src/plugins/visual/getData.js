@@ -1,73 +1,27 @@
-var getData= function($) {
+var getData = function ($) {
     var G_termList = [];
     var G_relList = [];
     var G_parms;
 
     function init(parms) {
         G_parms = parms;
-        $.subscribe("/data/get/termId", getTermId);
-        $.subscribe("/data/get/modelId", getModelId);
-        $.subscribe("/data/get/references", findReference);
-        $.subscribe("/data/get/allTerms", getAllTerms); // @todo
-        $.subscribe("/data/get/termsWithRelations", fetchAllTerms);
-        $.subscribe("/data/get/sketches", getSketches);
-        $.subscribe("/data/put/sketch", saveSketch);
-        $.subscribe("/data/put/term", saveTerm);
-        $.subscribe("/data/update/term", updateTerm);
-        $.subscribe("/data/update/relation", updateRelation);
-
-        $.subscribe("/data/delete/term", deleteTerm);
-        $.subscribe("/data/delete/relation", deleteRelation);
-        $.subscribe("/data/delete/sketches", deleteSketches);
-        $.subscribe("/data/put/relation", saveRelation);
-        $.subscribe("/data/get/sketch", loadSketch);
-
-
-
         if (!G_parms.remote) {
-            if ((typeof G_FRIM != "undefined") && G_FRIM) {
-                $.each(DATA_term, function(i, term) {
-                    var def = $.grep(DATA_def, function(e) { return e.id == term.id; })[0];
-                    G_termList.push({
-                        id: term.id,
-                        name: term.name,
-                        description: def.description,
-                        addinfo: def.addinfo
-                    });
-
+            $.each(DATA_term, function (i, term) {
+                var def = $.grep(DATA_def, function (e) { return e.id == term.id; })[0];
+                G_termList.push({
+                    id: term.id,
+                    name: term.name,
+                    description: def.description,
+                    addinfo: def.addinfo
                 });
-                $.each(DATA_rel, function(i, relation) {
-                    var relmeta = $.grep(DATA_relation_id, function(e) { return (e.id == relation.relation); })[0];
-                    G_relList.push({
-                        name: relmeta.name,
-                        subject: relation.subject,
-                        object: relation.object
-                    });
-
+            });
+            $.each(DATA_relation, function (i, relation) {
+                G_relList.push({
+                    name: relation.relation,
+                    subject: relation.subject,
+                    object: relation.object
                 });
-            } else {
-                $.each(DATA_term, function(i, term) {
-                    var def = $.grep(DATA_def, function(e) { return e.id == term.id; })[0];
-                    G_termList.push({
-                        id: term.id,
-                        name: term.name,
-                        description: def.description,
-                        addinfo: def.addinfo
-                    });
-
-                });
-                $.each(DATA_relation, function(i, relation) {
-
-                    G_relList.push({
-                        name: relation.relation,
-                        subject: relation.subject,
-                        object: relation.object
-                    });
-
-                });
-
-            }
-
+            });
         }
     }
 
@@ -78,10 +32,9 @@ var getData= function($) {
             object: link.target,
             id: link.id
         };
-
     }
 
-    function loadSketch(event, collection_id, sketch_name, callback) {
+    function loadSketch(collection_id, sketch_name, callback) {
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
         console.log(sketch_name);
@@ -92,25 +45,24 @@ var getData= function($) {
                 "collection_id": parseInt(collection_id),
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 console.log(json);
-                var sketch_data = $.grep(json, function(d) { return d.sketch_name === sketch_name; });
+                var sketch_data = $.grep(json, function (d) { return d.sketch_name === sketch_name; });
                 console.log(sketch_data);
                 callback(JSON.parse(sketch_data[0].sketch_data));
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.log(xhr, status, error);
                 alert(xhr.responseJSON.message);
             }
         });
-
     }
 
-    function getSketches(event, collection_id, callback) {
-        $(document).ready(function() {
+    function getSketches(collection_id, callback) {
+        $(document).ready(function () {
             var token = $('meta[name="_token"]').attr('content');
             var url = $('meta[name="base_url"]').attr('content');
             console.log("get sketches:", url + "/api/collections/" + collection_id + "/sketches");
@@ -120,10 +72,10 @@ var getData= function($) {
                 data: {
                     _token: token
                 },
-                success: function(json) {
+                success: function (json) {
                     console.log(json);
                     var retVal = null;
-                    if (json.sketch_data[0] === '{') {
+                    if (json.sketch_data && json.sketch_data[0] === '{') {
                         try {
                             retVal = JSON.parse(json.sketch_data);
                         } catch (e) {
@@ -133,16 +85,15 @@ var getData= function($) {
                     }
                     callback(retVal);
                 },
-                failure: function(errMsg) {
+                failure: function (errMsg) {
                     console.log(errMsg);
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.log(xhr, status, error);
                     // alert(xhr.responseJSON.message);
                     callback(null);
                 }
             });
-
         });
     }
 
@@ -174,7 +125,7 @@ var getData= function($) {
 
     function createTerms(nodes) {
         var termArray = [];
-        $.each(nodes, function(i, node) {
+        $.each(nodes, function (i, node) {
             termArray.push(createTerm1(node));
         });
         return termArray;
@@ -182,32 +133,29 @@ var getData= function($) {
 
     function createRelations(links) {
         var relationArray = [];
-        $.each(links, function(i, link) {
+        $.each(links, function (i, link) {
             relationArray.push(createRelation(link));
         });
         return relationArray;
     }
 
-    function getModelId(event, modelId, callback) {
+    function getModelId(modelId, callback) {
         if (G_parms.remote) {
-
             var query = G_parms.remoteURL + '/visualise?getCollection=' + modelId;
             console.log(query);
-            $.getJSON(query, function(graph) {
-                    console.log(graph);
-                    var terms = createTerms(graph.nodes);
-                    var relations = createRelations(graph.links);
-                    console.log(terms, relations);
-                    callback({ terms: terms, relations: relations });
-                })
-                .fail(function(jqxhr) {
+            $.getJSON(query, function (graph) {
+                console.log(graph);
+                var terms = createTerms(graph.nodes);
+                var relations = createRelations(graph.links);
+                console.log(terms, relations);
+                callback({ terms: terms, relations: relations });
+            })
+                .fail(function (jqxhr) {
                     console.log(jqxhr);
                     var term1 = createTerm(jqxhr.responseJSON[0]);
                     callback(term1);
                 });
         }
-
-
     }
     /**
      * Fetches the term object which has the termId, and calls the callback function
@@ -217,29 +165,27 @@ var getData= function($) {
      * @param {function} callback
      */
 
-    function getTermId(event, termId, callback) {
-
-
+    function getTermId(termId, callback) {
         if (G_parms.remote) {
             var query = G_parms.remoteURL + '/terms/' + termId;
             console.log(query);
-            $.getJSON(query, function(graph) {
-                    console.log(graph);
-                    var term1 = createTerm(graph);
-                    callback(term1);
-                })
-                .fail(function(jqxhr) {
+            $.getJSON(query, function (graph) {
+                console.log(graph);
+                var term1 = createTerm(graph);
+                callback(term1);
+            })
+                .fail(function (jqxhr) {
                     console.log(jqxhr);
                     var term1 = createTerm(jqxhr.responseJSON[0]);
                     callback(term1);
                 });
         } else {
-            var term = $.grep(G_termList, function(e) { return (e.id == termId); })[0];
+            var term = $.grep(G_termList, function (e) { return (e.id == termId); })[0];
             callback(term);
         }
     }
 
-    function fetchAllTerms(event, toFetchIds, callback) {
+    function fetchAllTerms(toFetchIds, callback) {
         if (toFetchIds.length) {
             fetchTerm(toFetchIds, fetchAllTerms, callback);
         } else {
@@ -248,23 +194,21 @@ var getData= function($) {
     }
 
     function processArray(graph) {
-        $.each(graph.nodes, function(i, node) {
-            if ($.grep(G_termList, function(e) { return e.id == node.id; }).length === 0) {
+        $.each(graph.nodes, function (i, node) {
+            if ($.grep(G_termList, function (e) { return e.id == node.id; }).length === 0) {
                 G_termList.push(createTerm1(node));
             }
         });
 
-        $.each(graph.links, function(i, link) {
-            if ($.grep(G_relList, function(e) { return e.name == link.name && e.subject == link.source && e.object == link.target; }).length === 0) {
+        $.each(graph.links, function (i, link) {
+            if ($.grep(G_relList, function (e) { return e.name == link.name && e.subject == link.source && e.object == link.target; }).length === 0) {
                 G_relList.push(createRelation(link));
             }
         });
     }
 
-
-    function saveRelation(event, collection_id, relation, callback) {
+    function saveRelation(collection_id, relation, callback) {
         console.log(collection_id, relation);
-
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
         $.ajax({
@@ -277,7 +221,7 @@ var getData= function($) {
                 "subject_id": relation.subject,
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 console.log(json);
                 var rel = {
                     "name": relation.name,
@@ -289,17 +233,13 @@ var getData= function($) {
                 };
                 callback(rel);
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             }
         });
-
-
-
-
     }
 
-    function deleteTerm(event, collection_id, term, callback) {
+    function deleteTerm(collection_id, term, callback) {
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
         $.ajax({
@@ -308,17 +248,17 @@ var getData= function($) {
             data: {
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 console.log(json);
                 callback(term);
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             }
         });
     }
 
-    function deleteRelation(event, collection_id, relation, callback) {
+    function deleteRelation(collection_id, relation, callback) {
         console.log(relation);
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
@@ -328,17 +268,17 @@ var getData= function($) {
             data: {
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 console.log(json);
                 callback(relation);
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             }
         });
     }
 
-    function updateTerm(event, collection_id, term, callback) {
+    function updateTerm(collection_id, term, callback) {
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
         $.ajax({
@@ -350,7 +290,7 @@ var getData= function($) {
                 "term_definition": term.description,
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 console.log(json);
                 var term = {
                     name: json.term_name,
@@ -360,53 +300,23 @@ var getData= function($) {
                 };
                 callback(term);
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             }
         });
     }
 
-    function updateRelation(event, collection_id, relation, callback) {
+    function updateRelation(collection_id, relation, callback) {
         console.log(relation);
-        deleteRelation(null, null, relation, createNew);
+        deleteRelation(null, relation, createNew);
 
         function createNew(relation) {
             console.log('createnew', relation);
-            saveRelation(event, collection_id[0], relation, callback);
-
+            saveRelation(collection_id[0], relation, callback);
         }
-
-        /*
-        var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
-        $.ajax({
-            type: "PUT",
-            url: url + "/api/terms/" + parseInt(term.id),
-            data: {
-                "collection_id": parseInt(collection_id),
-                "term_name": term.name,
-                "term_definition": term.description,
-                _token: token
-            },
-            success: function(json) {
-                console.log(json);
-                var term = {
-                    name: json.term_name,
-                    description: json.term_definition,
-                    collection_id: json.collection_id,
-                    id: json.id
-                }
-                callback(term);
-            },
-            failure: function(errMsg) {
-                console.log(errMsg);
-            }
-        });
-        */
     }
 
-
-    function saveTerm(event, collection_id, term, callback) {
+    function saveTerm(collection_id, term, callback) {
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
         $.ajax({
@@ -418,7 +328,7 @@ var getData= function($) {
                 "term_definition": term.description,
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 if (typeof jsone !== 'object') {
                     var term = {
                         id: json.id,
@@ -432,19 +342,18 @@ var getData= function($) {
                 } else {
                     callback(json);
                 }
-
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.log(xhr, status, error);
                 alert(xhr.responseJSON.message);
             }
         });
     }
 
-    function deleteSketches(event, collection_id) {
+    function deleteSketches(collection_id) {
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
         console.log(url + "/api/sketches/" + parseInt(collection_id));
@@ -454,19 +363,16 @@ var getData= function($) {
             data: {
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 console.log(json);
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             }
         });
-
     }
 
-
-
-    function saveSketch(event, collection_id, sketch_name, graph) {
+    function saveSketch(collection_id, sketch_name, graph) {
         var token = $('meta[name="_token"]').attr('content');
         var url = $('meta[name="base_url"]').attr('content');
         console.log(graph);
@@ -479,19 +385,18 @@ var getData= function($) {
                 "sketch_data": JSON.stringify(graph),
                 _token: token
             },
-            success: function(json) {
+            success: function (json) {
                 console.log(json);
             },
-            failure: function(errMsg) {
+            failure: function (errMsg) {
                 console.log(errMsg);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 console.log(xhr, status, error);
                 //   alert(xhr.responseJSON.message);
             }
         });
     }
-
 
     /**
      * Fetches the first termID from the provided array, including all related terms and relations 2 levels deep
@@ -505,12 +410,12 @@ var getData= function($) {
         if (G_parms.remote) {
             var query = G_parms.remoteURL + '/visualise?withIds=' + element + '&getUnfetchedRelations=1&levelsDeep=2';
             console.log(query);
-            $.getJSON(query, function(graph) {
-                    console.log(graph);
-                    processArray(graph);
-                    callback(null, termIdArray, orgcallback);
-                })
-                .fail(function(jqxhr) {
+            $.getJSON(query, function (graph) {
+                console.log(graph);
+                processArray(graph);
+                callback(null, termIdArray, orgcallback);
+            })
+                .fail(function (jqxhr) {
                     console.log(jqxhr.responseJSON);
                     processArray(jqxhr.responseJSON);
                 });
@@ -518,7 +423,6 @@ var getData= function($) {
             callback(null, termIdArray, orgcallback);
         }
     }
-
 
     /**
      * returns an array of ALL term Objects (used for finding termname via typeahead)
@@ -540,12 +444,9 @@ var getData= function($) {
      * @param {number} termId
      * @returns {string} options
      */
-    function findReference(event, termId, callback) {
-
-
+    function findReference(termId, callback) {
         var refTermList = [];
         var pref_ref = "00000";
-
         var i, description, x, y, link, a, link_id, link_name, termId1, termName1;
 
         // search all descriptions
@@ -578,7 +479,7 @@ var getData= function($) {
         /* refTermlist contains the Ids of the terms. So the names need to be lookedup to sort on name */
 
         refTermList.sort(
-            function(a, b) {
+            function (a, b) {
                 if (a.name < b.name) {
                     return -1;
                 } else {
@@ -597,8 +498,38 @@ var getData= function($) {
     }
 
     return {
-        init: init
+        init: init,
+        getModelId,
+        saveRelation,
+        saveTerm,
+        deleteTerm,
+        deleteRelation,
+        updateTerm,
+        updateRelation,
+        getSketches,
+        deleteSketches,
+        saveSketch,
+        fetchAllTerms,
+        findReference,
+        getTermId,
+        loadSketch
     };
+    //  $.subscribe("/data/get/termId", getTermId);
+    //  $.subscribe("/data/get/modelId", getModelId);
+    // $.subscribe("/data/get/references", findReference);
+    //  $.subscribe("/data/get/allTerms", getAllTerms); // @todo
+    //  $.subscribe("/data/get/termsWithRelations", fetchAllTerms);
+    // $.subscribe("/data/get/sketches", getSketches);
+    // $.subscribe("/data/put/sketch", saveSketch);
+    //   $.subscribe("/data/put/term", saveTerm);
+    // $.subscribe("/data/update/term", updateTerm);
+    //  $.subscribe("/data/update/relation", updateRelation);
+
+    //   $.subscribe("/data/delete/term", deleteTerm);
+    //  $.subscribe("/data/delete/relation", deleteRelation);
+    //   $.subscribe("/data/delete/sketches", deleteSketches);
+    //  $.subscribe("/data/put/relation", saveRelation);
+    //  $.subscribe("/data/get/sketch", loadSketch);
 
 };
-exports.getData=getData;
+exports.getData = getData;
