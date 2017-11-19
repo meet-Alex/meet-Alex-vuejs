@@ -15,6 +15,7 @@ import Visual from './plugins/visual';
 import EditTermList from './plugins/edit-term-list';
 import Autocomplete from './plugins/autocomplete';
 import store from './store/store';
+import globalData from './global_data';
 
 Vue.use(VueTinymce);
 Vue.use(Visual);
@@ -24,7 +25,7 @@ Vue.use(BootstrapVue);
 Vue.use(VueRouter);
 Vue.use(VueResource);
 
-Vue.http.options.root = 'http://localhost/meet-Alex/public/index.php/api/';
+Vue.http.options.root = globalData.apiURL + '/';
 
 const router = new VueRouter({
     mode: 'history',

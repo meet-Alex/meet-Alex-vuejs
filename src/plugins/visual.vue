@@ -31,6 +31,8 @@
     d3.fisheye = require("./visual/libs/fisheye").fisheye;
     var getData = require("./visual/getData").getData($);
     var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
+    import globalData from '../global_data';
+    console.log(globalData);
 
     function changedZoom(event, zoomLevel) {
       /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
@@ -107,13 +109,13 @@
 
       //  $.subscribe("/graph/event/changedZoom", changedZoom);
 
-        var url = " http://localhost/meet-Alex/public/index.php";
+       // var url = " http://localhost/meet-Alex/public/index.php";
         var term_id = null;
         var collection_id = this.collectionId;
 
         getData.init({
           remote: true, // true=remote (fill remoteURL), false=local
-          remoteURL: url + "/api"
+          remoteURL: globalData.apiURL
         });
         //typeahead.initTypeAhead(G_remote, url + '/api'); // the typeahead search function
         // typeahead.initTypeAhead(false, url + '/api'); // the typeahead search function
@@ -125,16 +127,6 @@
         Mgraph.initGraph({
           mainDivId: "Mgraph"
         });
-
-        // set defaults for menu
-        $("#showLockOff").click();
-        $("#autoLockOn").click();
-        $("#relationShowAll").click();
-        $("#clusterNone").click();
-        $("#viewCollection").click();
-
-        // ***********temp start in edit editMode
-      
 
         // do we want to see a complete collection, or only a term?
         $(".spinner").hide();

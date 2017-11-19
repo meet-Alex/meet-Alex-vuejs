@@ -5,6 +5,7 @@ var getData = function ($) {
 
     function init(parms) {
         G_parms = parms;
+        console.log(G_parms);
         if (!G_parms.remote) {
             $.each(DATA_term, function (i, term) {
                 var def = $.grep(DATA_def, function (e) { return e.id == term.id; })[0];
@@ -36,11 +37,12 @@ var getData = function ($) {
 
     function loadSketch(collection_id, sketch_name, callback) {
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
+        var url = G_parms.remoteURL;
+
         console.log(sketch_name);
         $.ajax({
             type: "GET",
-            url: url + "/api/sketches",
+            url: url + "/sketches",
             data: {
                 "collection_id": parseInt(collection_id),
                 _token: token
@@ -64,11 +66,11 @@ var getData = function ($) {
     function getSketches(collection_id, callback) {
         $(document).ready(function () {
             var token = $('meta[name="_token"]').attr('content');
-            var url = $('meta[name="base_url"]').attr('content');
+            var url = G_parms.remoteURL;
             console.log("get sketches:", url + "/api/collections/" + collection_id + "/sketches");
             $.ajax({
                 type: "GET",
-                url: url + "/api/collections/" + collection_id + "/sketches",
+                url: url + "/collections/" + collection_id + "/sketches",
                 data: {
                     _token: token
                 },
@@ -210,10 +212,10 @@ var getData = function ($) {
     function saveRelation(collection_id, relation, callback) {
         console.log(collection_id, relation);
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
+        var url = G_parms.remoteURL;
         $.ajax({
             type: "POST",
-            url: url + "/api/ontologies",
+            url: url + "/ontologies",
             data: {
                 "collection_id": Number(collection_id),
                 "object_id": relation.object,
@@ -241,10 +243,10 @@ var getData = function ($) {
 
     function deleteTerm(collection_id, term, callback) {
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
+        var url = G_parms.remoteURL;
         $.ajax({
             type: "DELETE",
-            url: url + "/api/terms/" + term.id,
+            url: url + "/terms/" + term.id,
             data: {
                 _token: token
             },
@@ -261,10 +263,10 @@ var getData = function ($) {
     function deleteRelation(collection_id, relation, callback) {
         console.log(relation);
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
+        var url = G_parms.remoteURL;
         $.ajax({
             type: "DELETE",
-            url: url + "/api/ontologies/" + relation.id,
+            url: url + "/ontologies/" + relation.id,
             data: {
                 _token: token
             },
@@ -280,10 +282,10 @@ var getData = function ($) {
 
     function updateTerm(collection_id, term, callback) {
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
+        var url = G_parms.remoteURL;
         $.ajax({
             type: "PUT",
-            url: url + "/api/terms/" + parseInt(term.id),
+            url: url + "/terms/" + parseInt(term.id),
             data: {
                 "collection_id": parseInt(collection_id),
                 "term_name": term.name,
@@ -318,10 +320,10 @@ var getData = function ($) {
 
     function saveTerm(collection_id, term, callback) {
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
+        var url = G_parms.remoteURL;
         $.ajax({
             type: "POST",
-            url: url + "/api/terms",
+            url: url + "/terms",
             data: {
                 "collection_id": parseInt(collection_id),
                 "term_name": term.name,
@@ -355,11 +357,11 @@ var getData = function ($) {
 
     function deleteSketches(collection_id) {
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
-        console.log(url + "/api/sketches/" + parseInt(collection_id));
+        var url = G_parms.remoteURL;
+        console.log(url + "/sketches/" + parseInt(collection_id));
         $.ajax({
             type: "DELETE",
-            url: url + "/api/sketches/" + parseInt(collection_id),
+            url: url + "/sketches/" + parseInt(collection_id),
             data: {
                 _token: token
             },
@@ -374,11 +376,11 @@ var getData = function ($) {
 
     function saveSketch(collection_id, sketch_name, graph) {
         var token = $('meta[name="_token"]').attr('content');
-        var url = $('meta[name="base_url"]').attr('content');
+        var url = G_parms.remoteURL;
         console.log(graph);
         $.ajax({
             type: "POST",
-            url: url + "/api/sketches",
+            url: url + "/sketches",
             data: {
                 "collection_id": parseInt(collection_id),
                 "sketch_name": "name8",
