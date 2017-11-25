@@ -1,5 +1,7 @@
 <template>
-  <div id="MContainer">
+
+  <div id="MContainer" class='content'>
+   <fullscreen ref="fullscreen" :fullscreen.sync="fullscreen" :background="'#ffffff'">
     <b-navbar toggleable="md" type="dark" variant="info">
         <b-navbar-nav class="ml-auto">
         <b-nav>
@@ -17,15 +19,19 @@
                 <b-dropdown-item v-if="relationClusterSet!==Mgraph.NODECLUSTER.none" v-on:click="relationClustering(Mgraph.NODECLUSTER.none)">No Clustering</b-dropdown-item>
             </b-nav-item-dropdown>
         </b-nav>
+        <button type="button" @click="toggle" >Fullscreen</button>
       </b-navbar-nav>
     </b-navbar>
       <div id="Mgraph">
           <!-- <img style="top:40%;" id="alexlogo" height="42" width="42" src={{ URL::asset( "img/spinner.gif") }}></img> -->
       </div>
+   </fullscreen> 
   </div>
 </template>
 
 <script>
+
+    import Fullscreen from "vue-fullscreen/src/component.vue";
     const d3 = require("./visual/libs/d3.v4");
     const $ = require("./visual/libs/jquery-2.1.1.min");
     d3.fisheye = require("./visual/libs/fisheye").fisheye;
@@ -33,6 +39,7 @@
     var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
     import globalData from '../global_data';
     console.log(globalData);
+    var fullscreen=false;
 
     function changedZoom(event, zoomLevel) {
       /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
@@ -45,7 +52,13 @@
     });
 
     function sizeDivs() {
+      console.log(' fullscreen=', fullscreen);
       $("#Mgraph").height($(window).height() - $("#Mmenu").height() - 20);
+      if (fullscreen) {
+      $("#Mgraph").width($(window).width());
+      } else {
+         $("#Mgraph").width($("#MContainer").width());
+      }
       $("#Mgraph").css("marginTop", "5px");
     }
 
@@ -57,6 +70,7 @@
 
     import Vue from "vue";
     export default {
+      components: {Fullscreen},
       name: "visual",
       props: {
         id: {
@@ -71,6 +85,7 @@
       },
       data() {
         return {
+           fullscreen: false,
           content: "",
           autoFixSet: true,
           showLocksSet: false,
@@ -79,6 +94,14 @@
         };
       },
       methods: {
+        
+        toggle:function () {
+        this.$refs['fullscreen'].toggle();
+        fullscreen=!this.fullscreen;
+         sizeDivs();
+       
+      
+      },
         setLock: function(setLockOn) {
           Mgraph.setAllNodesLock(setLockOn);
         },
@@ -98,6 +121,7 @@
       watch: {},
       created() {},
       mounted() {
+        fullscreen=this.fullscreen;
         sizeDivs();
 
         console.log("ja");
@@ -148,7 +172,7 @@
     };
 </script>
 
-<style>
+<style scoped>
 @import "/src/plugins/visual/css/app.css";
 @import "/src/plugins/visual/css/defBox.css";
 
@@ -161,4 +185,7 @@
 @import '/src/plugins/visual/sm-core-css.css';
 @import '/src/plugins/visual/sm-simple.css';
 */
+
+ .content {padding-top:0.5rem}
+
 </style>

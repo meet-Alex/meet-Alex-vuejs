@@ -12,6 +12,8 @@
 
 
 <script>
+    import { mapMutations, mapGetters } from 'vuex';
+     
     export default {
         data() {
             return {
@@ -19,18 +21,12 @@
             }
         },
         created: function () {
-            this.getToken();
+            this.getLogin();
+            this.fetchCollections();
         },
         methods: {
-            getToken: function() {
-                 this.$http.post('login',   {"email": "admin@meet-alex.org", "password": ""}
-                 )
-                 .then(response => {
-                    return response.json();
-                })
-                 .then(data=>{console.log(data)})
-                 
-            }
+             ...mapMutations(['fetchCollections']),
+             ...mapGetters(['getLogin'])
         }
     }
 

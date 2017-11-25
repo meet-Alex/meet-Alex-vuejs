@@ -31,6 +31,7 @@
 
 <script>
     import globalData from '../global_data';
+    import { mapMutations, mapGetters } from 'vuex';
     export default {
         data() {
             return {
@@ -43,8 +44,11 @@
             }
         },
         created: function () {
+            console.log(this.getLogin());
         },
         methods: {
+             ...mapMutations(['updateLogin']),
+             ...mapGetters(['getLogin']),
             getToken: function() {
                  this.$http.post('login',   {"email": this.form.email, "password": this.form.password}
                  )
@@ -54,7 +58,16 @@
                  .then(data=>{
                      globalData.userInfo.email=this.form.email;
                      globalData.userInfo.token=data.token;
-                     console.log(globalData.userInfo)})
+                     console.log(globalData.userInfo);
+                     const test="bla"
+                     console.log(data);
+                     this.updateLogin(
+                         {email:this.form.email,
+                         token:data.token}
+                     );
+                     console.log(this.getLogin());
+                });
+
                   //  this.$router.push('collections')
             },
             onSubmit: function(evt) {

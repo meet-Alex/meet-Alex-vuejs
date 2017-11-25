@@ -9,8 +9,11 @@
 	});
 
 	function sizeDivs() {
-	    $('#Mgraph').height($(window).height() - $('#Mmenu').height() - 20);
-	    $('#Mgraph').css("marginTop", '5px');
+		console.log($(window).width());
+		$('#Mgraph').height($(window).height() - $('#Mmenu').height() - 20);
+		$('#Mgraph').width($(window).width());
+		$('#Mgraph').css("marginTop", '5px');
+		
 	}
 
 

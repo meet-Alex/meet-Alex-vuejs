@@ -11,14 +11,12 @@ import 'font-awesome/css/font-awesome.css';
 
 
 import VueTinymce from './plugins/vue-tinymce';
-import Visual from './plugins/visual';
 import EditTermList from './plugins/edit-term-list';
 import Autocomplete from './plugins/autocomplete';
-import store from './store/store';
+import store from './store';
 import globalData from './global_data';
 
 Vue.use(VueTinymce);
-Vue.use(Visual);
 Vue.use(Autocomplete);
 Vue.use(EditTermList);
 Vue.use(BootstrapVue);
@@ -44,7 +42,7 @@ new Vue({
     el: '#app',
     data:{login:{email:"", token:""}
     },
+    store,
     router,
     render: h => h(App)
-
 });
