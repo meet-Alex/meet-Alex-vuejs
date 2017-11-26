@@ -591,7 +591,7 @@ var Mgraph = function(d3,$, getData) {
 
             if (restorePositions) {
                 $.each(newGraph.nodes, function(i, node) {
-                    console.log(G_graph);
+                   
                     var curnode = $.grep(G_graph, function(cnode) { return node.id === cnode.id; })[0];
                     if (curnode) {
                         node.fixed = curnode.fixed;
@@ -1496,7 +1496,7 @@ var Mgraph = function(d3,$, getData) {
     }
 
     function getUserInput(type, dataObject) {
-
+        console.log('getting user input....');
         $('#btn_deleteTerm').show();
         $("#nameField").show();
         $("#descriptionField").show();
@@ -1535,7 +1535,7 @@ var Mgraph = function(d3,$, getData) {
 
         $("#btn_newTerm").val(type);
         $("#btn_deleteTerm").val(type);
-        $("#inputDialog").modal();
+        $("#inputDialog").show();
     }
 
     function createRelation(relname, nodes) {
@@ -1572,7 +1572,7 @@ var Mgraph = function(d3,$, getData) {
         if (name !== null && name.length > 1) {
             //@TODO: move this to getData.js
             //@TODO: proper error handling
-              saveTerm(G_modelId, { name: name, description: description }, showIt);
+              getData.saveTerm(G_modelId, { name: name, description: description }, showIt);
         }
 
         function showIt(term) {
@@ -1672,6 +1672,7 @@ var Mgraph = function(d3,$, getData) {
     function zoomRect_mouseclick(node, that) {}
 
     function zoomRect_doubleclick(node, that) {
+       
         G_mousepos = d3.mouse(svg.select('.gWindow').node());
         if (!G_editMode) return;
         getUserInput(DIALOG.newTerm, {});
@@ -1777,6 +1778,7 @@ var Mgraph = function(d3,$, getData) {
     }
 
     function termGroup_click(node, that) {
+        console.log('mouse up');
         if (G_editMode) {
             getUserInput(DIALOG.changeTerm, node);
         } else {
@@ -1833,6 +1835,7 @@ var Mgraph = function(d3,$, getData) {
     }
 
     function termBorderRect_mouseup(node, that) {
+      
         if (!G_editMode) return;
         G_editLinkParms.mouseup_node = $.grep(G_graph.nodes, function(d) { return d.id === node.id; })[0];
         if (G_editLinkParms.mouseup_node === G_editLinkParms.mousedown_node) { resetMouseVars(); return; }
@@ -1848,6 +1851,13 @@ var Mgraph = function(d3,$, getData) {
         d3.select(that).style("fill", "none");
         svg.style("cursor", "default");
     }
+
+    $(document).on('click', "#btn_closeInputDialog", function(e) {
+        $("#inputDialog").hide();
+    });
+
+
+
 
     $(document).on('click', "#btn_newTerm", function(e) {
         var dataObject = JSON.parse($('#dataField').val());

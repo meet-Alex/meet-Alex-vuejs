@@ -1,6 +1,32 @@
 <template>
 
   <div id="MContainer" class='content'>
+    <div id="inputDialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header header-xs">
+                   
+                    <h4 class="modal-title" id='inputDialog_title'></h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="dataField">
+                    <input type="text" placeholder="Enter name..." id="nameField">
+                    <div id="descriptionField">
+                        <!--<div ui-tinymce="tinymceOptions" class="editDescription" ng-model="inputObject.description"></div> -->
+                        <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
+                    </div>
+                    <!--
+                    <textarea id="descriptionField" placeholder="Enter description..."></textarea>
+                    -->
+                </div>
+                <div class="modal-footer header-xs">
+                    <button type="button" id='btn_newTerm' class="btn btn-info btn-xs" data-dismiss="modal">Create</button>
+                    <button type="button" id='btn_deleteTerm' class="btn btn-danger btn-xs" data-dismiss="modal">Delete</button>
+                    <button type="button" id='btn_closeInputDialog' class="btn btn-xs cancelDialog" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
    <fullscreen ref="fullscreen" :fullscreen.sync="fullscreen" :background="'#ffffff'">
     <b-navbar toggleable="md" type="dark" variant="info">
         <b-navbar-nav class="ml-auto">
@@ -30,146 +56,180 @@
 </template>
 
 <script>
+import Fullscreen from "vue-fullscreen/src/component.vue";
+const d3 = require("./visual/libs/d3.min");
+const $ = require("./visual/libs/jquery-2.1.1.min");
+d3.fisheye = require("./visual/libs/fisheye").fisheye;
+var getData = require("./visual/getData").getData($);
+var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
 
-    import Fullscreen from "vue-fullscreen/src/component.vue";
-    const d3 = require("./visual/libs/d3.v4");
-    const $ = require("./visual/libs/jquery-2.1.1.min");
-    d3.fisheye = require("./visual/libs/fisheye").fisheye;
-    var getData = require("./visual/getData").getData($);
-    var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
-    import globalData from '../global_data';
-    console.log(globalData);
-    var fullscreen=false;
+import globalData from "../global_data";
+console.log(globalData);
+var fullscreen = false;
 
-    function changedZoom(event, zoomLevel) {
-      /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
+function changedZoom(event, zoomLevel) {
+  /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
+}
+
+$(window).resize(function() {
+  //	$('#content').height($(window).height() - 46);
+  console.log("resized");
+  sizeDivs();
+});
+
+function sizeDivs() {
+  console.log(" fullscreen=", fullscreen);
+  $("#Mgraph").height($(window).height() - $("#Mmenu").height() - 20);
+  if (fullscreen) {
+    $("#Mgraph").width($(window).width());
+  } else {
+    $("#Mgraph").width($("#MContainer").width());
+  }
+  $("#Mgraph").css("marginTop", "5px");
+}
+
+window.onbeforeunload = function() {
+  console.log("saving layout");
+  Mgraph.saveLayout(collection_id, "name8");
+  // debugger;
+};
+
+import Vue from "vue";
+
+import { mapState } from "vuex";
+export default {
+  components: { Fullscreen },
+  name: "visual",
+  props: {
+    id: {
+      type: String,
+      required: true
+    },
+
+    collectionId: {
+      type: String,
+      required: true
+    },
+    value: {
+      type: Boolean,
+      required: true
     }
-
-    $(window).resize(function() {
-      //	$('#content').height($(window).height() - 46);
-      console.log("resized");
-      sizeDivs();
-    });
-
-    function sizeDivs() {
-      console.log(' fullscreen=', fullscreen);
-      $("#Mgraph").height($(window).height() - $("#Mmenu").height() - 20);
-      if (fullscreen) {
-      $("#Mgraph").width($(window).width());
-      } else {
-         $("#Mgraph").width($("#MContainer").width());
+  },
+  data() {
+    return {
+      fullscreen: false,
+      content: "",
+      autoFixSet: true,
+      showLocksSet: false,
+      relationClusterSet: Mgraph.NODECLUSTER.none,
+      Mgraph: Mgraph,
+      editTerm: { id: 0, term_name: "", term_definition: "---" },
+      tinymceOptions: {
+        inline: false,
+        plugins:
+          "advlist autolink link image lists charmap print preview paste",
+        skin: "lightgray",
+        menubar: false,
+        toolbar: "undo redo | bold italic underline",
+        statusbar: false,
+        branding: false,
+        theme: "modern",
+        paste_as_text: true,
+        content_css: "css/app_mce.css",
+        height:"100px",
+        mode: "textareas",
+        force_br_newlines: false,
+        force_p_newlines: false,
+        forced_root_block: ""
       }
-      $("#Mgraph").css("marginTop", "5px");
     }
+  },
+  methods: {
+    toggle: function() {
+      this.$refs["fullscreen"].toggle();
+      fullscreen = !this.fullscreen;
+      sizeDivs();
+    },
+    changed : function(){
+      console.log(' changed');
+    },
+    setLock: function(setLockOn) {
+      Mgraph.setAllNodesLock(setLockOn);
+    },
+    autoFix: function(autoFixOn) {
+      Mgraph.setAutoFixOfNodes(autoFixOn);
+      this.autoFixSet = autoFixOn;
+    },
+    showLocks: function(showLockOn) {
+      Mgraph.setShowLocks(showLockOn);
+      this.showLocksSet = showLockOn;
+    },
+    relationClustering: function(clusterType) {
+      Mgraph.setClusterRelations(clusterType);
+      this.relationClusterSet = clusterType;
+    }
+  },
+  watch: {
+    value: function(val) {
+      Mgraph.setEditMode(val);
+    }
+  },
+  created() {},
+  computed: {
+    ...mapState(["userinfo"])
+  },
+  mounted() {
+    fullscreen = this.fullscreen;
+    sizeDivs();
 
-    window.onbeforeunload = function() {
-      console.log("saving layout");
-      Mgraph.saveLayout(collection_id, "name8");
-      // debugger;
-    };
+    console.log("ja");
 
-    import Vue from "vue";
-    export default {
-      components: {Fullscreen},
-      name: "visual",
-      props: {
-        id: {
-          type: String,
-          required: true
-        },
-
-        collectionId: {
-          type: String,
-          required: true
-        }
-      },
-      data() {
-        return {
-           fullscreen: false,
-          content: "",
-          autoFixSet: true,
-          showLocksSet: false,
-          relationClusterSet: Mgraph.NODECLUSTER.none,
-          Mgraph: Mgraph
-        };
-      },
-      methods: {
-        
-        toggle:function () {
-        this.$refs['fullscreen'].toggle();
-        fullscreen=!this.fullscreen;
-         sizeDivs();
-       
-      
-      },
-        setLock: function(setLockOn) {
-          Mgraph.setAllNodesLock(setLockOn);
-        },
-        autoFix: function(autoFixOn) {
-          Mgraph.setAutoFixOfNodes(autoFixOn);
-          this.autoFixSet = autoFixOn;
-        },
-        showLocks: function(showLockOn) {
-          Mgraph.setShowLocks(showLockOn);
-          this.showLocksSet = showLockOn;
-        },
-        relationClustering: function(clusterType) {
-          Mgraph.setClusterRelations(clusterType);
-          this.relationClusterSet = clusterType;
-        }
-      },
-      watch: {},
-      created() {},
-      mounted() {
-        fullscreen=this.fullscreen;
-        sizeDivs();
-
-        console.log("ja");
-
-        /*
+    /*
       $('#zoomSlide').bootstrapSlider({ tooltip: 'hide' })
         .on('slide', function (e, f) { $.publish("/graph/set/zoom", [e.value]); });
     */
 
-      //  $.subscribe("/graph/event/changedZoom", changedZoom);
+    //  $.subscribe("/graph/event/changedZoom", changedZoom);
 
-       // var url = " http://localhost/meet-Alex/public/index.php";
-        var term_id = null;
-        var collection_id = this.collectionId;
+    // var url = " http://localhost/meet-Alex/public/index.php";
+    var term_id = null;
+    var collection_id = this.collectionId;
 
-        getData.init({
-          remote: true, // true=remote (fill remoteURL), false=local
-          remoteURL: globalData.apiURL
-        });
-        //typeahead.initTypeAhead(G_remote, url + '/api'); // the typeahead search function
-        // typeahead.initTypeAhead(false, url + '/api'); // the typeahead search function
-        //defBox.initDefBox({
-        //	mainDivId: "Mgraph"
-        //}); // the boxes with the definitions and details
+    getData.init({
+      remote: true, // true=remote (fill remoteURL), false=local
+      remoteURL: globalData.apiURL
+    });
+    getData.setToken(this.userinfo.token);
 
-        // initialise the visualisation, and define the callback functions
-        Mgraph.initGraph({
-          mainDivId: "Mgraph"
-        });
+    //typeahead.initTypeAhead(G_remote, url + '/api'); // the typeahead search function
+    // typeahead.initTypeAhead(false, url + '/api'); // the typeahead search function
+    //defBox.initDefBox({
+    //	mainDivId: "Mgraph"
+    //}); // the boxes with the definitions and details
 
-        // do we want to see a complete collection, or only a term?
-        $(".spinner").hide();
-        if (typeof collection_id !== "undefined") {
-          Mgraph.showModel(collection_id);
-          Mgraph.loadLayout(collection_id, "name8");
-        } else {
-          Mgraph.showTerms([term_id]);
-        }
+    // initialise the visualisation, and define the callback functions
+    Mgraph.initGraph({
+      mainDivId: "Mgraph"
+    });
 
-        //Initial configuration
+    // do we want to see a complete collection, or only a term?
+    $(".spinner").hide();
+    if (typeof collection_id !== "undefined") {
+      Mgraph.showModel(collection_id);
+      Mgraph.loadLayout(collection_id, "name8");
+    } else {
+      Mgraph.showTerms([term_id]);
+    }
 
-        this.autoFix(this.autoFixSet);
-        this.showLocks(this.showLockOn);
-        this.relationClustering(this.relationClusterSet);
-        Mgraph.setEditMode(false);
-      },
-      beforeDestroy() {}
-    };
+    //Initial configuration
+
+    this.autoFix(this.autoFixSet);
+    this.showLocks(this.showLockOn);
+    this.relationClustering(this.relationClusterSet);
+    Mgraph.setEditMode(this.value);
+  },
+  beforeDestroy() {}
+};
 </script>
 
 <style scoped>
@@ -186,6 +246,18 @@
 @import '/src/plugins/visual/sm-simple.css';
 */
 
- .content {padding-top:0.5rem}
+.content {
+  padding-top: 0.5rem;
+}
+#descriptionField {
+  
+}
 
+#descriptionEditor {
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: white;
+}
 </style>

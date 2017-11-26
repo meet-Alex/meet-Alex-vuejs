@@ -2,6 +2,7 @@ var getData = function ($) {
     var G_termList = [];
     var G_relList = [];
     var G_parms;
+    var G_token;
 
     function init(parms) {
         G_parms = parms;
@@ -24,6 +25,10 @@ var getData = function ($) {
                 });
             });
         }
+    }
+    function setToken(token) {
+        console.log("token=", token);
+        G_token=token;
     }
 
     function createRelation(link) {
@@ -514,7 +519,8 @@ var getData = function ($) {
         fetchAllTerms,
         findReference,
         getTermId,
-        loadSketch
+        loadSketch,
+        setToken
     };
     //  $.subscribe("/data/get/termId", getTermId);
     //  $.subscribe("/data/get/modelId", getModelId);

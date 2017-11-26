@@ -36,7 +36,7 @@
                     <relationList v-model="editMode" />
                 </b-tab>
                 <b-tab title="Graph">
-                     <visual v-if="selectedTab===3" id="aa" :collectionId="''+$route.params.id"  />
+                     <visual v-if="selectedTab===3" id="aa" v-model="editMode" :collectionId="''+$route.params.id"  />
                 </b-tab>
             </b-tabs>
         </b-card>

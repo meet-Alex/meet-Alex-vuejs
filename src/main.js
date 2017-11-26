@@ -38,7 +38,7 @@ Vue.filter('highlight', function(words, query) {
     });
 });
 
-new Vue({
+var vm=new Vue({
     el: '#app',
     data:{login:{email:"", token:""}
     },
