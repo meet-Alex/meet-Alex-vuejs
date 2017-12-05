@@ -286,7 +286,7 @@ var getData = function ($) {
     }
 
     function updateTerm(collection_id, term, callback) {
-        var token = $('meta[name="_token"]').attr('content');
+        var token = G_token;
         var url = G_parms.remoteURL;
         $.ajax({
             type: "PUT",
@@ -295,7 +295,7 @@ var getData = function ($) {
                 "collection_id": parseInt(collection_id),
                 "term_name": term.name,
                 "term_definition": term.description,
-                _token: token
+                "_token": token
             },
             success: function (json) {
                 console.log(json);
@@ -333,7 +333,7 @@ var getData = function ($) {
                 "collection_id": parseInt(collection_id),
                 "term_name": term.name,
                 "term_definition": term.description,
-                _token: token
+                "token": G_token
             },
             success: function (json) {
                 if (typeof jsone !== 'object') {

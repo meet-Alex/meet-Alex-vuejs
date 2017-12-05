@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import Fullscreen from "vue-fullscreen/src/component.vue";
+
 const d3 = require("./visual/libs/d3.min");
 const $ = require("./visual/libs/jquery-2.1.1.min");
 d3.fisheye = require("./visual/libs/fisheye").fisheye;
@@ -65,7 +65,7 @@ var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
 
 import globalData from "../global_data";
 console.log(globalData);
-var fullscreen = false;
+var Fullscreen1 = false;
 
 function changedZoom(event, zoomLevel) {
   /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
@@ -78,9 +78,9 @@ $(window).resize(function() {
 });
 
 function sizeDivs() {
-  console.log(" fullscreen=", fullscreen);
+  console.log(" fullscreen=", Fullscreen1);
   $("#Mgraph").height($(window).height() - $("#Mmenu").height() - 20);
-  if (fullscreen) {
+  if (Fullscreen1) {
     $("#Mgraph").width($(window).width());
   } else {
     $("#Mgraph").width($("#MContainer").width());
@@ -94,6 +94,7 @@ window.onbeforeunload = function() {
   // debugger;
 };
 
+import Fullscreen from "vue-fullscreen/src/component.vue";
 import Vue from "vue";
 
 import { mapState } from "vuex";
@@ -147,7 +148,8 @@ export default {
   methods: {
     toggle: function() {
       this.$refs["fullscreen"].toggle();
-      fullscreen = !this.fullscreen;
+      Fullscreen1 = !this.fullscreen;
+      this.fullscreen = !this.fullscreen;
       sizeDivs();
     },
     changed : function(){
@@ -179,7 +181,7 @@ export default {
     ...mapState(["userinfo"])
   },
   mounted() {
-    fullscreen = this.fullscreen;
+    Fullscreen1 = this.fullscreen;
     sizeDivs();
 
     console.log("ja");
