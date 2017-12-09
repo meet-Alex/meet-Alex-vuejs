@@ -120,40 +120,7 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
     padding:0px !important;
 }
 
-.term-container-div {
-    border:1px solid lightgrey;
-    border-radius:5px;
-    padding:0.1em 1em 1em 1em;
-}
-.term-container-div h2 {
-    font-size:1.1em;
-    margin:0em 0em 0em 0em;
-}
-.term-header-div {
-    font-size:1.2em;
-    font-weight: 600;
-}
-.term-title-div {
-    font-size:1.2em;
-    font-weight: 600;
-    margin-top:-10px;
-}
-.term-description-div {
-    font-size:1em;
-    font-weight: 400;
-}
-.term-addinfo-div {
-    font-size:0.8rem;
-    font-weight: 200;
-    border-top:1px solid lightgrey;
-    margin-top: 0.3em;
-}
-.term-header-div .nav-link {
-    font-size:0.8rem;
-    padding:0px;
-    font-weight: 400;
-    color:#0275d8;
-}
+
 
 .name1 {
      width:250px;

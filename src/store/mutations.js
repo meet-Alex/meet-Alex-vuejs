@@ -27,7 +27,8 @@ export var state = {
   userinfo: { email: "cc", token: "" },
   collections: [],
   emptyCollection: noCollection,
-  collection: noCollection
+  collection: noCollection,
+  showTermList:[]
 }
 
 export const getters = {
@@ -54,6 +55,30 @@ export const mutations = {
     } else {
       state.userinfo = { loggedin: false };
     }
+  },
+  removeTermFromList(state,index) {
+    console.log(">>",index);
+    state.showTermList.splice(index, 1);
+  },
+  clearTermList(state) {
+    state.showTermList=[];
+  },
+  fetchTerm(state, termId,position) {
+    Vue.http.get('terms/' + termId)
+    .then(response => {
+      return response.json();
+    })
+    .then(data => {
+      console.log(data);
+    //  state.showTermList.push(data);
+      state.showTermList.splice(position, 0, data);
+      console.log(state.showTermList);
+    }
+    ,
+    function (error) {
+      console.log(error);
+    });
+
   },
   fetchCollections(state) {
     var self = this;

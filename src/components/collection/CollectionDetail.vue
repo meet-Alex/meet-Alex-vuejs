@@ -56,7 +56,7 @@ export default {
   data() {
     return {
       editMode: false,
-      selectedTab: 0
+      selectedTab: 1
     };
   },
   created: function() {

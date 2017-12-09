@@ -73,12 +73,12 @@ function changedZoom(event, zoomLevel) {
 
 $(window).resize(function() {
   //	$('#content').height($(window).height() - 46);
-  console.log("resized");
+ 
   sizeDivs();
 });
 
 function sizeDivs() {
-  console.log(" fullscreen=", Fullscreen1);
+ 
   $("#Mgraph").height($(window).height() - $("#Mmenu").height() - 20);
   if (Fullscreen1) {
     $("#Mgraph").width($(window).width());
