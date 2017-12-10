@@ -19,7 +19,15 @@
                 </button>
             </b-nav>
         </div>
-        <div class="term-title-div">{{term.term_name}} </div>
+        <table class='term-header'>
+          <tr>
+            <td class="term-title">{{term.term_name}} </td>
+            <td class="term-collection" title="Go to collection"> 
+               <router-link :to="{ name: 'collectionDetail', params: { id: term.collection.id, tab:'terms' } }">  {{term.collection.collection_name}} </router-link>
+            </td>
+          </tr>
+        </table>
+ 
 
         <div v-if="!editMode" class="term-desciption-div" v-html="term.term_definition"> </div>
         <div v-if="editMode && term.term_definition">
@@ -27,14 +35,21 @@
             <tinymce id="nameEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
         </div>
         <div v-if="viewType>0">
-            <div v-if="!editMode" class="term-addinfo-div" v-html="term.term_definition"> </div>
+            <div v-if="!editMode" class="term-addinfo" v-html="term.term_definition"> </div>
         <div v-if="editMode && term.term_definition">
             <strong>Additional notes:</strong>
             <tinymce id="notesEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
         </div>
         </div>
 
-        <div class="term-addinfo-div" v-if="viewType>1">**Todo** <br>Relations+other information</div>
+        <div class="term-details" v-if="viewType>1">
+          <span class="subtitle"> Relations </span>
+
+              <relationListTerm v-model="editMode" :term="term" :index="index"/>
+        </div>
+        
+
+
             <div v-bind:class="{'div-menu-bottom':true, hide:!showMenus}">
                   <button class="button" v-if="viewType===0" v-on:click="viewType=2" title="Hide this term">
                     <i class="fa fa-angle-down fa-lg grey" aria-hidden="true"></i>
@@ -50,10 +65,11 @@
 import Vue from "vue";
 import globalData from "../global_data";
 import { mapGetters, mapState, mapMutations } from "vuex";
+import relationListTerm from "../plugins/relation-list-term.vue";
 
 export default {
   name: "termDisplay",
-  components: {},
+  components: {relationListTerm},
   props: {
     term: { type: Object, required: true },
     index: { type: Number, required: true }
@@ -94,7 +110,7 @@ export default {
   },
   created: function() {},
   methods: {
-    ...mapMutations(["removeTermFromList"]),
+    ...mapMutations(["removeTermFromList", "fetchTerm"]),
     changed: function() {},
     closeWindow: function() {
       console.log("removing", this.index);
@@ -110,6 +126,18 @@ export default {
 
 
 <style scoped>
+
+table.term-header {
+  width: calc(100% - 80px);
+}
+td.term-collection {
+  float:right;
+  color:lightgrey;
+  border:none;
+  padding:0px 8px;
+  border-radius: 5px;
+}
+
 .term-container-div {
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -125,7 +153,7 @@ export default {
   font-size: 1.2em;
   font-weight: 600;
 }
-.term-title-div {
+.term-title {
   font-size: 1.2em;
   font-weight: 600;
   margin-top: 0px;
@@ -137,11 +165,18 @@ export default {
 .fa-2 {
     width: 2rem;
 }
-.term-addinfo-div {
-  font-size: 0.8rem;
-  font-weight: 200;
+div.term-addinfo {
+  font-size: 0.9rem;
+  font-weight: 400;
   border-top: 1px solid lightgrey;
   margin-top: 0.3em;
+}
+div.term-details {
+   font-size: 0.9rem;
+  font-weight: 400;
+
+  margin-top: 0.3em;
+
 }
 .term-header-div .nav-link {
   font-size: 0.8rem;
@@ -155,7 +190,7 @@ export default {
   border: none;
   color: grey;
 }
-.button {
+button {
  
   background: none;
   border: none;
@@ -181,4 +216,23 @@ export default {
     display:none;
 }
 button:focus {outline:0 !important;}
+button:hover, i:hover {
+  cursor: pointer;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+table.relations {
+  margin:0px 0px;
+  border:none;
+  padding:5px;
+}
+table.relations td {
+  padding:0px 10px;
+  background-color: #f9f9f9;
+  border:1px solid white;
+}
+
 </style>

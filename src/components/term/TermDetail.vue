@@ -45,7 +45,7 @@ export default {
     ...mapState(["showTermList"])
      },
     created: function() {
-        this.fetchTerm(this.$route.params.id,0); 
+        this.fetchTerm({termId:this.$route.params.id,position:0}); 
     
     },
     methods: {
@@ -53,7 +53,7 @@ export default {
         
         getTerm: function(term) {
             console.log(term);
-            this.fetchTerm(term.id,0); 
+            this.fetchTerm({termId:term.id,position:0}); 
         },
         closeAll: function () {
             console.log('clearing');

@@ -63,22 +63,36 @@ export const mutations = {
   clearTermList(state) {
     state.showTermList=[];
   },
-  fetchTerm(state, termId,position) {
-    Vue.http.get('terms/' + termId)
+  fetchTerm(state, value) {
+    Vue.http.get('terms/' + value.termId)
     .then(response => {
       return response.json();
     })
     .then(data => {
       console.log(data);
     //  state.showTermList.push(data);
-      state.showTermList.splice(position, 0, data);
-      console.log(state.showTermList);
+      constructRelations(data);
+      state.showTermList.splice(value.position, 0, data);
+      console.log(value.position, state.showTermList);
     }
     ,
     function (error) {
       console.log(error);
     });
 
+    function constructRelations(data) {
+      console.log("construct Relations");
+      var relations=[];
+      data.objects.map( function (object){
+        
+        relations.push({subject:data, relation:object.relation, object:object.object, type:0});
+      });
+      data.subjects.map( function (subject){
+       
+        relations.push({object:data, relation:subject.relation, subject:subject.subject, type:1});
+      });
+      data.relations=relations;
+    }
   },
   fetchCollections(state) {
     var self = this;

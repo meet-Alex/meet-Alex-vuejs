@@ -11,15 +11,18 @@
                 </td>
                 <td align="right">
                     <b-nav class="float-right">
-                        <b-form-checkbox v-model="editMode">
-                            Edit
-                        </b-form-checkbox>
-                        <b-nav-item-dropdown :disabled="$route.params.id==='new'" text="Actions" right title='Actions for this collection'>
-                            <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
-                            <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
-                            <b-dropdown-divider></b-dropdown-divider>
-                            <b-dropdown-item title="***todo***">Archive</b-dropdown-item>
-                        </b-nav-item-dropdown>
+                        <button v-bind:class="{'button-close':true, red:editMode}" v-on:click="editMode=!editMode">
+                          <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
+                        </button>
+                        <b-dropdown variant="link" size="lg" no-caret title='Actions' :disabled="$route.params.id==='new'">
+                            <template slot="button-content">
+                            <i class="fa fa-ellipsis-h grey" aria-hidden="true"></i>
+                            </template>
+                                <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
+                                <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
+                                <b-dropdown-divider></b-dropdown-divider>
+                                <b-dropdown-item title="***todo***">Archive</b-dropdown-item>
+                      </b-dropdown>       
                     </b-nav>
                 </td>
             </tr>
@@ -105,5 +108,13 @@ export default {
 .nav-link {
   padding: 0px !important;
 }
-
+button {
+  background: none;
+  border: none;
+  color: grey;
+}
+button:focus {outline:0 !important;}
+.red {
+    color:red;
+}
 </style>
