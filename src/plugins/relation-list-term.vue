@@ -1,6 +1,5 @@
 <template>
-    <div class='content' >
-       
+    <div class='content' >  
         <div class='tableContent' ref='tabcontent'>
             <table class="table relationtable">
                 <tbody>
@@ -50,26 +49,25 @@
                         <td v-if="relation.id!==editRelationId">
                             {{relation.subject.term_name}}
                         </td>
-                        <td v-if="relation.id===editRelationId">
+                        <td v-else>
                             <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.subject" :displayName="relation.subject.term_name"></autocomplete>
                         </td>
 
                         <td v-if="relation.id!==editRelationId">
                             {{relation.relation.relation_name}}
                         </td>
-                        <td v-if="relation.id===editRelationId">
+                        <td v-else>
                             <input class="form-control lightblue" type="text" v-model="relation.relation.relation_name">
                         </td>
 
                         <td v-if="relation.id!==editRelationId">
                             {{relation.object.term_name}}
                         </td>
-                        <td v-if="relation.id===editRelationId">
+                        <td v-else>
                             <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.object" :displayName="relation.object.term_name"></autocomplete>
                         </td>
-
                         <td>
-                            <a v-if="relation.id===editRelationId" href="javascript:" class='iconbutton' v-on:click="removeRelation(relation.id, $event)">
+                            <a v-if="relation.id==editRelationId" href="javascript:" class='iconbutton' v-on:click="removeRelation(relation.id, $event)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </a>
                         </td>
@@ -95,7 +93,7 @@ export default {
     return {
       globalData: globalData,
       editTermId: 0,
-      editRelationId: 0,
+      editRelationId: -1,
       newRelation: {
         subject: { term_name: "" },
         name: "",
@@ -120,7 +118,6 @@ export default {
     value: { type: Boolean, required: true },
     term: {type: Object, required: true},
     index: {type:Number, required:true}
-   
   },
   created: function() {
       console.log(this.term);
@@ -177,6 +174,7 @@ export default {
         if (!this.term.relations||!this.term.relations.length) return null;
         var self = this;
         var result = this.term.relations;
+        result.map(relation => relation.id=relation.relation.id);
         return result.sort((a, b) => this.relationTableSort.order * a[this.relationTableSort.o1][this.relationTableSort.o2].localeCompare(b[this.relationTableSort.o1][this.relationTableSort.o2]));
     }
   }

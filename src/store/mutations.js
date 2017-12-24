@@ -18,30 +18,30 @@ const noCollection = {
   "owner_name": "",
   "bookmarked": true,
   "relations": [],
-  "relationlist": [],
+  "relationList": [],
   "ontologies": [],
   "terms": [],
   "owner": {},
   "links": []
 };
 export var state = {
-  todos: ['a', 'b'],
-  userinfo: { email: "cc", token: "" },
+  userinfo: { email: "", token: "" },
   collections: [],
   emptyCollection: noCollection,
   collection: noCollection,
+  collection_relationList:[],
   showTermList: [] //this is the list of detailed terms which are displayed
 }
 
 export const getters = {
-  getTodo: state => {
-    return state.todos
-  },
   getLogin: state => {
     return state.userinfo;
   },
   getCollections: state => {
     return state.collections;
+  },
+  relationList: state => {
+    return state.collection_relationList;
   }
 }
 
@@ -76,55 +76,124 @@ export const mutations = {
 
   },
   removeTermFromList(state, index) {
-    console.log(">>", index);
     state.showTermList.splice(index, 1);
   },
   clearTermList(state) {
     state.showTermList = [];
   },
+  // handle term changes
   fetchTerm(state, value) {
-    //  Vue.http.get('terms/' + value.termId)
     Vue.axios.get('terms/' + value.termId)
       .then(response => {
-        return response;
-      })
-      .then(response => {
         var data = response.data;
-        console.log(data);
-        //  state.showTermList.push(data);
         constructRelations(data);
         state.showTermList.splice(value.position, 0, data);
-        console.log(value.position, state.showTermList);
-      }
-      ,
-      function (error) {
-        console.log(error);
+      })
+      .catch(error => {
+        console.log(error.response);
+        alert(error.response.data.message);
       });
-
     function constructRelations(data) {
-      console.log("construct Relations");
       var relations = [];
       data.objects.map(function (object) {
-
         relations.push({ subject: data, relation: object.relation, object: object.object, type: 0 });
       });
       data.subjects.map(function (subject) {
-
         relations.push({ object: data, relation: subject.relation, subject: subject.subject, type: 1 });
       });
       data.relations = relations;
     }
   },
-  fetchCollections(state) {
+  addTerm(state, newTerm) {
+    console.log('call term create api here...', newTerm);
+    Vue.axios.post("terms", {
+      "collection_id": state.collection.id,
+      "term_name": newTerm.term_name,
+      "term_definition": newTerm.term_definition
+    })
+      .then(response => {
+        console.log(response);
+        state.collection.terms.push(response.data);
+      })
+      .catch(error => {
+        console.log(error.response);
+        alert(error.response.data.message);
+      });
+  },
+  changeTerm(state, term) {
+    if (state.collection.terms.find(x => x.id === term.id)) {
+      //only call change if term is not removed before
+      console.log('call term change  api here...', term);
+      Vue.axios.put("terms/" + term.id, {
+        "collection_id": state.collection.id,
+        "term_name": term.term_name,
+        "term_definition": term.term_definition
+      })
+        .then(resonse => { })
+        .catch(error => {
+          console.log(error.response);
+          alert(error.response.data.message);
+        });
+    }
+  },
+  removeTerm(state, term) {
+    console.log('call term remove  api here...', term);
+    Vue.axios.delete("terms/" + term.id)
+      .then(response => {
+        state.collection.terms = state.collection.terms.filter(function (thisterm) {
+          return thisterm.id != term.id;
+        })
+      })
+      .catch(error => {
+        console.log(error.response);
+        alert(error.response.data.message);
+      });
+  },
+  // handle relation changes
+  addRelation(state, newRelation) {
+    console.log('call relation create api here...', newRelation);
+    Vue.axios.post("ontologies", {
+      "collection_id": state.collection.id,
+      "object_id": newRelation.object.id,
+      "relation_name": newRelation.name,
+      "subject_id": newRelation.subject.id
+    })
+      .then(response => {
+        console.log(response);
+       // state.collection.terms.push(response.data);
+     
+       state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
+       console.log(state.collection);
+      })
+      .catch(error => {
+        console.log(error);
+        if (error.status==201) {  // somehow 201 is reported as error, but it is ok
+          state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
+          console.log(state.collection);
+        } else {
+           alert(error.response.data.message);
+        }
+      });
+  },
+  removeRelation(state, id) {
+    console.log('call relation remove  api here...', id);
+    Vue.axios.delete("ontologies/" + id)
+      .then(response => {
+         state.collection_relationList = state.collection_relationList.filter(function(relation) {
+               return relation.id != id;
+            });
+      })
+      .catch(error => {
+        console.log(error.response);
+        alert(error.response.data.message);
+      });
+  },
+  // handle collection changes
+  fetchCollections(state) { // fetch list of all collections
     var self = this;
     Vue.axios.get("collections")
       .then(response => {
-        console.log(response);
-        return response;
-      })
-      .then(response => {
         var data = response.data;
-        console.log(data);
         //data is an object, change it to array
         state.collections = Object.keys(data).map(key => data[key]);
 
@@ -137,12 +206,13 @@ export const mutations = {
         state.collections[6].authorisation = globalData.AUTHTYPE.CONTRIBUTOR;
         state.collections[8].authorisation = globalData.AUTHTYPE.BOOKMARKED;
         state.collections[9].authorisation = globalData.AUTHTYPE.BOOKMARKED;
-      },
-      function (error) {
-        console.log(error);
+      })
+      .catch(error => {
+        console.log(error.response);
+        alert(error.response.data.message);
       });
   },
-  fetchCollection(state, collectionId) {
+  fetchCollection(state, collectionId) {  // fetch one collection
     if (collectionId === 'new') {
       state.collection = JSON.parse(JSON.stringify(noCollection));
       return;
@@ -182,82 +252,24 @@ export const mutations = {
 
     Vue.axios.get("collections/" + collectionId)
       .then(response => {
-        console.log(response)
-        return response;
-      })
-      .then(response => {
         var data = response.data;
-        console.log(data);
         state.collection = data;
-        //fill breadcrum
-        state.collection.relationList = makeRelations();
+        state.collection_relationList = makeRelations();
         state.collection.public = state.collection.public.toString();
         state.collection.receive_notifications = state.collection.receive_notifications.toString();
-      }
-      ,
-      function (error) {
-        console.log(error);
-      });
-  },
-  changeCollection(state, collection) {
-    console.log('call collection change api here..', collection);
-  },
-  addTerm(state, newTerm) {
-    var addedTerm = JSON.parse(JSON.stringify(newTerm));
-    addedTerm.id = 9999;
-    console.log('call term create api here...', addedTerm);
-    state.collection.terms.push(addedTerm);
-    Vue.axios.post("terms", {
-      "collection_id": state.collection.id,
-      "term_name": addedTerm.term_name,
-      "term_definition": "Test definition",
-      "token": state.userinfo.token
-
-    });
-
-  },
-  changeTerm(state, term) {
-    if (state.collection.terms.find(x => x.id === term.id)) {
-      //only call change if term is not removed before
-      console.log('call term change  api here...', term);
-    }
-  },
-  removeTerm(state, term) {
-    console.log('call term remove  api here...', term);
-    Vue.axios.delete("terms/" + term.id)
-      .then(response => {
-        state.collection.terms = state.collection.terms.filter(function (thisterm) {
-          return thisterm.id != term.id;
-        })
       })
       .catch(error => {
         console.log(error.response);
         alert(error.response.data.message);
       });
-    //if (event) event.stopPropagation();
   },
-  deleteTodo(state, { todo }) {
-    state.todos.splice(state.todos.indexOf(todo), 1)
-  },
-
-  toggleTodo(state, { todo }) {
-    todo.done = !todo.done
-  },
-
-  editTodo(state, { todo, value }) {
-    todo.text = value
-  },
-
-  toggleAll(state, { done }) {
-    state.todos.forEach((todo) => {
-      todo.done = done
-    })
-  },
-
-  clearCompleted(state) {
-    state.todos = state.todos.filter(todo => !todo.done)
+  changeCollection(state, collection) {
+    console.log('call collection change api here..', collection);
   }
+  
 }
+
+//helper functions
 function getLoginFromStorage() {
   state.userinfo = {
     email: localStorage.email,
@@ -266,7 +278,6 @@ function getLoginFromStorage() {
     token: localStorage.token,
     loggedin: (localStorage.loggedin === "true")
   };
-
 }
 function setLoginToStorage() {
   localStorage.token = state.userinfo.token;

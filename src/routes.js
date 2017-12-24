@@ -9,6 +9,7 @@ export const routes = [
     { path: '/login', component: Login, name: 'Login' },
     { path: '/register', component: Login, name: 'Register' },
     { path: '/collections', component: Collections, name: 'collections' },
+    { path: '/ontologies',  name:'ontologies'},
     { path: '/collections/:id', component: CollectionDetail, name: 'collectionDetail' },
     { path: '/terms/:id', component: TermDetail, name: 'termDetail' }
 ];

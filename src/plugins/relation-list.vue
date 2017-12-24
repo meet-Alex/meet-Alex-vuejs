@@ -68,7 +68,7 @@
                         </td>
 
                         <td>
-                            <a v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="removeRelation(relation.id, $event)">
+                            <a v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="remRelation(relation.id, $event)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </a>
                         </td>
@@ -106,7 +106,7 @@ export default {
         viewType: globalData.VIEWTYPE.FULL,
         sortType: globalData.SORTTYPE.NAME
       },
-      relationList: [],
+    //  relationList: [],
       relationTableSort: {
         column: "Subject",
         o1: "subject",
@@ -117,16 +117,16 @@ export default {
   },
   props: {
     value: { type: Boolean, required: true }
-   
   },
   created: function() {
       var that=this;
       this.$root.$on('addRelation', function() {
             if (that.newRelation.subject.term_name.length &&
-                that.newRelation.subject.term_name.length &&
+                that.newRelation.object.term_name.length &&
                 that.newRelation.name.length) {
                 console.log('add it now!!');
-                that.relationList.push({ subject: that.newRelation.subject, name: that.newRelation.name, object: that.newRelation.object, id: that.generateId() });
+              //  that.relationList.push({ subject: that.newRelation.subject, name: that.newRelation.name, object: that.newRelation.object, id: that.generateId() });
+                that.addRelation(that.newRelation);
                 that.newRelation = { subject: { term_name: "" }, name: "", object: { term_name: "" }, id: 0 };
 
                 // reset new input field; and set focus on input field in the first cell
@@ -141,10 +141,15 @@ export default {
         });
   },
   methods: {
-   removeRelation: function(id, event) {
-            this.relationList = this.relationList.filter(function(relation) {
-                return relation.id != id;
-            });
+        ...mapMutations(["addRelation", "removeRelation"]),
+   remRelation: function(id, event) {
+         //   this.relationList = this.relationList.filter(function(relation) {
+         //       return relation.id != id;
+        //    });
+        console.log("rm");
+        this.removeRelation(id);
+
+
             if (event) event.stopPropagation();
         },
         generateId: function() {
@@ -166,11 +171,11 @@ export default {
         }
   },
   computed: {
-    ...mapState(["collection"]),
+    ...mapState(["collection", "collection_relationList"]),
     filteredRelationList: function() {
-        if (!this.collection.relationList||!this.collection.relationList.length) return null;
+        if (!this.collection_relationList||!this.collection_relationList.length) return null;
         var self = this;
-        var result = this.collection.relationList.filter(
+        var result = this.collection_relationList.filter(
             function(relation) {
                 return (relation.subject.term_name.toLowerCase().indexOf(self.relationMenu.filter.toLowerCase()) >= 0) ||
                     (relation.object.term_name.toLowerCase().indexOf(self.relationMenu.filter.toLowerCase()) >= 0) ||

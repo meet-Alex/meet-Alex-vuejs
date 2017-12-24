@@ -1,8 +1,9 @@
 /* global localStorage */
 
 import axios from 'axios'
+import globalData from '../../global_data';
 
-const API_URL = 'http://localhost/meet-Alex/public/index.php/api/';
+const API_URL = globalData.apiURL + '/';
 
 export default axios.create({
   baseURL: API_URL,
