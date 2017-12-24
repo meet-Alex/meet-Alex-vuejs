@@ -19,7 +19,7 @@
                     </tr>
                     <tr v-if="value&&editTermId===0">
                         <td colspan="3">
-                            <editTermList :editTerm="newTerm" :termList="collection.terms"></editTermList>
+                            <editTermList :editTerm="newTerm" :termList="collection.terms" @addTerm="addTerm"></editTermList>
                         </td>
 
                     </tr>
@@ -32,10 +32,10 @@
                         <td v-if="editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}" v-html="$options.filters.highlight(term.term_definition, termMenu.filter)">
                         </td>
                         <td colspan="2" v-if="editTermId == term.id && value">
-                            <editTermList :editTerm="term" :termList="collection.terms"></editTermList>
+                            <editTermList :editTerm="term" :termList="collection.terms" @changedTerm="changeTerm"></editTermList>
                         </td>
                         <td>
-                            <a v-if="editTermId == term.id && value" href="#" class='iconbutton' v-on:click="removeTerm(term.id, $event)">
+                            <a v-if="editTermId == term.id && value" href="#" class='iconbutton' v-on:click="removeTerm(term, $event)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </a>
                         </td>
@@ -73,14 +73,12 @@ export default {
        
     },
     methods: {
-          tinyMCE_Changed : function() {
+        ...mapMutations(["addTerm", "changeTerm", "removeTerm"]),
+        tinyMCE_Changed : function() {
         },
-           removeTerm: function(id, event) {
-            this.collection.terms = this.collection.terms.filter(function(term) {
-                return term.id != id;
-            });
-            if (event) event.stopPropagation();
-        },
+           
+       
+       
     },
        computed: {
           ...mapState(["collection"]),
@@ -92,7 +90,8 @@ export default {
                     return (term.term_name.toLowerCase().indexOf(self.termMenu.filter.toLowerCase()) >= 0) ||
                         (term.term_definition && term.term_definition.toLowerCase().indexOf(self.termMenu.filter.toLowerCase()) >= 0)
                 });
-            return result.sort((a, b) => (this.termMenu.sortType === globalData.SORTTYPE.CREATED) ? a.created_at.localeCompare(b.created_at) : (this.termMenu.sortType === globalData.SORTTYPE.UPDATED) ? a.updated_at.localeCompare(b.updated_at) : a.term_name.localeCompare(b.term_name));
+          
+            return result.sort((a, b) =>  (this.termMenu.sortType === globalData.SORTTYPE.CREATED) ? a.created_at.localeCompare(b.created_at) : (this.termMenu.sortType === globalData.SORTTYPE.UPDATED) ? a.updated_at.localeCompare(b.updated_at) : a.term_name.localeCompare(b.term_name));
         },
        }
 }

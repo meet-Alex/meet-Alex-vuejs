@@ -1,6 +1,8 @@
 
 import Vue from 'vue'
 import globalData from '../global_data';
+import axios from '../backend/vue-axios';
+
 const noCollection = {
   "id": -1,
   "parent_id": null,
@@ -28,7 +30,7 @@ export var state = {
   collections: [],
   emptyCollection: noCollection,
   collection: noCollection,
-  showTermList:[]
+  showTermList: [] //this is the list of detailed terms which are displayed
 }
 
 export const getters = {
@@ -36,7 +38,7 @@ export const getters = {
     return state.todos
   },
   getLogin: state => {
-    return state;
+    return state.userinfo;
   },
   getCollections: state => {
     return state.collections;
@@ -44,64 +46,84 @@ export const getters = {
 }
 
 export const mutations = {
+  getLogin(state) {
+    getLoginFromStorage();
+    handleLoginAdmin();
+  },
   updateLogin(state, logininfo) {
     if (logininfo.token.length) {
       state.userinfo = {
-        email: logininfo.email,
-        name: logininfo.email.split("@")[0],
+        email: logininfo.user.email,
+        name: logininfo.user.name,
+        id: logininfo.user.id,
         token: logininfo.token,
         loggedin: true
       };
-    } else {
-      state.userinfo = { loggedin: false };
+      setLoginToStorage();
     }
+    handleLoginAdmin();
   },
-  removeTermFromList(state,index) {
-    console.log(">>",index);
+  logOut(state) {
+    state.userinfo = {
+      email: "",
+      name: "",
+      id: "",
+      token: "",
+      loggedin: false
+    };
+    setLoginToStorage();
+    handleLoginAdmin();
+
+  },
+  removeTermFromList(state, index) {
+    console.log(">>", index);
     state.showTermList.splice(index, 1);
   },
   clearTermList(state) {
-    state.showTermList=[];
+    state.showTermList = [];
   },
   fetchTerm(state, value) {
-    Vue.http.get('terms/' + value.termId)
-    .then(response => {
-      return response.json();
-    })
-    .then(data => {
-      console.log(data);
-    //  state.showTermList.push(data);
-      constructRelations(data);
-      state.showTermList.splice(value.position, 0, data);
-      console.log(value.position, state.showTermList);
-    }
-    ,
-    function (error) {
-      console.log(error);
-    });
+    //  Vue.http.get('terms/' + value.termId)
+    Vue.axios.get('terms/' + value.termId)
+      .then(response => {
+        return response;
+      })
+      .then(response => {
+        var data = response.data;
+        console.log(data);
+        //  state.showTermList.push(data);
+        constructRelations(data);
+        state.showTermList.splice(value.position, 0, data);
+        console.log(value.position, state.showTermList);
+      }
+      ,
+      function (error) {
+        console.log(error);
+      });
 
     function constructRelations(data) {
       console.log("construct Relations");
-      var relations=[];
-      data.objects.map( function (object){
-        
-        relations.push({subject:data, relation:object.relation, object:object.object, type:0});
+      var relations = [];
+      data.objects.map(function (object) {
+
+        relations.push({ subject: data, relation: object.relation, object: object.object, type: 0 });
       });
-      data.subjects.map( function (subject){
-       
-        relations.push({object:data, relation:subject.relation, subject:subject.subject, type:1});
+      data.subjects.map(function (subject) {
+
+        relations.push({ object: data, relation: subject.relation, subject: subject.subject, type: 1 });
       });
-      data.relations=relations;
+      data.relations = relations;
     }
   },
   fetchCollections(state) {
     var self = this;
-    Vue.http.get('collections', { body: { _token: state.userinfo.token } })
+    Vue.axios.get("collections")
       .then(response => {
         console.log(response);
-        return response.json();
+        return response;
       })
-      .then(data => {
+      .then(response => {
+        var data = response.data;
         console.log(data);
         //data is an object, change it to array
         state.collections = Object.keys(data).map(key => data[key]);
@@ -121,8 +143,8 @@ export const mutations = {
       });
   },
   fetchCollection(state, collectionId) {
-    if (collectionId==='new') {
-      state.collection=JSON.parse(JSON.stringify(noCollection));
+    if (collectionId === 'new') {
+      state.collection = JSON.parse(JSON.stringify(noCollection));
       return;
     }
 
@@ -157,11 +179,14 @@ export const mutations = {
       }
       return (relationList);
     };
-    Vue.http.get('collections/' + collectionId)
+
+    Vue.axios.get("collections/" + collectionId)
       .then(response => {
-        return response.json();
+        console.log(response)
+        return response;
       })
-      .then(data => {
+      .then(response => {
+        var data = response.data;
         console.log(data);
         state.collection = data;
         //fill breadcrum
@@ -174,13 +199,43 @@ export const mutations = {
         console.log(error);
       });
   },
-  addTodo(state, { text }) {
-    state.todos.push({
-      text,
-      done: false
-    })
+  changeCollection(state, collection) {
+    console.log('call collection change api here..', collection);
   },
+  addTerm(state, newTerm) {
+    var addedTerm = JSON.parse(JSON.stringify(newTerm));
+    addedTerm.id = 9999;
+    console.log('call term create api here...', addedTerm);
+    state.collection.terms.push(addedTerm);
+    Vue.axios.post("terms", {
+      "collection_id": state.collection.id,
+      "term_name": addedTerm.term_name,
+      "term_definition": "Test definition",
+      "token": state.userinfo.token
 
+    });
+
+  },
+  changeTerm(state, term) {
+    if (state.collection.terms.find(x => x.id === term.id)) {
+      //only call change if term is not removed before
+      console.log('call term change  api here...', term);
+    }
+  },
+  removeTerm(state, term) {
+    console.log('call term remove  api here...', term);
+    Vue.axios.delete("terms/" + term.id)
+      .then(response => {
+        state.collection.terms = state.collection.terms.filter(function (thisterm) {
+          return thisterm.id != term.id;
+        })
+      })
+      .catch(error => {
+        console.log(error.response);
+        alert(error.response.data.message);
+      });
+    //if (event) event.stopPropagation();
+  },
   deleteTodo(state, { todo }) {
     state.todos.splice(state.todos.indexOf(todo), 1)
   },
@@ -202,4 +257,29 @@ export const mutations = {
   clearCompleted(state) {
     state.todos = state.todos.filter(todo => !todo.done)
   }
+}
+function getLoginFromStorage() {
+  state.userinfo = {
+    email: localStorage.email,
+    name: localStorage.name,
+    id: localStorage.id,
+    token: localStorage.token,
+    loggedin: (localStorage.loggedin === "true")
+  };
+
+}
+function setLoginToStorage() {
+  localStorage.token = state.userinfo.token;
+  localStorage.name = state.userinfo.name;
+  localStorage.id = state.userinfo.id;
+  localStorage.email = state.userinfo.email;
+  localStorage.loggedin = state.userinfo.loggedin
+}
+
+function handleLoginAdmin() {
+  Vue.axios.defaults.headers.common['authorization'] = "Bearer " + state.userinfo.token;
+  if (!state.userinfo.loggedin) {
+    state.collections = [];
+  }
+  console.log(state.userinfo);
 }

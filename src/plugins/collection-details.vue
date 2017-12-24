@@ -48,59 +48,60 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import globalData from '../global_data';
-import { mapGetters, mapState, mapMutations } from 'vuex';
+import Vue from "vue";
+import globalData from "../global_data";
+import { mapGetters, mapState, mapMutations } from "vuex";
 
 export default {
-    name: "collectionDetails",
-    data() {
-        return {
-             tinymceOptions: {
-                setup: function(ed) {
-                },
-                inline: false,
-                plugins: 'advlist autolink link image lists charmap print preview paste',
-                skin: 'lightgray',
-                menubar: false,
-                toolbar: 'undo redo | bold italic underline | bullist numlist',
-                statusbar: true,
-                branding: false,
-                resize: true,
-                theme: 'modern',
-                content_css: '/app_mce.css',
-                paste_as_text: true,
-                mode: "textareas",
-                force_br_newlines: false,
-                force_p_newlines: false,
-                forced_root_block: ''
-            }
-        }
-    },
-    props: {
-        value : {type: Boolean, required: true}
-        /*
+  name: "collectionDetails",
+  data() {
+    return {
+      tinymceOptions: {
+        setup: function(ed) {},
+        inline: false,
+        plugins:
+          "advlist autolink link image lists charmap print preview paste",
+        skin: "lightgray",
+        menubar: false,
+        toolbar: "undo redo | bold italic underline | bullist numlist",
+        statusbar: true,
+        branding: false,
+        resize: true,
+        theme: "modern",
+        content_css: "/app_mce.css",
+        paste_as_text: true,
+        mode: "textareas",
+        force_br_newlines: false,
+        force_p_newlines: false,
+        forced_root_block: ""
+      }
+    };
+  },
+  props: {
+    value: { type: Boolean, required: true }
+    /*
         displayName: { type: String, required: true },
         routerName: { type: String, default: true },
         inputArray: { type: Array, required: true }
         */
-    },
-    created: function() {
-       
-    },
-    methods: {
-          tinyMCE_Changed : function() {
-
-        }
- 
-    },
-       computed: {
-          ...mapState(["collection"])
-       }
-}
+  },
+  created: function() {},
+  methods: {
+    ...mapMutations(["changeCollection"]),
+    tinyMCE_Changed: function() {}
+  },
+  computed: {
+    ...mapState(["collection"])
+  },
+  beforeDestroy: function() {
+    console.log("beforedestroy");
+    this.changeCollection(this.collection);
+  }
+};
 </script>
 
 <style scoped>
-   .content {padding:1.5rem}
-
+.content {
+  padding: 1.5rem;
+}
 </style>

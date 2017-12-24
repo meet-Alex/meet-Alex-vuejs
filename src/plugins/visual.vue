@@ -90,7 +90,8 @@ function sizeDivs() {
 
 window.onbeforeunload = function() {
   console.log("saving layout");
-  Mgraph.saveLayout(collection_id, "name8");
+  //@todo
+  //Mgraph.saveLayout(collection_id, "name8");
   // debugger;
 };
 

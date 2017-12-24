@@ -30,7 +30,8 @@
         <b-card no-body>
             <b-tabs no-body small  v-model="selectedTab" class='nopadding'>
                 <b-tab title="Collection" class='nopadding' >
-                    <collectionDetails v-model="editMode" />
+                    <collectionDetails v-if="selectedTab===0" v-model="editMode" />
+                    <!-- the v-if is to force a beforeDestory, so the update collection api is called when another tab is selected -->
                 </b-tab>
                 <b-tab title="Terms" class='nopadding'>
                     <termList v-model="editMode" />
@@ -59,7 +60,7 @@ export default {
   data() {
     return {
       editMode: false,
-      selectedTab: 1
+      selectedTab: 0
     };
   },
   created: function() {

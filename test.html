@@ -1,0 +1,55 @@
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var url = "http://localhost/meet-Alex/public/index.php";
+            //var url = "https://www.meet-Alex.org"
+            $.ajax({
+                type: "POST",
+                url: url + "/api/login",
+                data: {
+                    //	"email": 'admin@meet-alex.org',
+                    //	"password": 'Password123'
+                    "email": 'm.a.hoogkamer@gmail.com',
+                    "password": 'alex0384'
+                },
+                success: function (json, a, b) {
+                    console.log(json, a, b);
+                    var token = json.token;
+
+                    $.ajax({
+                        type: "POST",
+                        url: url + "/api/terms",
+                        data: {
+                            "collection_id": 46,
+                            "term_name": "Test termaabbcc99",
+                            "term_definition": "Test definition",
+                            _token: token
+                        },
+                        headers: {
+        "Access-Control-Allow-Headers": "X-Requested-With",
+        "X-Requested-With": "XMLHttpRequest"        
+      },
+                        success: function (json, a, b) {
+                            console.log(json, a, b);
+                        },
+                        error: function (errMsg, a, b) {
+                            console.log(errMsg, a, b);
+                            console.log(errMsg.responseText);
+                        }
+                    });
+                },
+                error: function (errMsg, a, b) {
+                    console.log(errMsg, a, b);
+                }
+            });
+
+        });
+    </script>
+</head>
+
+
+</html>

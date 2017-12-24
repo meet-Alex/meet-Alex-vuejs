@@ -162,10 +162,10 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
     
 }
 .title-header {
-    letter-spacing:1px;
+   
     font-size:1.3em !important;
     font-weight: 500!important;
-       font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif !important;
+       font-family: "League", Gadget, sans-serif !important;
 }
 
 .float-right {

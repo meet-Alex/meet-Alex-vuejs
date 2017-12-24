@@ -333,7 +333,7 @@ var getData = function ($) {
                 "collection_id": parseInt(collection_id),
                 "term_name": term.name,
                 "term_definition": term.description,
-                "token": G_token
+                "_token": G_token
             },
             success: function (json) {
                 if (typeof jsone !== 'object') {

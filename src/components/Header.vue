@@ -13,7 +13,8 @@
                     </b-navbar-nav>
                     <b-navbar-nav class="ml-auto">
                         <b-nav-item v-if="!userinfo.loggedin"><router-link :to="{ name: 'Login' }" >Login </router-link></b-nav-item>
-                        <b-nav-item v-if="userinfo.loggedin">{{userinfo.name}}</b-nav-item>
+                        <b-nav-item v-if="userinfo.loggedin"><router-link :to="{ name: 'Login' }" >{{userinfo.name}} </router-link></b-nav-item>
+               
                     </b-navbar-nav>
                 </b-collapse>
             </div>
@@ -22,13 +23,18 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 
 export default {
   data() {
     return {};
   },
-  methods: {},
+  methods: {
+      ...mapMutations(["getLogin"])
+  },
+  created: function() { 
+      this.getLogin();
+  },
   computed: {
     ...mapState(["userinfo"])
   }

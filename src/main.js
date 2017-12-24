@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import VueResource from 'vue-resource';
+//import VueResource from 'vue-resource';
 import App from './App.vue';
 import { routes } from './routes';
 import BootstrapVue from 'bootstrap-vue/dist/bootstrap-vue.esm';
@@ -15,15 +15,17 @@ import EditTermList from './plugins/edit-term-list';
 import Autocomplete from './plugins/autocomplete';
 import store from './store';
 import globalData from './global_data';
+import axios from './backend/vue-axios';
 
 Vue.use(VueTinymce);
 Vue.use(Autocomplete);
 Vue.use(EditTermList);
 Vue.use(BootstrapVue);
 Vue.use(VueRouter);
-Vue.use(VueResource);
 
-Vue.http.options.root = globalData.apiURL + '/';
+//Vue.use(VueResource);
+
+//Vue.http.options.root = globalData.apiURL + '/';
 
 const router = new VueRouter({
     mode: 'history',
@@ -44,5 +46,6 @@ var vm=new Vue({
     },
     store,
     router,
+    axios,
     render: h => h(App)
 });

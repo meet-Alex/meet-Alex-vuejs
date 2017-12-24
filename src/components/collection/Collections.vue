@@ -4,8 +4,9 @@
         <b-breadcrumb :items="breadCrum" />
         
         <span class='title-header'>Overview collections</span>
-        <a class="btn btn-primary btn-xs float-right" href="\collections\new" title='Create a new collection'>Create collection</a> <br>
        
+       <router-link v-if="userinfo.loggedin" class="btn btn-primary btn-xs float-right" :to="{ name: 'collectionDetail', params: { id: 'new', tab:''} }"> Create collection </router-link>
+
         <tablemenu v-model="tableMenu" :showSortAuth='true' :showMenu="true" />
         <div class='tableContent' ref='tabcontent'>
             <div v-if="collections[0]">
@@ -14,7 +15,7 @@
                         <tr v-for="collection in filteredList">
 
                             <td v-bind:class="{compact:tableMenu.viewType===globalData.VIEWTYPE.COMPACT, name1:1}">
-                                <router-link :to="{ name: 'collectionDetail', params: { id: collection.id } }" v-html="$options.filters.highlight(collection.collection_name, tableMenu.filter)"> </router-link><br>
+                                <router-link :to="{ name: 'collectionDetail', params: { id: collection.id, tab:'terms' } }" v-html="$options.filters.highlight(collection.collection_name, tableMenu.filter)"> </router-link><br>
                                 <span class='info-badge' v-if="collection.authorisation===globalData.AUTHTYPE.BOOKMARKED" variant="info" title="You have bookmarked this collection. You cannot edit it">Bookmarked</span>
                                 <span class='info-badge' v-if="collection.authorisation===globalData.AUTHTYPE.CONTRIBUTOR" variant="info" title="You can edit this collection">Contributor</span>
                                 <span class='info-badge' v-if="collection.authorisation===globalData.AUTHTYPE.OWNER" variant="info" title="You are the owner of this collection">Owner</span>
@@ -72,7 +73,7 @@
             this.fetchCollections();
         },
         computed: { 
-            ...mapState(["collections"]),
+            ...mapState(["collections", "userinfo"]),
             filteredList: function() {
                 var self = this;
                 var list = this.collections.filter(
