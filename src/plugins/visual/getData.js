@@ -3,8 +3,11 @@ var getData = function ($) {
     var G_relList = [];
     var G_parms;
     var G_token;
+    var Vue;
 
-    function init(parms) {
+    function init(parms, vue) {
+
+        Vue = vue;
         G_parms = parms;
         console.log(G_parms);
         if (!G_parms.remote) {
@@ -40,66 +43,26 @@ var getData = function ($) {
         };
     }
 
-    function loadSketch(collection_id, sketch_name, callback) {
-        var token = $('meta[name="_token"]').attr('content');
-        var url = G_parms.remoteURL;
-
-        console.log(sketch_name);
-        $.ajax({
-            type: "GET",
-            url: url + "/sketches",
-            data: {
-                "collection_id": parseInt(collection_id),
-                _token: token
-            },
-            success: function (json) {
-                console.log(json);
-                var sketch_data = $.grep(json, function (d) { return d.sketch_name === sketch_name; });
-                console.log(sketch_data);
-                callback(JSON.parse(sketch_data[0].sketch_data));
-            },
-            failure: function (errMsg) {
-                console.log(errMsg);
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr, status, error);
-                alert(xhr.responseJSON.message);
-            }
-        });
-    }
 
     function getSketches(collection_id, callback) {
         $(document).ready(function () {
-            var token = $('meta[name="_token"]').attr('content');
-            var url = G_parms.remoteURL;
-            console.log("get sketches:", url + "/api/collections/" + collection_id + "/sketches");
-            $.ajax({
-                type: "GET",
-                url: url + "/collections/" + collection_id + "/sketches",
-                data: {
-                    _token: token
-                },
-                success: function (json) {
-                    console.log(json);
-                    var retVal = null;
-                    if (json.sketch_data && json.sketch_data[0] === '{') {
-                        try {
-                            retVal = JSON.parse(json.sketch_data);
-                        } catch (e) {
-                            // alert(e); // error in the above string (in this case, yes)!
-                        }
-
-                    }
-                    callback(retVal);
-                },
-                failure: function (errMsg) {
-                    console.log(errMsg);
-                },
-                error: function (xhr, status, error) {
-                    console.log(xhr, status, error);
-                    // alert(xhr.responseJSON.message);
-                    callback(null);
-                }
+            Vue.axios.get("collections/" +collection_id + "/sketches",)
+            .then(response => {
+             console.log(response, response.data.sketch_data);
+             var retVal = null;
+             if (response.data.sketch_data && response.data.sketch_data[0] === '{') {
+                 try {
+                     retVal = JSON.parse(response.data.sketch_data);
+                 } catch (e) {
+                     // alert(e); // error in the above string (in this case, yes)!
+                 }
+             }
+             console.log(retVal);
+             callback(retVal);
+            })
+            .catch(error => {
+              console.log(error.response);
+              alert(error.response.data.message);
             });
         });
     }
@@ -147,22 +110,16 @@ var getData = function ($) {
     }
 
     function getModelId(modelId, callback) {
-        if (G_parms.remote) {
-            var query = G_parms.remoteURL + '/visualise?getCollection=' + modelId;
-            console.log(query);
-            $.getJSON(query, function (graph) {
-                console.log(graph);
-                var terms = createTerms(graph.nodes);
-                var relations = createRelations(graph.links);
-                console.log(terms, relations);
-                callback({ terms: terms, relations: relations });
-            })
-                .fail(function (jqxhr) {
-                    console.log(jqxhr);
-                    var term1 = createTerm(jqxhr.responseJSON[0]);
-                    callback(term1);
-                });
-        }
+        Vue.axios.get('visualise?getCollection=' + modelId)
+        .then(graph => {
+            var terms = createTerms(graph.data.nodes);
+            var relations = createRelations(graph.data.links);
+            callback({ terms: terms, relations: relations });
+        })
+        .catch(error => {
+            console.log(error.response, error);
+            alert(error.response.data.message);
+        });
     }
     /**
      * Fetches the term object which has the termId, and calls the callback function
@@ -173,23 +130,15 @@ var getData = function ($) {
      */
 
     function getTermId(termId, callback) {
-        if (G_parms.remote) {
-            var query = G_parms.remoteURL + '/terms/' + termId;
-            console.log(query);
-            $.getJSON(query, function (graph) {
-                console.log(graph);
+            Vue.axios.get('terms/'+termId)
+            .then(graph => {
                 var term1 = createTerm(graph);
                 callback(term1);
             })
-                .fail(function (jqxhr) {
-                    console.log(jqxhr);
-                    var term1 = createTerm(jqxhr.responseJSON[0]);
-                    callback(term1);
-                });
-        } else {
-            var term = $.grep(G_termList, function (e) { return (e.id == termId); })[0];
-            callback(term);
-        }
+            .catch(error => {
+                console.log(error.response, error);
+                alert(error.response.data.message);
+            });
     }
 
     function fetchAllTerms(toFetchIds, callback) {
@@ -213,103 +162,74 @@ var getData = function ($) {
             }
         });
     }
-
     function saveRelation(collection_id, relation, callback) {
-        console.log(collection_id, relation);
-        var token = $('meta[name="_token"]').attr('content');
-        var url = G_parms.remoteURL;
-        $.ajax({
-            type: "POST",
-            url: url + "/ontologies",
-            data: {
-                "collection_id": Number(collection_id),
-                "object_id": relation.object,
-                "relation_name": relation.name,
-                "subject_id": relation.subject,
-                _token: token
-            },
-            success: function (json) {
-                console.log(json);
-                var rel = {
-                    "name": relation.name,
-                    "object": relation.object,
-                    "relation_id": json.id, //relation.name
-                    "subject": relation.subject,
-                    "status_id": 1
-
-                };
-                callback(rel);
-            },
-            failure: function (errMsg) {
-                console.log(errMsg);
+        Vue.axios.post("ontologies", {
+            "collection_id": Number(collection_id),
+            "object_id": relation.object,
+            "relation_name": relation.name,
+            "subject_id": relation.subject,
+        })
+        .then(response => {
+            var rel = {
+                "name": relation.name,
+                "object": relation.object,
+                "relation_id": response.data.id, //relation.name
+                "subject": relation.subject,
+                "status_id": 1
+            };
+            callback(rel);
+        })
+        .catch(error => {
+            console.log(error);
+            if (error.status == 201) {  // somehow 201 is reported as error, but it is ok
+                state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
+            } else {
+                alert(error.response.data.message);
             }
         });
     }
 
     function deleteTerm(collection_id, term, callback) {
-        var token = $('meta[name="_token"]').attr('content');
-        var url = G_parms.remoteURL;
-        $.ajax({
-            type: "DELETE",
-            url: url + "/terms/" + term.id,
-            data: {
-                _token: token
-            },
-            success: function (json) {
-                console.log(json);
-                callback(term);
-            },
-            failure: function (errMsg) {
-                console.log(errMsg);
-            }
+        Vue.axios.delete("terms/" + term.id)
+        .then(response => {
+            callback(term);
+        })
+        .catch(error => {
+          console.log(error.response);
+          alert(error.response.data.message);
         });
     }
 
     function deleteRelation(collection_id, relation, callback) {
-        console.log(relation);
-        var token = $('meta[name="_token"]').attr('content');
-        var url = G_parms.remoteURL;
-        $.ajax({
-            type: "DELETE",
-            url: url + "/ontologies/" + relation.id,
-            data: {
-                _token: token
-            },
-            success: function (json) {
-                console.log(json);
-                callback(relation);
-            },
-            failure: function (errMsg) {
-                console.log(errMsg);
-            }
+        Vue.axios.delete("ontologies/" + relation.id)
+        .then(response => {
+            callback(relation);
+        })
+        .catch(error => {
+          console.log(error.response);
+          alert(error.response.data.message);
         });
     }
 
     function updateTerm(collection_id, term, callback) {
-        var token = G_token;
-        var url = G_parms.remoteURL;
-        $.ajax({
-            type: "PUT",
-            url: url + "/terms/" + parseInt(term.id),
-            data: {
-                "collection_id": parseInt(collection_id),
-                "term_name": term.name,
-                "term_definition": term.description,
-                "_token": token
-            },
-            success: function (json) {
-                console.log(json);
-                var term = {
-                    name: json.term_name,
-                    description: json.term_definition,
-                    collection_id: json.collection_id,
-                    id: json.id
-                };
-                callback(term);
-            },
-            failure: function (errMsg) {
-                console.log(errMsg);
-            }
+        Vue.axios.put("terms/" + term.id, {
+        "collection_id": parseInt(collection_id),
+        "term_name": term.name,
+        "term_definition": term.description
+        })
+        .then(response => { 
+            console.log(response);
+            var term = {
+                name: response.data.term_name,
+                description: response.data.term_definition,
+                collection_id: response.data.collection_id,
+                id: response.data.id
+            };
+            callback(term);
+        })
+        .catch(error => {
+            console.log(error.response, error);
+            alert(error.response.data.message);
         });
     }
 
@@ -324,40 +244,27 @@ var getData = function ($) {
     }
 
     function saveTerm(collection_id, term, callback) {
-        var token = $('meta[name="_token"]').attr('content');
-        var url = G_parms.remoteURL;
-        $.ajax({
-            type: "POST",
-            url: url + "/terms",
-            data: {
-                "collection_id": parseInt(collection_id),
-                "term_name": term.name,
-                "term_definition": term.description,
-                "_token": G_token
-            },
-            success: function (json) {
-                if (typeof jsone !== 'object') {
-                    var term = {
-                        id: json.id,
-                        name: json.term_name,
-                        description: json.term_definition,
-                        addinfo: "",
-                        collection_id: parseInt(json.collection_id),
-                        collection_name: json.collection_name
-                    };
-                    callback(term);
-                } else {
-                    callback(json);
-                }
-            },
-            failure: function (errMsg) {
-                console.log(errMsg);
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr, status, error);
-                alert(xhr.responseJSON.message);
-            }
-        });
+        Vue.axios.post("terms", {
+            "collection_id": parseInt(collection_id),
+            "term_name": term.name,
+            "term_definition": term.description,
+        })
+          .then(response => {
+            console.log(response);
+            var term = {
+                id: response.data.id,
+                name: response.data.term_name,
+                description: response.data.term_definition,
+                addinfo: "",
+                collection_id: parseInt(response.data.collection_id),
+                collection_name: response.data.collection_name
+            };
+            callback(term);
+          })
+          .catch(error => {
+            console.log(error.response);
+            alert(error.response.data.message);
+          });
     }
 
     function deleteSketches(collection_id) {
@@ -380,29 +287,19 @@ var getData = function ($) {
     }
 
     function saveSketch(collection_id, sketch_name, graph) {
-        var token = $('meta[name="_token"]').attr('content');
-        var url = G_parms.remoteURL;
-        console.log(graph);
-        $.ajax({
-            type: "POST",
-            url: url + "/sketches",
-            data: {
-                "collection_id": parseInt(collection_id),
-                "sketch_name": "name8",
-                "sketch_data": JSON.stringify(graph),
-                _token: token
-            },
-            success: function (json) {
-                console.log(json);
-            },
-            failure: function (errMsg) {
-                console.log(errMsg);
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr, status, error);
-                //   alert(xhr.responseJSON.message);
-            }
-        });
+        console.log('saving sketch');
+        Vue.axios.post("sketches", {
+            "collection_id": parseInt(collection_id),
+            "sketch_name": "name8",
+            "sketch_data": JSON.stringify(graph),
+          })
+            .then(response => {
+              console.log(response);
+            })
+            .catch(error => {
+              console.log(error.response);
+              alert(error.response.data.message);
+            });
     }
 
     /**
@@ -519,25 +416,8 @@ var getData = function ($) {
         fetchAllTerms,
         findReference,
         getTermId,
-        loadSketch,
+      //  loadSketch,
         setToken
     };
-    //  $.subscribe("/data/get/termId", getTermId);
-    //  $.subscribe("/data/get/modelId", getModelId);
-    // $.subscribe("/data/get/references", findReference);
-    //  $.subscribe("/data/get/allTerms", getAllTerms); // @todo
-    //  $.subscribe("/data/get/termsWithRelations", fetchAllTerms);
-    // $.subscribe("/data/get/sketches", getSketches);
-    // $.subscribe("/data/put/sketch", saveSketch);
-    //   $.subscribe("/data/put/term", saveTerm);
-    // $.subscribe("/data/update/term", updateTerm);
-    //  $.subscribe("/data/update/relation", updateRelation);
-
-    //   $.subscribe("/data/delete/term", deleteTerm);
-    //  $.subscribe("/data/delete/relation", deleteRelation);
-    //   $.subscribe("/data/delete/sketches", deleteSketches);
-    //  $.subscribe("/data/put/relation", saveRelation);
-    //  $.subscribe("/data/get/sketch", loadSketch);
-
 };
 exports.getData = getData;

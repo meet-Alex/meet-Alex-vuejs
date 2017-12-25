@@ -29,7 +29,7 @@ export var state = {
   collections: [],
   emptyCollection: noCollection,
   collection: noCollection,
-  collection_relationList:[],
+  collection_relationList: [],
   showTermList: [] //this is the list of detailed terms which are displayed
 }
 
@@ -82,15 +82,19 @@ export const mutations = {
     state.showTermList = [];
   },
   // handle term changes
-  fetchTerm(state, value) {
-    Vue.axios.get('terms/' + value.termId)
+  fetchTerm(state, term) {
+    Vue.axios.get('terms/' + term.termId)
       .then(response => {
         var data = response.data;
         constructRelations(data);
-        state.showTermList.splice(value.position, 0, data);
+        // avoid that a term occurs twice, so first remove from list, then add again
+        state.showTermList = state.showTermList.filter(function (thisterm) {
+          return thisterm.id != term.termId;
+        })
+        state.showTermList.splice(term.position, 0, data);
       })
       .catch(error => {
-        console.log(error.response);
+        console.log(error.response, error);
         alert(error.response.data.message);
       });
     function constructRelations(data) {
@@ -125,7 +129,7 @@ export const mutations = {
       //only call change if term is not removed before
       console.log('call term change  api here...', term);
       Vue.axios.put("terms/" + term.id, {
-        "collection_id": state.collection.id,
+        "collection_id": term.collection_id,
         "term_name": term.term_name,
         "term_definition": term.term_definition
       })
@@ -150,43 +154,35 @@ export const mutations = {
       });
   },
   // handle relation changes
-  addRelation(state, newRelation) {
-    console.log('call relation create api here...', newRelation);
-    Vue.axios.post("ontologies", {
-      "collection_id": state.collection.id,
-      "object_id": newRelation.object.id,
-      "relation_name": newRelation.name,
-      "subject_id": newRelation.subject.id
-    })
-      .then(response => {
-        console.log(response);
-       // state.collection.terms.push(response.data);
-     
-       state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
-       console.log(state.collection);
-      })
-      .catch(error => {
-        console.log(error);
-        if (error.status==201) {  // somehow 201 is reported as error, but it is ok
-          state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
-          console.log(state.collection);
-        } else {
-           alert(error.response.data.message);
-        }
-      });
+  addRelation(state, parms) {
+    addRelation1(state, parms);
   },
   removeRelation(state, id) {
-    console.log('call relation remove  api here...', id);
-    Vue.axios.delete("ontologies/" + id)
-      .then(response => {
-         state.collection_relationList = state.collection_relationList.filter(function(relation) {
-               return relation.id != id;
-            });
-      })
+    removeRelation1(state, id, null);
+  },
+  changeRelation(state, parms) {
+    var relation=parms.relation;
+    var collectionId=parms.collectionId;
+    console.log('Todo Change relation api call', relation);
+    removeRelation1(state, relation.id);
+    addRelation1(state, parms);
+
+
+
+    /*
+    //only call change if term is not removed before
+    console.log('call term change  api here...', term);
+    Vue.axios.put("terms/" + term.id, {
+      "collection_id": term.collection_id,
+      "term_name": term.term_name,
+      "term_definition": term.term_definition
+    })
+      .then(resonse => { })
       .catch(error => {
         console.log(error.response);
         alert(error.response.data.message);
       });
+  */
   },
   // handle collection changes
   fetchCollections(state) { // fetch list of all collections
@@ -223,7 +219,10 @@ export const mutations = {
       var relation = {}, relationList = [];
       var i, a;
       for (i = 0; i < state.collection.ontologies.length; i++) {
+
         ontology = state.collection.ontologies[i];
+        if (ontology.archived) {continue}; // remove deleted relations
+        relation={};
         relation.id = ontology.id;
         // replace ids by the objects
         for (a = 0; a < state.collection.terms.length; a++) {
@@ -234,7 +233,7 @@ export const mutations = {
           if (ontology.object_id === term.id) {
             relation.object = term;
           }
-          if (ontology.subject && ontology.subject) {
+          if (relation.object && relation.subject) {
             break;
           }
         }
@@ -245,7 +244,12 @@ export const mutations = {
             break;
           }
         }
-        relationList.push({ id: relation.id, object: relation.object, name: relation.name, subject: relation.subject });
+        if (!relation.object || !relation.subject) {  // fetch terms which are not part of this collection
+          getOntology(ontology.id);
+        }
+        else {
+           relationList.push({ id: relation.id, object: relation.object, name: relation.name, subject: relation.subject });
+        }
       }
       return (relationList);
     };
@@ -266,7 +270,7 @@ export const mutations = {
   changeCollection(state, collection) {
     console.log('call collection change api here..', collection);
   }
-  
+
 }
 
 //helper functions
@@ -293,4 +297,51 @@ function handleLoginAdmin() {
     state.collections = [];
   }
   console.log(state.userinfo);
+}
+function addRelation1(state, parms) {
+  console.log('call relation create api here...', parms);
+  var newRelation = parms.relation;
+  var collectionId = parms.collectionId;
+  Vue.axios.post("ontologies", {
+    "collection_id": collectionId,
+    "object_id": newRelation.object.id,
+    "relation_name": newRelation.name,
+    "subject_id": newRelation.subject.id
+  })
+    .then(response => {
+      console.log(response);
+      state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
+    })
+    .catch(error => {
+      console.log(error);
+      if (error.status == 201) {  // somehow 201 is reported as error, but it is ok
+        state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
+      } else {
+        alert(error.response.data.message);
+      }
+    });
+}
+function  removeRelation1(state, id) {
+  console.log('call relation remove  api here...', id);
+  Vue.axios.delete("ontologies/" + id)
+    .then(response => {
+      state.collection_relationList = state.collection_relationList.filter(function (relation) {
+        return relation.id != id;
+      });
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+}
+function getOntology(id) {
+  Vue.axios.get('ontologies/' + id)
+  .then(response => {
+    var data = response.data;
+    state.collection_relationList.push({ id: id, object: data.object, name: data.relation.relation_name, subject: data.subject });
+  })
+  .catch(error => {
+    console.log(error.response, error);
+    alert(error.response.data.message);
+  });
 }

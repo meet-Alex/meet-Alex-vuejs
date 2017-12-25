@@ -28,6 +28,7 @@ var Mgraph = function(d3,$, getData) {
         G_brush,
         G_brushing,
         G_brushing_selection,
+        G_dirty,
         zoomcalled = 1,
         Dims = {},
         simulation,
@@ -58,6 +59,7 @@ var Mgraph = function(d3,$, getData) {
         hierarchyOnly = false; //only show hierarchy
         G_clusterRelations = NODECLUSTER.in; //0=no, 1=incoming, 2=outgoing
         G_editMode = false; // start in viewmode
+        G_dirty = false;
         highlightedTermId = null; //term ID to highlight in graph
         autoFix = true; //fix an element after dragging
         G_nodelist = []; // terms to display (with related terms)
@@ -334,9 +336,13 @@ var Mgraph = function(d3,$, getData) {
             setAllNodesLock(true);
 
             svg0.selectAll('.zoomRect').style('stroke', 'red');
+            G_dirty=true; // it is possibly edited, so update everything on leave
         } else {
             svg0.selectAll('.zoomRect').style('stroke', 'grey');
         }
+    }
+    function isDirty() {
+        return G_dirty;
     }
 
     /**
@@ -1858,7 +1864,7 @@ var Mgraph = function(d3,$, getData) {
 
 
 
-
+    $(document).off('click', "#btn_newTerm");
     $(document).on('click', "#btn_newTerm", function(e) {
         var dataObject = JSON.parse($('#dataField').val());
         var name = $('#nameField').val();
@@ -1877,7 +1883,9 @@ var Mgraph = function(d3,$, getData) {
         if ($(this).val() == DIALOG.changeRelation) {
             changeRelation(name, dataObject);
         }
+        $('#inputDialog').hide();
     });
+    $(document).off('click', "#btn_deleteTerm");
     $(document).on('click', "#btn_deleteTerm", function(e) {
         var dataObject;
         if ($(this).val() == DIALOG.changeTerm) { // the change term dialog contains a delete button to remove the term
@@ -1888,7 +1896,9 @@ var Mgraph = function(d3,$, getData) {
             dataObject = JSON.parse($('#dataField').val());
             deleteRelation(dataObject);
         }
+        $('#inputDialog').hide();
     });
+    $(document).off('click', ".cancelDialog");
     $(document).on('click', ".cancelDialog", function(e) {
         resetMouseVars(); //there might be a dragline for new relations. close it
     });
@@ -1984,7 +1994,8 @@ var Mgraph = function(d3,$, getData) {
         loadLayout,
         showTerms,
         saveLayout,
-        setEditMode
+        setEditMode,
+        isDirty
     };
 
    // $.subscribe("/graph/show/termId", showTerms);

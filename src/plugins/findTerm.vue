@@ -4,16 +4,18 @@
         <!-- optional indicators -->
         <i class="fa fa-spinner fa-spin" v-if="loading"></i>
         <template v-else>
+        
         <i class="fa fa-search" v-show="isEmpty"></i>
         <i class="fa fa-times" v-show="isDirty" @click="reset"></i>
         </template>
 
         <!-- the input field -->
-        <input type="text"
+        <input  type="text"
             placeholder="find term...."
-            autocomplete="off"
+            autocomplete="on"
             v-model="query"
             @keydown.down="down"
+            @keydown.tab="tabPressed"
             @keydown.up="up"
             @keydown.enter="hit"
             @keydown.esc="reset"
@@ -47,7 +49,10 @@ import VueTypeahead from 'vue-typeahead'
 export default {
      name: "findterm",
   extends: VueTypeahead, 
-  props: {change:{type:Function}},
+  props: {change:{type:Function},
+          relation:{type:Object},
+          prefill:{type:String}
+ },
 
   data () {
     return {
@@ -74,17 +79,41 @@ export default {
       // Override the default value (`q`) of query parameter name
       // Use a falsy value for RESTful query
       // (optional)
-      queryParamName: 'search'
+      queryParamName: 'search',
+      searchName: ''
     }
+  },
+  created : function(){
+      this.query=this.prefill||"";
   },
 
   methods: {
     // The callback function which is triggered when the user hits on an item
     // (required)
     onHit (item) {
-        console.log('hitted');
-       this.change(item);
+      if (this.relation) {
+            this.change(item, this.relation);
+            this.query=item.term_name;
+      } else {
+          this.change(item);
+      }
+      if (!this.prefill) {
+       this.reset();
+      }
     },
+    tabPressed(e) {
+        if (!this.items.length) return;  // if tab is pressed and there is no selection-list, do normal behaviour, else tab is move up/down in list
+        e.preventDefault();
+        if (e.shiftKey) {
+            this.up();
+        } else {
+        this.down();
+        }
+    },
+    cancel () {
+        console.log('cancelled');
+    },
+   
 
     // The callback function which is triggered when the response data are received
     // (optional)
@@ -100,6 +129,11 @@ export default {
     .Typeahead {
     position: relative;
     margin-bottom:10px;
+    width:600px;
+    }
+    .Typeahead table tr td{
+        border:none;
+        padding:0px;
     }
     .Typeahead__input {
     width: 100%;
@@ -183,5 +217,6 @@ export default {
     .screen-name {
     font-style: italic;
     }
+    
    
 </style>

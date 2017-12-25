@@ -45,26 +45,24 @@
                         </td>
                         <td></td>
                     </tr>
-                    <tr v-if="value" v-on:click="clickTest(relation.id)" v-for="(relation, index) in filteredRelationList">
-                        <td v-if="relation.id!==editRelationId">
+                    <tr v-if="value"  v-for="(relation, index) in filteredRelationList">
+                        <td v-if="relation.id===editRelationId && editCol===1">
+                            <findterm :prefill="relation.subject.term_name" :relation="relation" :change="updateSubject"/>
+                        </td>
+                        <td v-else v-on:click="clickTest(relation.id,1)">
                             {{relation.subject.term_name}}
+                        </td>     
+                        <td v-if="relation.id===editRelationId && editCol===2">
+                            <input class="form-control lightblue" type="text" v-model="relation.name" @change="updateRelName(relation)">
                         </td>
-                        <td v-if="relation.id===editRelationId">
-                            <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.subject" :displayName="relation.subject.term_name"></autocomplete>
-                        </td>
-
-                        <td v-if="relation.id!==editRelationId">
+                         <td v-else  v-on:click="clickTest(relation.id,2)">
                             {{relation.name}}
                         </td>
-                        <td v-if="relation.id===editRelationId">
-                            <input class="form-control lightblue" type="text" v-model="relation.name">
+                        <td v-if="relation.id===editRelationId && editCol===3">
+                             <findterm :prefill="relation.object.term_name" :relation="relation" :change="updateObject"/>
                         </td>
-
-                        <td v-if="relation.id!==editRelationId">
+                         <td v-else v-on:click="clickTest(relation.id,3)">
                             {{relation.object.term_name}}
-                        </td>
-                        <td v-if="relation.id===editRelationId">
-                            <autocomplete :new="false" :suggestions="collection.terms" v-model="relation.object" :displayName="relation.object.term_name"></autocomplete>
                         </td>
 
                         <td>
@@ -85,16 +83,18 @@ import Vue from "vue";
 import globalData from "../global_data";
 import { mapGetters, mapState, mapMutations } from "vuex";
 import tablemenu from "./tablemenu.vue";
+import findterm from "./findTerm.vue";
 
 export default {
   name: "relationList",
-  components: { tablemenu },
+  components: { tablemenu, findterm },
 
   data() {
     return {
       globalData: globalData,
       editTermId: 0,
       editRelationId: 0,
+      editCol: 0,
       newRelation: {
         subject: { term_name: "" },
         name: "",
@@ -106,7 +106,7 @@ export default {
         viewType: globalData.VIEWTYPE.FULL,
         sortType: globalData.SORTTYPE.NAME
       },
-    //  relationList: [],
+      //  relationList: [],
       relationTableSort: {
         column: "Subject",
         o1: "subject",
@@ -119,81 +119,139 @@ export default {
     value: { type: Boolean, required: true }
   },
   created: function() {
-      var that=this;
-      this.$root.$on('addRelation', function() {
-            if (that.newRelation.subject.term_name.length &&
-                that.newRelation.object.term_name.length &&
-                that.newRelation.name.length) {
-                console.log('add it now!!');
-              //  that.relationList.push({ subject: that.newRelation.subject, name: that.newRelation.name, object: that.newRelation.object, id: that.generateId() });
-                that.addRelation(that.newRelation);
-                that.newRelation = { subject: { term_name: "" }, name: "", object: { term_name: "" }, id: 0 };
+    var that = this;
+    this.$root.$on("addRelation", function() {
+      if (
+        that.newRelation.subject.term_name.length &&
+        that.newRelation.object.term_name.length &&
+        that.newRelation.name.length
+      ) {
+        console.log("add it now!!", that.collection);
+        //  that.relationList.push({ subject: that.newRelation.subject, name: that.newRelation.name, object: that.newRelation.object, id: that.generateId() });
+        that.addRelation({relation:that.newRelation, collectionId:that.collection.id});
+        that.newRelation = {
+          subject: { term_name: "" },
+          name: "",
+          object: { term_name: "" },
+          id: 0
+        };
 
-                // reset new input field; and set focus on input field in the first cell
-                that.editRelationId = -1;
-                that.$nextTick(function() {
-                    that.editRelationId = 0;
-                    that.$nextTick(function() {
-                        that.$refs.newRelFocus.children[0].children[0].focus();
-                    });
-                });
-            }
+        // reset new input field; and set focus on input field in the first cell
+        that.editRelationId = -1;
+        that.$nextTick(function() {
+          that.editRelationId = 0;
+          that.$nextTick(function() {
+            that.$refs.newRelFocus.children[0].children[0].focus();
+          });
         });
+      }
+    });
   },
   methods: {
-        ...mapMutations(["addRelation", "removeRelation"]),
-   remRelation: function(id, event) {
-         //   this.relationList = this.relationList.filter(function(relation) {
-         //       return relation.id != id;
-        //    });
-        console.log("rm");
-        this.removeRelation(id);
+    ...mapMutations(["addRelation", "removeRelation", "changeRelation"]),
+    updateSubject(newterm, relation) {
+      var newRel=JSON.parse(JSON.stringify(relation));
+      newRel.subject=JSON.parse(JSON.stringify(newterm));
+      this.changeRelation({relation:newRel, collectionId:this.collection.id});
+      this.editCol = 0;
+    },
+    updateObject(newterm, relation) {
+      var newRel=JSON.parse(JSON.stringify(relation));
+      newRel.object=JSON.parse(JSON.stringify(newterm));
+      this.changeRelation({relation:newRel, collectionId:this.collection.id});
+      this.editCol = 0;
+    },
+    updateRelName(relation) {
+        console.log('updaterelname');
+        var newRel=JSON.parse(JSON.stringify(relation));
+         this.changeRelation({relation:newRel, collectionId:this.collection.id});
+      this.editCol = 0;
 
-
-            if (event) event.stopPropagation();
-        },
-        generateId: function() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random() * 16 | 0,
-                    v = c == 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        },
-        clickTest: function(relationId) {
-            console.log("clicked", relationId);
-            this.editRelationId = relationId;
-        },
-        sortBy: function(column) {
-            this.relationTableSort.order = (this.relationTableSort.column === column) ? this.relationTableSort.order * -1 : 1;
-            this.relationTableSort.column = column;
-            this.relationTableSort.o1 = (column == "Object") ? "object" : (column == "Subject") ? "subject" : "relation";
-            this.relationTableSort.o2 = (column == "Object") ? "term_name" : (column == "Subject") ? "term_name" : "name";
-        }
+    },
+    remRelation: function(id, event) {
+      //   this.relationList = this.relationList.filter(function(relation) {
+      //       return relation.id != id;
+      //    });
+      console.log("rm");
+      this.removeRelation(id);
+      if (event) event.stopPropagation();
+    },
+    generateId: function() {
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
+        c
+      ) {
+        var r = (Math.random() * 16) | 0,
+          v = c == "x" ? r : (r & 0x3) | 0x8;
+        return v.toString(16);
+      });
+    },
+    clickTest: function(relationId, col) {
+      console.log("clicked", relationId);
+      this.editRelationId = relationId;
+      this.editCol = col;
+    },
+    sortBy: function(column) {
+      this.relationTableSort.order =
+        this.relationTableSort.column === column
+          ? this.relationTableSort.order * -1
+          : 1;
+      this.relationTableSort.column = column;
+      this.relationTableSort.o1 =
+        column == "Object"
+          ? "object"
+          : column == "Subject" ? "subject" : "relation";
+      this.relationTableSort.o2 =
+        column == "Object"
+          ? "term_name"
+          : column == "Subject" ? "term_name" : "name";
+    }
   },
   computed: {
     ...mapState(["collection", "collection_relationList"]),
     filteredRelationList: function() {
-        if (!this.collection_relationList||!this.collection_relationList.length) return null;
-        var self = this;
-        var result = this.collection_relationList.filter(
-            function(relation) {
-                return (relation.subject.term_name.toLowerCase().indexOf(self.relationMenu.filter.toLowerCase()) >= 0) ||
-                    (relation.object.term_name.toLowerCase().indexOf(self.relationMenu.filter.toLowerCase()) >= 0) ||
-                    (relation.name.toLowerCase().indexOf(self.relationMenu.filter.toLowerCase()) >= 0)
-
-            });
-        if (this.relationTableSort.o1 !== 'relation') {
-            return result.sort((a, b) => this.relationTableSort.order * a[this.relationTableSort.o1][this.relationTableSort.o2].localeCompare(b[this.relationTableSort.o1][this.relationTableSort.o2]));
-        } else {
-            return result.sort((a, b) => this.relationTableSort.order * a[this.relationTableSort.o2].localeCompare(b[this.relationTableSort.o2]));
-
-        }
+        console.log(this.collection_relationList);
+      if (!this.collection_relationList || !this.collection_relationList.length)
+        return null;
+      var self = this;
+      var result = this.collection_relationList.filter(function(relation) {
+        return (
+          relation.subject.term_name
+            .toLowerCase()
+            .indexOf(self.relationMenu.filter.toLowerCase()) >= 0 ||
+          relation.object.term_name
+            .toLowerCase()
+            .indexOf(self.relationMenu.filter.toLowerCase()) >= 0 ||
+          relation.name
+            .toLowerCase()
+            .indexOf(self.relationMenu.filter.toLowerCase()) >= 0
+        );
+      });
+      if (this.relationTableSort.o1 !== "relation") {
+        return result.sort(
+          (a, b) =>
+            this.relationTableSort.order *
+            a[this.relationTableSort.o1][
+              this.relationTableSort.o2
+            ].localeCompare(
+              b[this.relationTableSort.o1][this.relationTableSort.o2]
+            )
+        );
+      } else {
+        return result.sort(
+          (a, b) =>
+            this.relationTableSort.order *
+            a[this.relationTableSort.o2].localeCompare(
+              b[this.relationTableSort.o2]
+            )
+        );
+      }
     }
   }
 };
 </script>
 
 <style scoped>
- .content {padding-top:0.5rem}
-
+.content {
+  padding-top: 0.5rem;
+}
 </style>

@@ -2,7 +2,7 @@
     <div class="term-container-div" v-on:mouseenter="showMenus=true" v-on:mouseleave="showMenus=false">
         <div v-bind:class="{'div-menu-top':true, hide:!showMenus}">
             <b-nav class="float-right">
-                <button v-bind:class="{'button-close':true, red:editMode}" v-on:click="editMode=!editMode">
+                <button v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditMode">
                     <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
                 </button>
                 <b-dropdown variant="link" size="lg" no-caret title='Actions'>
@@ -30,13 +30,13 @@
  
 
         <div v-if="!editMode" class="term-desciption-div" v-html="term.term_definition"> </div>
-        <div v-if="editMode && term.term_definition">
+        <div v-if="editMode">
             <strong>Description:</strong>
             <tinymce id="nameEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
         </div>
         <div v-if="viewType>0">
             <div v-if="!editMode" class="term-addinfo" v-html="term.term_definition"> </div>
-        <div v-if="editMode && term.term_definition">
+        <div v-if="editMode">
             <strong>Additional notes:</strong>
             <tinymce id="notesEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
         </div>
@@ -110,8 +110,14 @@ export default {
   },
   created: function() {},
   methods: {
-    ...mapMutations(["removeTermFromList", "fetchTerm"]),
+    ...mapMutations(["removeTermFromList", "fetchTerm", "changeTerm"]),
     changed: function() {},
+    changeEditMode: function() {
+      if (this.editMode) {
+        this.changeTerm(this.term);
+      }
+      this.editMode=!this.editMode;
+    },
     closeWindow: function() {
       console.log("removing", this.index);
       this.removeTermFromList(this.index);
@@ -119,6 +125,12 @@ export default {
   },
   computed: {
     ...mapState(["showTermList"])
+  },
+    beforeDestroy: function() {
+    console.log("beforedestroy");
+      if (this.editMode) {
+        this.changeTerm(this.term);
+      }
   }
 };
 </script>

@@ -64,7 +64,8 @@ var getData = require("./visual/getData").getData($);
 var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
 
 import globalData from "../global_data";
-console.log(globalData);
+import vuex from "vuex";
+console.log(globalData, vuex);
 var Fullscreen1 = false;
 
 function changedZoom(event, zoomLevel) {
@@ -98,7 +99,8 @@ window.onbeforeunload = function() {
 import Fullscreen from "vue-fullscreen/src/component.vue";
 import Vue from "vue";
 
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
+import axios from '../backend/vue-axios';
 export default {
   components: { Fullscreen },
   name: "visual",
@@ -147,6 +149,7 @@ export default {
     }
   },
   methods: {
+     ...mapMutations(["fetchTerm", "clearTermList", "fetchVisual", "fetchCollection"]),
     toggle: function() {
       this.$refs["fullscreen"].toggle();
       Fullscreen1 = !this.fullscreen;
@@ -201,7 +204,7 @@ export default {
     getData.init({
       remote: true, // true=remote (fill remoteURL), false=local
       remoteURL: globalData.apiURL
-    });
+    }, Vue);
     getData.setToken(this.userinfo.token);
 
     //typeahead.initTypeAhead(G_remote, url + '/api'); // the typeahead search function
@@ -231,7 +234,14 @@ export default {
     this.relationClustering(this.relationClusterSet);
     Mgraph.setEditMode(this.value);
   },
-  beforeDestroy() {}
+  beforeDestroy() {
+      // need to refetch the collection to update the store with the visual changes, and save layout of visual
+      if (Mgraph.isDirty()) {
+        console.log('refetch collection');
+         this.fetchCollection(this.collectionId);
+      }
+      Mgraph.saveLayout(this.collectionId, "name8");
+  }
 };
 </script>
 
