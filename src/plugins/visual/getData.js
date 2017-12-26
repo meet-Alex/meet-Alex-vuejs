@@ -30,7 +30,7 @@ var getData = function ($) {
         }
     }
     function setToken(token) {
-        console.log("token=", token);
+      
         G_token=token;
     }
 
@@ -44,28 +44,7 @@ var getData = function ($) {
     }
 
 
-    function getSketches(collection_id, callback) {
-        $(document).ready(function () {
-            Vue.axios.get("collections/" +collection_id + "/sketches",)
-            .then(response => {
-             console.log(response, response.data.sketch_data);
-             var retVal = null;
-             if (response.data.sketch_data && response.data.sketch_data[0] === '{') {
-                 try {
-                     retVal = JSON.parse(response.data.sketch_data);
-                 } catch (e) {
-                     // alert(e); // error in the above string (in this case, yes)!
-                 }
-             }
-             console.log(retVal);
-             callback(retVal);
-            })
-            .catch(error => {
-              console.log(error.response);
-              alert(error.response.data.message);
-            });
-        });
-    }
+    
 
     function createTerm(node) {
         console.log(node);
@@ -266,6 +245,27 @@ var getData = function ($) {
             alert(error.response.data.message);
           });
     }
+    function getSketches(collection_id, callback) {
+        $(document).ready(function () {
+            Vue.axios.get("collections/" +collection_id + "/sketches",)
+            .then(response => {
+             console.log(response);
+             var retVal = null;
+             if (response.data.sketch_data && response.data.sketch_data[0] === '{') {
+                 try {
+                     retVal = JSON.parse(response.data.sketch_data);
+                 } catch (e) {
+                     // alert(e); // error in the above string (in this case, yes)!
+                 }
+             }
+             callback(retVal);
+            })
+            .catch(error => {
+              console.log(error.response, error);
+              alert(error.response.data.message);
+            });
+        });
+    }
 
     function deleteSketches(collection_id) {
         var token = $('meta[name="_token"]').attr('content');
@@ -278,7 +278,7 @@ var getData = function ($) {
                 _token: token
             },
             success: function (json) {
-                console.log(json);
+              
             },
             failure: function (errMsg) {
                 console.log(errMsg);
@@ -287,11 +287,14 @@ var getData = function ($) {
     }
 
     function saveSketch(collection_id, sketch_name, graph) {
-        console.log('saving sketch');
+    
+        var positions=extractNodePositions(graph);
+        var newgraph={G_clusterRelations:graph.G_clusterRelations, G_termid:graph.G_termid, G_nodelist:graph.G_nodelist, nodePositions:positions};
+        console.log(newgraph);
         Vue.axios.post("sketches", {
             "collection_id": parseInt(collection_id),
             "sketch_name": "name8",
-            "sketch_data": JSON.stringify(graph),
+            "sketch_data": JSON.stringify(newgraph),
           })
             .then(response => {
               console.log(response);
@@ -300,6 +303,16 @@ var getData = function ($) {
               console.log(error.response);
               alert(error.response.data.message);
             });
+    }
+    function extractNodePositions(graph) {
+        var positions=[];
+        graph.G_graph.nodes.map(function(node) {
+            if (node.fixed && node.relationCount) {
+            positions.push({id:node.id, x:node.fx, y:node.fy});
+        
+            }
+        });
+        return(positions);
     }
 
     /**
@@ -354,7 +367,7 @@ var getData = function ($) {
         var i, description, x, y, link, a, link_id, link_name, termId1, termName1;
 
         // search all descriptions
-        console.log(G_termList);
+     
         for (i = 0; i < G_termList.length; i++) {
             description = G_termList[i].description;
             x = description.indexOf("[");

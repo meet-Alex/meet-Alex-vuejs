@@ -222,7 +222,7 @@ export default {
     $(".spinner").hide();
     if (typeof collection_id !== "undefined") {
       Mgraph.showModel(collection_id);
-      Mgraph.loadLayout(collection_id, "name8");
+    //  Mgraph.loadLayout(collection_id, "name8");
     } else {
       Mgraph.showTerms([term_id]);
     }

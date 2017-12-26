@@ -287,10 +287,26 @@ var Mgraph = function(d3,$, getData) {
 
         function showIt(newData) {
             if (newData) {
-                G_graph = newData.G_graph;
+              //  G_graph = newData.G_graph;
+              console.log(">>>>" ,G_graph);
+              console.log(newData);
+              newData.nodePositions.map(function(nodePosition){
+                var fndnode=G_graph.nodes.find(function(orgnode){
+                    return orgnode.id==nodePosition.id;
+                });
+                console.log(fndnode);
+                fndnode.fx=nodePosition.x;
+                fndnode.fy=nodePosition.y;
+                fndnode.x=nodePosition.x;
+                fndnode.y=nodePosition.y;
+                fndnode.fixed=true;
+
+              });
+
+
                 G_clusterRelations = newData.G_clusterRelations;
             }
-            showModel( G_modelId, true);
+            //showModel( G_modelId, true);
         }
     }
 
@@ -303,7 +319,7 @@ var Mgraph = function(d3,$, getData) {
                 G_graph = newData.G_graph;
                 G_clusterRelations = newData.G_clusterRelations;
             }
-            showModel( G_modelId, true);
+            //showModel( G_modelId, true);
         }
     }
 
@@ -593,8 +609,9 @@ var Mgraph = function(d3,$, getData) {
                 G_nodelist.push(term.id);
             });
 
-            var newGraph = getGraph(newData.terms, newData.relations);
-
+            G_graph = getGraph(newData.terms, newData.relations);
+            loadLayout(modelId, "name8");
+            /*
             if (restorePositions) {
                 $.each(newGraph.nodes, function(i, node) {
                    
@@ -606,9 +623,12 @@ var Mgraph = function(d3,$, getData) {
                     }
                 });
             }
-            G_graph = newGraph;
+            */
+        
 
             positionUnrelatedTerms();
+
+
 
             updateGraph();
             $('#alexlogo').hide();
@@ -1997,22 +2017,5 @@ var Mgraph = function(d3,$, getData) {
         setEditMode,
         isDirty
     };
-
-   // $.subscribe("/graph/show/termId", showTerms);
-   // $.subscribe("/graph/show/collectionId", showModel);
-   // $.subscribe("/graph/set/editMode", setEditMode);
-   // $.subscribe("/graph/set/termsLock", setAllNodesLock);
-  //  $.subscribe("/graph/set/clusterRelations", setClusterRelations);
-  //  $.subscribe("/graph/set/autoFixTerms", setAutoFixOfNodes);
-    //$.subscribe("/graph/set/showFixpins", setShowLocks);
-   // $.subscribe("/graph/save/layout", saveLayout);
-   // $.subscribe("/graph/load/layout", loadLayout);
-
-   /*
-   $.subscribe("/graph/set/hierarchy", setHierarchy);
-   $.subscribe("/graph/set/zoom", setZoom);
-    $.subscribe("/graph/delete/layout", deleteLayout);
-    $.subscribe("/graph/set/highlightTerm", setHighlitedTerm);
-    */
 };
 exports.Mgraph=Mgraph;
