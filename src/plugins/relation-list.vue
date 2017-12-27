@@ -23,16 +23,27 @@
                         <td></td>
                     </tr>
                     <tr v-if="value&&editRelationId===0">
-                        <td ref='newRelFocus'>
-                            <autocomplete :new="true" :suggestions="collection.terms" v-model="newRelation.subject" :displayName="newRelation.subject.term_name"></autocomplete>
+                        <td v-if="editCol===1">
+                           <findterm :id="'a'" v-if="editCol===1" :prefill="newRelation.subject.term_name" :new="true" :relation="newRelation" :change="updateNewRelSubject"/>
                         </td>
-                        <td>
-                            <input class="form-control lightblue" type="text" v-model="newRelation.name">
+                        <td v-else v-on:click="clickTest(0,1)">
+                              <span v-if="newRelation.subject.term_name">{{newRelation.subject.term_name}}  </span>
+                              <span v-else class="askinput"> Select term </span>
                         </td>
-                        <td>
-                            <autocomplete :new="true" :suggestions="collection.terms" v-model="newRelation.object" :displayName="newRelation.object.term_name"></autocomplete>
+                        <td v-if="editCol===2">
+                            <input ref="newInput" class="form-control lightblue" type="text" v-model="newRelation.name"  @keydown.tab="tabPressed">
                         </td>
-                        <td></td>
+                         <td v-if="editCol!==2" v-on:click="clickTest(0,2)">
+                              <div v-if="newRelation.name">{{newRelation.name}}  </div>
+                              <div v-else class="askinput"> provide name </div>
+                        </td>
+                        <td  v-if="editCol===3">
+                           <findterm :id="'b'" v-if="editCol===3" :prefill="newRelation.object.term_name" :new="true" :relation="newRelation" :change="updateNewRelObject"/>
+                        </td>
+                        <td v-else v-on:click="clickTest(0,3)">
+                              <span v-if="newRelation.object.term_name">{{newRelation.object.term_name}}  </span>
+                              <span v-else class="askinput"> Select term </span>
+                        </td>
                     </tr>
                     <tr v-if="!value" class="" v-for="relation in filteredRelationList">
                         <td>
@@ -53,7 +64,7 @@
                             {{relation.subject.term_name}}
                         </td>     
                         <td v-if="relation.id===editRelationId && editCol===2">
-                            <input class="form-control lightblue" type="text" v-model="relation.name" @change="updateRelName(relation)">
+                            <input ref="newInput" class="form-control lightblue" type="text" v-model="relation.name" @change="updateRelName(relation)">
                         </td>
                          <td v-else  v-on:click="clickTest(relation.id,2)">
                             {{relation.name}}
@@ -66,7 +77,7 @@
                         </td>
 
                         <td>
-                            <a v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="remRelation(relation.id, $event)">
+                            <a  href="#" class='iconbutton' v-on:click="remRelation(relation.id, $event)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </a>
                         </td>
@@ -93,7 +104,7 @@ export default {
     return {
       globalData: globalData,
       editTermId: 0,
-      editRelationId: 0,
+      editRelationId: -1,
       editCol: 0,
       newRelation: {
         subject: { term_name: "" },
@@ -118,55 +129,92 @@ export default {
   props: {
     value: { type: Boolean, required: true }
   },
-  created: function() {
-    var that = this;
-    this.$root.$on("addRelation", function() {
+  created: function() {},
+  methods: {
+    ...mapMutations(["addRelation", "removeRelation", "changeRelation"]),
+    tabPressed(e) {
+      e.preventDefault();
+      this.focusNewInput();
+    },
+    addNewRelation() {
+      console.log(this.editCol);
+      console.log(this.newRelation);
+      this.focusNewInput();
       if (
-        that.newRelation.subject.term_name.length &&
-        that.newRelation.object.term_name.length &&
-        that.newRelation.name.length
+        this.newRelation.subject.term_name.length &&
+        this.newRelation.object.term_name.length &&
+        this.newRelation.name.length
       ) {
-        console.log("add it now!!", that.collection);
+        console.log("add it now!!", this.collection);
         //  that.relationList.push({ subject: that.newRelation.subject, name: that.newRelation.name, object: that.newRelation.object, id: that.generateId() });
-        that.addRelation({relation:that.newRelation, collectionId:that.collection.id});
-        that.newRelation = {
+        this.addRelation({
+          relation: this.newRelation,
+          collectionId: this.collection.id
+        });
+        this.newRelation = {
           subject: { term_name: "" },
           name: "",
           object: { term_name: "" },
           id: 0
         };
-
-        // reset new input field; and set focus on input field in the first cell
-        that.editRelationId = -1;
-        that.$nextTick(function() {
-          that.editRelationId = 0;
-          that.$nextTick(function() {
-            that.$refs.newRelFocus.children[0].children[0].focus();
-          });
+        this.editRelationId = -1;
+        this.$nextTick(function() {
+          this.editRelationId = 0;
         });
       }
-    });
-  },
-  methods: {
-    ...mapMutations(["addRelation", "removeRelation", "changeRelation"]),
+    },
+    focusNewInput() {
+      if (this.editCol === 1) {
+        this.editCol = 2;
+        console.log(JSON.stringify(this.$refs.newInput));
+        var that = this;
+        this.$nextTick(function() {
+          that.$refs["newInput"].focus();
+        });
+      } else if (this.editCol === 2) {
+        this.editCol = 3;
+      } else {
+        this.editCol = 1;
+      }
+    },
+    updateNewRelSubject(newterm, relation) {
+      console.log(newterm);
+      relation.subject = newterm;
+      this.addNewRelation();
+    },
+    updateNewRelObject(newterm, relation) {
+      relation.object = newterm;
+      this.addNewRelation();
+    },
+    updateNewRelName(relation) {
+      this.addNewRelation();
+    },
     updateSubject(newterm, relation) {
-      var newRel=JSON.parse(JSON.stringify(relation));
-      newRel.subject=JSON.parse(JSON.stringify(newterm));
-      this.changeRelation({relation:newRel, collectionId:this.collection.id});
+      var newRel = JSON.parse(JSON.stringify(relation));
+      newRel.subject = JSON.parse(JSON.stringify(newterm));
+      this.changeRelation({
+        relation: newRel,
+        collectionId: this.collection.id
+      });
       this.editCol = 0;
     },
     updateObject(newterm, relation) {
-      var newRel=JSON.parse(JSON.stringify(relation));
-      newRel.object=JSON.parse(JSON.stringify(newterm));
-      this.changeRelation({relation:newRel, collectionId:this.collection.id});
+      var newRel = JSON.parse(JSON.stringify(relation));
+      newRel.object = JSON.parse(JSON.stringify(newterm));
+      this.changeRelation({
+        relation: newRel,
+        collectionId: this.collection.id
+      });
       this.editCol = 0;
     },
     updateRelName(relation) {
-        console.log('updaterelname');
-        var newRel=JSON.parse(JSON.stringify(relation));
-         this.changeRelation({relation:newRel, collectionId:this.collection.id});
+      console.log("updaterelname");
+      var newRel = JSON.parse(JSON.stringify(relation));
+      this.changeRelation({
+        relation: newRel,
+        collectionId: this.collection.id
+      });
       this.editCol = 0;
-
     },
     remRelation: function(id, event) {
       //   this.relationList = this.relationList.filter(function(relation) {
@@ -186,9 +234,26 @@ export default {
       });
     },
     clickTest: function(relationId, col) {
-      console.log("clicked", relationId);
-      this.editRelationId = relationId;
-      this.editCol = col;
+      var that = this;
+      this.editRelationId = -1;
+      this.$nextTick(function() {
+        that.editRelationId = relationId;
+        console.log("clicked", relationId);
+
+        that.editCol = col;
+        if (that.editCol === 2) {
+          this.$nextTick(function() {
+            var inp=that.$refs["newInput"];
+            if (Array.isArray(inp)) {
+               inp[0].focus();
+            } else {
+              inp.focus();
+            }
+
+          
+          });
+        }
+      });
     },
     sortBy: function(column) {
       this.relationTableSort.order =
@@ -209,7 +274,7 @@ export default {
   computed: {
     ...mapState(["collection", "collection_relationList"]),
     filteredRelationList: function() {
-        console.log(this.collection_relationList);
+      console.log(this.collection_relationList);
       if (!this.collection_relationList || !this.collection_relationList.length)
         return null;
       var self = this;
@@ -253,5 +318,9 @@ export default {
 <style scoped>
 .content {
   padding-top: 0.5rem;
+}
+.askinput {
+  color: grey;
+  font-style: italic;
 }
 </style>

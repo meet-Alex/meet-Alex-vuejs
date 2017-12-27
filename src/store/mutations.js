@@ -166,23 +166,6 @@ export const mutations = {
     console.log('Todo Change relation api call', relation);
     removeRelation1(state, relation.id);
     addRelation1(state, parms);
-
-
-
-    /*
-    //only call change if term is not removed before
-    console.log('call term change  api here...', term);
-    Vue.axios.put("terms/" + term.id, {
-      "collection_id": term.collection_id,
-      "term_name": term.term_name,
-      "term_definition": term.term_definition
-    })
-      .then(resonse => { })
-      .catch(error => {
-        console.log(error.response);
-        alert(error.response.data.message);
-      });
-  */
   },
   // handle collection changes
   fetchCollections(state) { // fetch list of all collections

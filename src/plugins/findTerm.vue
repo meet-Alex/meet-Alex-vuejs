@@ -20,7 +20,9 @@
             @keydown.enter="hit"
             @keydown.esc="reset"
             @blur="reset"
-            @input="update"/>
+            @input="update"
+            ref="focusIt"
+           >
 
         <!-- the list -->
         <ul v-show="hasItems">
@@ -84,21 +86,28 @@ export default {
     }
   },
   created : function(){
+       console.log("created");
       this.query=this.prefill||"";
+  },
+  mounted : function () {
+      console.log("mounted");
+       this.$refs["focusIt"].focus();
   },
 
   methods: {
     // The callback function which is triggered when the user hits on an item
     // (required)
     onHit (item) {
+        console.log(this.relation, item);
       if (this.relation) {
             this.change(item, this.relation);
             this.query=item.term_name;
+            console.log(this.query);
       } else {
           this.change(item);
       }
       if (!this.prefill) {
-       this.reset();
+       //this.reset();
       }
     },
     tabPressed(e) {
@@ -129,7 +138,7 @@ export default {
     .Typeahead {
     position: relative;
     margin-bottom:10px;
-    width:600px;
+    width:100%;
     }
     .Typeahead table tr td{
         border:none;
