@@ -10,7 +10,9 @@
         </template>
 
         <!-- the input field -->
-        <input  type="text"
+        <input
+            class="inputField"  
+            type="text"
             placeholder="find term...."
             autocomplete="on"
             v-model="query"
@@ -135,6 +137,9 @@ export default {
 </script>
 
 <style scoped>
+    .inputField {
+         width:calc(100% - 40px);
+    }
     .Typeahead {
     position: relative;
     margin-bottom:10px;

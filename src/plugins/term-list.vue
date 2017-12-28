@@ -21,7 +21,6 @@
                         <td colspan="3">
                             <editTermList :editTerm="newTerm" :termList="collection.terms" @addTerm="addTerm"></editTermList>
                         </td>
-
                     </tr>
                     <tr class="" v-for="term in filteredList" v-on:click="editTermId=value?term.id:0">
                         <td v-if="!value" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}">
@@ -35,7 +34,7 @@
                             <editTermList :editTerm="term" :termList="collection.terms" @changedTerm="changeTerm"></editTermList>
                         </td>
                         <td>
-                            <a v-if="editTermId == term.id && value" href="#" class='iconbutton' v-on:click="removeTerm(term, $event)">
+                            <a v-if=" value" href="#" class='iconbutton' v-on:click="removeTerm(term, $event)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </a>
                         </td>

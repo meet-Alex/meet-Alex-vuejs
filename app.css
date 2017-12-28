@@ -27,6 +27,7 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
     white-space: nowrap;
     overflow:hidden;
     text-overflow: ellipsis;
+    height: 1rem;
 }
 
 .table {

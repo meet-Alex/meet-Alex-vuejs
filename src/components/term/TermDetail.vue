@@ -2,7 +2,7 @@
     <div class="container flex">
         <b-breadcrumb :items="breadCrum" />
         <table class='toprow'> <tr>
-            <td>
+            <td class="findTermWidth">
                 <findterm :change="getTerm"/>
             </td>
             <td class='alignright'>
@@ -64,6 +64,9 @@ export default {
 </script>
 
 <style scoped>
+.findTermWidth {
+    width:20rem;
+}
 .alignright {
     float:right;
 }
