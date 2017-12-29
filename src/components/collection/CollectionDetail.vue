@@ -34,10 +34,10 @@
                     <!-- the v-if is to force a beforeDestory, so the update collection api is called when another tab is selected -->
                 </b-tab>
                 <b-tab title="Terms" class='nopadding'>
-                    <termList v-model="editMode" />
+                    <termList :editMode="editMode" />
                 </b-tab>
                 <b-tab title="Relations">
-                    <relationList v-model="editMode" />
+                    <relationList :editMode="editMode" :showHeader="true" />
                 </b-tab>
                 <b-tab title="Graph">
                      <visual v-if="selectedTab===3" id="aa" v-model="editMode" :collectionId="''+$route.params.id"  />

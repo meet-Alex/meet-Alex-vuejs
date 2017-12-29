@@ -1,6 +1,6 @@
 <template>
     <div class='content' >
-        <tablemenu v-model="relationMenu" :showSortAuth='false' :showMenu="false" />
+        <tablemenu v-if="showHeader" v-model="relationMenu" :showSortAuth='false' :showMenu="false" />
         <div class='tableContent' ref='tabcontent'>
             <table class="table relationtable">
                 <tbody>
@@ -14,7 +14,7 @@
                         <td>
                         </td>
                     </tr>
-                    <tr v-if="value&&editRelationId!==0">
+                    <tr v-if="editMode&&editRelationId!==0">
                         <td>
                             <b-button v-on:click="editRelationId=0" variant="default" size="sm">New Relation</b-button>
                         </td>
@@ -22,7 +22,7 @@
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr v-if="value&&editRelationId===0">
+                    <tr v-if="editMode&&editRelationId===0">
                         <td v-if="editCol===1">
                            <findterm :id="'a'" v-if="editCol===1" :prefill="newRelation.subject.term_name" :new="true" :relation="newRelation" :change="updateNewRelSubject"/>
                         </td>
@@ -45,7 +45,7 @@
                               <span v-else class="askinput"> Select term </span>
                         </td>
                     </tr>
-                    <tr v-if="!value" class="" v-for="relation in filteredRelationList">
+                    <tr v-if="!editMode" class="" v-for="relation in filteredRelationList">
                         <td>
                             <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, relationMenu.filter)"></router-link>
                         </td>
@@ -56,7 +56,7 @@
                         </td>
                         <td></td>
                     </tr>
-                    <tr v-if="value"  v-for="(relation, index) in filteredRelationList">
+                    <tr v-if="editMode"  v-for="(relation, index) in filteredRelationList">
                         <td v-if="relation.id===editRelationId && editCol===1">
                             <findterm :prefill="relation.subject.term_name" :relation="relation" :change="updateSubject"/>
                         </td>
@@ -127,9 +127,16 @@ export default {
     };
   },
   props: {
-    value: { type: Boolean, required: true }
+    editMode: { type: Boolean, required: true },
+     term: {type: Object, required: false},
+    index: {type:Number, required:false},
+    showHeader :{ type: Boolean, required: true }
   },
-  created: function() {},
+  created: function() {
+    this.editCollectionId=this.term?this.term.collection_id:this.collection.id;
+    console.log("editcollectionid", this.editCollectionId);
+
+  },
   methods: {
     ...mapMutations(["addRelation", "removeRelation", "changeRelation"]),
     tabPressed(e) {
@@ -146,10 +153,10 @@ export default {
         this.newRelation.name.length
       ) {
         console.log("add it now!!", this.collection);
-        //  that.relationList.push({ subject: that.newRelation.subject, name: that.newRelation.name, object: that.newRelation.object, id: that.generateId() });
+     
         this.addRelation({
           relation: this.newRelation,
-          collectionId: this.collection.id
+          collectionId: this.editCollectionId
         });
         this.newRelation = {
           subject: { term_name: "" },
@@ -194,7 +201,7 @@ export default {
       newRel.subject = JSON.parse(JSON.stringify(newterm));
       this.changeRelation({
         relation: newRel,
-        collectionId: this.collection.id
+        collectionId: this.editCollectionId
       });
       this.editCol = 0;
     },
@@ -203,7 +210,7 @@ export default {
       newRel.object = JSON.parse(JSON.stringify(newterm));
       this.changeRelation({
         relation: newRel,
-        collectionId: this.collection.id
+        collectionId: this.editCollectionId
       });
       this.editCol = 0;
     },
@@ -212,26 +219,14 @@ export default {
       var newRel = JSON.parse(JSON.stringify(relation));
       this.changeRelation({
         relation: newRel,
-        collectionId: this.collection.id
+        collectionId: this.editCollectionId
       });
       this.editCol = 0;
     },
     remRelation: function(id, event) {
-      //   this.relationList = this.relationList.filter(function(relation) {
-      //       return relation.id != id;
-      //    });
       console.log("rm");
       this.removeRelation(id);
       if (event) event.stopPropagation();
-    },
-    generateId: function() {
-      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(
-        c
-      ) {
-        var r = (Math.random() * 16) | 0,
-          v = c == "x" ? r : (r & 0x3) | 0x8;
-        return v.toString(16);
-      });
     },
     clickTest: function(relationId, col) {
       var that = this;
@@ -249,8 +244,6 @@ export default {
             } else {
               inp.focus();
             }
-
-          
           });
         }
       });
@@ -274,11 +267,12 @@ export default {
   computed: {
     ...mapState(["collection", "collection_relationList"]),
     filteredRelationList: function() {
-      console.log(this.collection_relationList);
-      if (!this.collection_relationList || !this.collection_relationList.length)
+
+      var relationList=this.term? this.term.relations:this.collection_relationList;
+      if (!relationList || !relationList.length)
         return null;
       var self = this;
-      var result = this.collection_relationList.filter(function(relation) {
+      var result = relationList.filter(function(relation) {
         return (
           relation.subject.term_name
             .toLowerCase()

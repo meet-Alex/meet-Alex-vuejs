@@ -10,31 +10,31 @@
                         <td class="def bold">Term description</td>
                         <td></td>
                     </tr>
-                    <tr v-if="value&&editTermId!==0">
+                    <tr v-if="editMode&&editTermId!==0">
                         <td>
                             <b-button v-on:click="editTermId=0" variant="default" size="sm">New term</b-button>
                         </td>
                         <td></td>
                         <td></td>
                     </tr>
-                    <tr v-if="value&&editTermId===0">
+                    <tr v-if="editMode&&editTermId===0">
                         <td colspan="3">
                             <editTermList :editTerm="newTerm" :termList="collection.terms" @addTerm="addTerm"></editTermList>
                         </td>
                     </tr>
-                    <tr class="" v-for="term in filteredList" v-on:click="editTermId=value?term.id:0">
-                        <td v-if="!value" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}">
+                    <tr class="" v-for="term in filteredList" v-on:click="editTermId=editMode?term.id:0">
+                        <td v-if="!editMode" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}">
                             <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, termMenu.filter)"></router-link>
                         </td>
-                        <td v-if="value && editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}" v-html="$options.filters.highlight(term.term_name, termMenu.filter)">
+                        <td v-if="editMode && editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}" v-html="$options.filters.highlight(term.term_name, termMenu.filter)">
                         </td>
                         <td v-if="editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}" v-html="$options.filters.highlight(term.term_definition, termMenu.filter)">
                         </td>
-                        <td colspan="2" v-if="editTermId == term.id && value">
+                        <td colspan="2" v-if="editTermId == term.id && editMode">
                             <editTermList :editTerm="term" :termList="collection.terms" @changedTerm="changeTerm"></editTermList>
                         </td>
                         <td>
-                            <a v-if=" value" href="#" class='iconbutton' v-on:click="removeTerm(term, $event)">
+                            <a v-if=" editMode" href="#" class='iconbutton' v-on:click="removeTerm(term, $event)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </a>
                         </td>
@@ -66,7 +66,7 @@ export default {
         }
     },
     props: {
-        value : {type: Boolean, required: true}
+        editMode : {type: Boolean, required: true}
     },
     created: function() {
        

@@ -45,7 +45,7 @@
         <div class="term-details" v-if="viewType>1">
           <span class="subtitle"> Relations </span>
 
-              <relationListTerm v-model="editMode" :term="term" :index="index"/>
+              <relationList :editMode="editMode" :term="term" :index="index" :showHeader="false"/>
         </div>
         
 
@@ -65,11 +65,11 @@
 import Vue from "vue";
 import globalData from "../global_data";
 import { mapGetters, mapState, mapMutations } from "vuex";
-import relationListTerm from "../plugins/relation-list-term.vue";
+import relationList from "../plugins/relation-list.vue";
 
 export default {
   name: "termDisplay",
-  components: {relationListTerm},
+  components: {relationList},
   props: {
     term: { type: Object, required: true },
     index: { type: Number, required: true }

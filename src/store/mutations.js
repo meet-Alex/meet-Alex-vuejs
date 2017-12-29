@@ -83,30 +83,8 @@ export const mutations = {
   },
   // handle term changes
   fetchTerm(state, term) {
-    Vue.axios.get('terms/' + term.termId)
-      .then(response => {
-        var data = response.data;
-        constructRelations(data);
-        // avoid that a term occurs twice, so first remove from list, then add again
-        state.showTermList = state.showTermList.filter(function (thisterm) {
-          return thisterm.id != term.termId;
-        })
-        state.showTermList.splice(term.position, 0, data);
-      })
-      .catch(error => {
-        console.log(error.response, error);
-        alert(error.response.data.message);
-      });
-    function constructRelations(data) {
-      var relations = [];
-      data.objects.map(function (object) {
-        relations.push({ subject: data, relation: object.relation, object: object.object, type: 0 });
-      });
-      data.subjects.map(function (subject) {
-        relations.push({ object: data, relation: subject.relation, subject: subject.subject, type: 1 });
-      });
-      data.relations = relations;
-    }
+    fetchTerm1(state, term);
+    
   },
   addTerm(state, newTerm) {
     console.log('call term create api here...', newTerm);
@@ -293,17 +271,31 @@ function addRelation1(state, parms) {
   })
     .then(response => {
       console.log(response);
-      state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
+      addRelation2(state, { subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
     })
     .catch(error => {
       console.log(error);
       if (error.status == 201) {  // somehow 201 is reported as error, but it is ok
-        state.collection_relationList.push({ subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
+        addRelation2(state, { subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
       } else {
         alert(error.response.data.message);
       }
     });
 }
+
+function addRelation2(state, newRel) {
+  console.log(newRel, state.showTermList);
+  state.collection_relationList.push(newRel);
+
+  for (var i=0;i<state.showTermList.length;i++) {
+    var term=state.showTermList[i];
+    if ((term.id===newRel.subject.id)|| (term.id===newRel.object.id)) {
+        fetchTerm1(state,{termId:term.id, position:i});
+    }
+  }
+}
+
+
 function  removeRelation1(state, id) {
   console.log('call relation remove  api here...', id);
   Vue.axios.delete("ontologies/" + id)
@@ -311,9 +303,17 @@ function  removeRelation1(state, id) {
       state.collection_relationList = state.collection_relationList.filter(function (relation) {
         return relation.id != id;
       });
+      for (var i=0;i<state.showTermList.length;i++) {
+        var term=state.showTermList[i];
+
+        if (term.relations.find(x => x.id===id)) {
+           console.log('findTerm',  term.id);
+            fetchTerm1(state,{termId:term.id, position:i});
+        }
+      }
     })
     .catch(error => {
-      console.log(error.response);
+      console.log(error.response,error);
       alert(error.response.data.message);
     });
 }
@@ -327,4 +327,34 @@ function getOntology(id) {
     console.log(error.response, error);
     alert(error.response.data.message);
   });
+}
+
+function fetchTerm1(state, term) {
+  Vue.axios.get('terms/' + term.termId)
+    .then(response => {
+      var data = response.data;
+      constructRelations(data);
+      console.log(data);
+      // avoid that a term occurs twice, so first remove from list, then add again
+      state.showTermList = state.showTermList.filter(function (thisterm) {
+        return thisterm.id != term.termId;
+      })
+      state.showTermList.splice(term.position, 0, data);
+    })
+    .catch(error => {
+      console.log(error.response, error);
+      alert(error.response.data.message);
+    });
+  function constructRelations(data) {
+    var relations = [];
+    data.objects.map(function (object) {
+      relations.push({ subject: {id:data.id, term_name:data.term_name}, name: object.relation.relation_name, id: object.id, object: {id:object.object.id, term_name:object.object.term_name}, type: 0 });
+    });
+    data.subjects.map(function (subject) {
+      relations.push({ object: {id:data.id, term_name:data.term_name}, name: subject.relation.relation_name, id: subject.id, subject: {id:subject.subject.id, term_name:subject.subject.term_name}, type: 1 });
+    
+    });
+    console.log(relations);
+    data.relations = relations;
+  }
 }
