@@ -87,25 +87,22 @@ export const mutations = {
     
   },
   addTerm(state, newTerm) {
-    console.log('call term create api here...', newTerm);
     Vue.axios.post("terms", {
       "collection_id": state.collection.id,
       "term_name": newTerm.term_name,
       "term_definition": newTerm.term_definition
     })
       .then(response => {
-        console.log(response);
         state.collection.terms.push(response.data);
       })
       .catch(error => {
-        console.log(error.response);
+        console.log(error.response, error);
         alert(error.response.data.message);
       });
   },
   changeTerm(state, term) {
     if (state.collection.terms.find(x => x.id === term.id)) {
       //only call change if term is not removed before
-      console.log('call term change  api here...', term);
       Vue.axios.put("terms/" + term.id, {
         "collection_id": term.collection_id,
         "term_name": term.term_name,
@@ -113,13 +110,12 @@ export const mutations = {
       })
         .then(resonse => { })
         .catch(error => {
-          console.log(error.response);
+          console.log(error.response, error);
           alert(error.response.data.message);
         });
     }
   },
   removeTerm(state, term) {
-    console.log('call term remove  api here...', term);
     Vue.axios.delete("terms/" + term.id)
       .then(response => {
         state.collection.terms = state.collection.terms.filter(function (thisterm) {
@@ -127,7 +123,7 @@ export const mutations = {
         })
       })
       .catch(error => {
-        console.log(error.response);
+        console.log(error.response, error);
         alert(error.response.data.message);
       });
   },
@@ -165,7 +161,7 @@ export const mutations = {
         state.collections[9].authorisation = globalData.AUTHTYPE.BOOKMARKED;
       })
       .catch(error => {
-        console.log(error.response);
+        console.log(error.response, error);
         alert(error.response.data.message);
       });
   },
@@ -224,7 +220,7 @@ export const mutations = {
         state.collection.receive_notifications = state.collection.receive_notifications.toString();
       })
       .catch(error => {
-        console.log(error.response);
+        console.log(error.response, error);
         alert(error.response.data.message);
       });
   },
@@ -260,7 +256,6 @@ function handleLoginAdmin() {
   console.log(state.userinfo);
 }
 function addRelation1(state, parms) {
-  console.log('call relation create api here...', parms);
   var newRelation = parms.relation;
   var collectionId = parms.collectionId;
   Vue.axios.post("ontologies", {
@@ -270,7 +265,7 @@ function addRelation1(state, parms) {
     "subject_id": newRelation.subject.id
   })
     .then(response => {
-      console.log(response);
+    
       addRelation2(state, { subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
     })
     .catch(error => {
@@ -284,7 +279,6 @@ function addRelation1(state, parms) {
 }
 
 function addRelation2(state, newRel) {
-  console.log(newRel, state.showTermList);
   state.collection_relationList.push(newRel);
 
   for (var i=0;i<state.showTermList.length;i++) {
@@ -297,7 +291,6 @@ function addRelation2(state, newRel) {
 
 
 function  removeRelation1(state, id) {
-  console.log('call relation remove  api here...', id);
   Vue.axios.delete("ontologies/" + id)
     .then(response => {
       state.collection_relationList = state.collection_relationList.filter(function (relation) {
@@ -305,9 +298,7 @@ function  removeRelation1(state, id) {
       });
       for (var i=0;i<state.showTermList.length;i++) {
         var term=state.showTermList[i];
-
         if (term.relations.find(x => x.id===id)) {
-           console.log('findTerm',  term.id);
             fetchTerm1(state,{termId:term.id, position:i});
         }
       }
@@ -334,7 +325,6 @@ function fetchTerm1(state, term) {
     .then(response => {
       var data = response.data;
       constructRelations(data);
-      console.log(data);
       // avoid that a term occurs twice, so first remove from list, then add again
       state.showTermList = state.showTermList.filter(function (thisterm) {
         return thisterm.id != term.termId;
@@ -348,13 +338,14 @@ function fetchTerm1(state, term) {
   function constructRelations(data) {
     var relations = [];
     data.objects.map(function (object) {
-      relations.push({ subject: {id:data.id, term_name:data.term_name}, name: object.relation.relation_name, id: object.id, object: {id:object.object.id, term_name:object.object.term_name}, type: 0 });
+      if (!object.archived)
+        relations.push({ subject: {id:data.id, term_name:data.term_name}, name: object.relation.relation_name, id: object.id, object: {id:object.object.id, term_name:object.object.term_name}, type: 0 });
     });
     data.subjects.map(function (subject) {
-      relations.push({ object: {id:data.id, term_name:data.term_name}, name: subject.relation.relation_name, id: subject.id, subject: {id:subject.subject.id, term_name:subject.subject.term_name}, type: 1 });
+      if (!subject.archived)
+        relations.push({ object: {id:data.id, term_name:data.term_name}, name: subject.relation.relation_name, id: subject.id, subject: {id:subject.subject.id, term_name:subject.subject.term_name}, type: 1 });
     
     });
-    console.log(relations);
     data.relations = relations;
   }
 }

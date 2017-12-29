@@ -37,7 +37,7 @@
                     <termList :editMode="editMode" />
                 </b-tab>
                 <b-tab title="Relations">
-                    <relationList :editMode="editMode" :showHeader="true" />
+                    <relationList v-if="selectedTab===2" :editMode="editMode" :showHeader="true" />
                 </b-tab>
                 <b-tab title="Graph">
                      <visual v-if="selectedTab===3" id="aa" v-model="editMode" :collectionId="''+$route.params.id"  />

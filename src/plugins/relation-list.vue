@@ -45,7 +45,9 @@
                               <span v-else class="askinput"> Select term </span>
                         </td>
                     </tr>
-                    <tr v-if="!editMode" class="" v-for="relation in filteredRelationList">
+                   <tr v-if="!editMode" class="" v-for="relation in filteredRelationList">
+                      <template v-if="!term">
+                         
                         <td>
                             <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, relationMenu.filter)"></router-link>
                         </td>
@@ -55,7 +57,23 @@
                             <router-link :to="{ name: 'termDetail', params: { id: relation.object.id } }" v-html="$options.filters.highlight(relation.object.term_name, relationMenu.filter)"></router-link>
                         </td>
                         <td></td>
+                      </template>
+                      <template v-else>
+
+                    
+                        <td v-if="relation.type===0" class='bold'> {{relation.subject.term_name}} </td>
+                        <td v-else class="link" v-on:click="fetchTerm({termId:relation.subject.id,position:index+1})" >
+                        {{relation.subject.term_name}} 
+                        </td>
+                        <td> {{relation.name}} </td>
+                        <td v-if="relation.type===1" class='bold'> {{relation.object.term_name}} </td>
+                        <td v-else class="link" v-on:click="fetchTerm({termId:relation.object.id,position:index+1})" >
+                        {{relation.object.term_name}} 
+                        </td>
+                        <td></td>
+                        </template>
                     </tr>
+
                     <tr v-if="editMode"  v-for="(relation, index) in filteredRelationList">
                         <td v-if="relation.id===editRelationId && editCol===1">
                             <findterm :prefill="relation.subject.term_name" :relation="relation" :change="updateSubject"/>
@@ -134,26 +152,20 @@ export default {
   },
   created: function() {
     this.editCollectionId=this.term?this.term.collection_id:this.collection.id;
-    console.log("editcollectionid", this.editCollectionId);
-
   },
   methods: {
-    ...mapMutations(["addRelation", "removeRelation", "changeRelation"]),
+    ...mapMutations(["addRelation", "removeRelation", "changeRelation", "fetchTerm"]),
     tabPressed(e) {
       e.preventDefault();
       this.focusNewInput();
     },
     addNewRelation() {
-      console.log(this.editCol);
-      console.log(this.newRelation);
       this.focusNewInput();
       if (
         this.newRelation.subject.term_name.length &&
         this.newRelation.object.term_name.length &&
         this.newRelation.name.length
       ) {
-        console.log("add it now!!", this.collection);
-     
         this.addRelation({
           relation: this.newRelation,
           collectionId: this.editCollectionId
@@ -173,7 +185,6 @@ export default {
     focusNewInput() {
       if (this.editCol === 1) {
         this.editCol = 2;
-        console.log(JSON.stringify(this.$refs.newInput));
         var that = this;
         this.$nextTick(function() {
           that.$refs["newInput"].focus();
@@ -185,7 +196,6 @@ export default {
       }
     },
     updateNewRelSubject(newterm, relation) {
-      console.log(newterm);
       relation.subject = newterm;
       this.addNewRelation();
     },
@@ -215,7 +225,6 @@ export default {
       this.editCol = 0;
     },
     updateRelName(relation) {
-      console.log("updaterelname");
       var newRel = JSON.parse(JSON.stringify(relation));
       this.changeRelation({
         relation: newRel,
@@ -224,7 +233,6 @@ export default {
       this.editCol = 0;
     },
     remRelation: function(id, event) {
-      console.log("rm");
       this.removeRelation(id);
       if (event) event.stopPropagation();
     },
@@ -233,8 +241,6 @@ export default {
       this.editRelationId = -1;
       this.$nextTick(function() {
         that.editRelationId = relationId;
-        console.log("clicked", relationId);
-
         that.editCol = col;
         if (that.editCol === 2) {
           this.$nextTick(function() {
@@ -316,5 +322,12 @@ export default {
 .askinput {
   color: grey;
   font-style: italic;
+}
+.link {
+  color:blue;
+}
+.link:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 </style>

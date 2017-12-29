@@ -288,19 +288,22 @@ var Mgraph = function(d3,$, getData) {
         function showIt(newData) {
             if (newData) {
               //  G_graph = newData.G_graph;
+
+            
+              setClusterRelations(newData.G_clusterRelations);
               console.log(">>>>" ,G_graph);
               console.log(newData);
               newData.nodePositions.map(function(nodePosition){
                 var fndnode=G_graph.nodes.find(function(orgnode){
                     return orgnode.id==nodePosition.id;
                 });
-                console.log(fndnode);
-                fndnode.fx=nodePosition.x;
-                fndnode.fy=nodePosition.y;
-                fndnode.x=nodePosition.x;
-                fndnode.y=nodePosition.y;
-                fndnode.fixed=true;
-
+                if (fndnode) {
+                    fndnode.fx=nodePosition.x;
+                    fndnode.fy=nodePosition.y;
+                    fndnode.x=nodePosition.x;
+                    fndnode.y=nodePosition.y;
+                    fndnode.fixed=true;
+                }        
               });
 
 
