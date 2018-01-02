@@ -7,6 +7,14 @@ Vue.use(VueAxios, axios)
 Vue.axios.interceptors.response.use((response) => { // intercept the global error
     return response
   }, function (error) {
+
+    console.log(error, error.response, error.message);
+    Vue.prototype.$notify({
+      group: 'foo',
+      title: 'Error in API call',
+      text: error.message
+    });
+
       console.log("-------expired--------------");
     let originalRequest = error.config
     if (error.response.status === 401 && !originalRequest._retry) { // if the error is 401 and hasent already been retried

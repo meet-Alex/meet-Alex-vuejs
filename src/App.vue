@@ -2,6 +2,7 @@
     <div id="app">
         <app-header></app-header>
         <router-view></router-view>
+        <notifications group="foo" />
     </div>
 </template>
 

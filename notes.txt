@@ -1,0 +1,2 @@
+npm install --save vue-notification
+npm install --save-dev babel-preset-latest

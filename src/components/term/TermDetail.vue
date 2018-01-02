@@ -45,11 +45,14 @@ export default {
     ...mapState(["showTermList"])
      },
     created: function() {
-        this.fetchTerm({termId:this.$route.params.id,position:0}); 
-    
+        
+        this.refreshTermList();  
+        if (this.$route.params.id!=='none') {
+            this.fetchTerm({termId:this.$route.params.id,position:0}); 
+        }
     },
     methods: {
-        ...mapMutations(["fetchTerm", "clearTermList"]),
+        ...mapMutations(["fetchTerm", "clearTermList", "refreshTermList"]),
         
         getTerm: function(term) {
             console.log(term);
@@ -80,5 +83,7 @@ export default {
   color: grey;
 }
 button:focus {outline:0 !important;}
-
+button:hover {
+  cursor: pointer;
+}
 </style>

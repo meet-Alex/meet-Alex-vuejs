@@ -11,8 +11,8 @@
                 </td>
                 <td align="right">
                     <b-nav class="float-right">
-                        <button v-bind:class="{'button-close':true, red:editMode}" v-on:click="editMode=!editMode">
-                          <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
+                        <button v-if="collection.editable" v-bind:class="{'button-close':true, red:editMode}" v-on:click="editMode=!editMode">
+                          <i class="fa fa-pencil" aria-hidden="true" title="Edit this collection"></i>
                         </button>
                         <b-dropdown variant="link" size="lg" no-caret title='Actions' :disabled="$route.params.id==='new'">
                             <template slot="button-content">
@@ -79,7 +79,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["collection"]),
+    ...mapState(["collection", "userinfo"]),
     breadCrum: function() {
       return [
         {
@@ -118,4 +118,5 @@ button:focus {outline:0 !important;}
 .red {
     color:red;
 }
+
 </style>

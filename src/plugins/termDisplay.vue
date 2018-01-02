@@ -2,18 +2,20 @@
     <div class="term-container-div" v-on:mouseenter="showMenus=true" v-on:mouseleave="showMenus=false">
         <div v-bind:class="{'div-menu-top':true, hide:!showMenus}">
             <b-nav class="float-right">
-                <button v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditMode">
-                    <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
-                </button>
-                <b-dropdown variant="link" size="lg" no-caret title='Actions'>
-                    <template slot="button-content">
-                    <i class="fa fa-ellipsis-h grey" aria-hidden="true"></i>
-                    </template>
-                        <b-dropdown-item>Copy</b-dropdown-item>
-                        <b-dropdown-item>Edit</b-dropdown-item>
-                        <b-dropdown-divider></b-dropdown-divider>
-                        <b-dropdown-item>Archive</b-dropdown-item>
-                </b-dropdown>
+              <template v-if="term.editable">
+                  <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditMode">
+                      <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
+                  </button>
+                  <b-dropdown variant="link" size="lg" no-caret title='Actions'>
+                      <template slot="button-content">
+                      <i class="fa fa-ellipsis-h grey" aria-hidden="true"></i>
+                      </template>
+                          <b-dropdown-item>Copy</b-dropdown-item>
+                          <b-dropdown-item>Edit</b-dropdown-item>
+                          <b-dropdown-divider></b-dropdown-divider>
+                          <b-dropdown-item>Archive</b-dropdown-item>
+                  </b-dropdown>
+              </template>
                 <button class="button-close" v-on:click="closeWindow" title="Hide this term">
                     <i class="fa fa-times" aria-hidden="true"></i>
                 </button>
@@ -108,7 +110,9 @@ export default {
       }
     };
   },
-  created: function() {},
+  created: function() {
+   
+  },
   methods: {
     ...mapMutations(["removeTermFromList", "fetchTerm", "changeTerm"]),
     changed: function() {},
@@ -124,7 +128,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["showTermList"])
+    ...mapState(["showTermList", "userinfo"])
   },
     beforeDestroy: function() {
     console.log("beforedestroy");
@@ -197,7 +201,7 @@ div.term-details {
   color: #0275d8;
 }
 .button-close {
-  padding: 0px;
+  padding: 5px 0px;
   background: none;
   border: none;
   color: grey;

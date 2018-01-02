@@ -81,6 +81,14 @@ export const mutations = {
   clearTermList(state) {
     state.showTermList = [];
   },
+  refreshTermList() {
+  
+    state.showTermList.map(function (term, index) {
+      console.log(term, index);
+     fetchTerm1(state, {termId:term.id, position:index});
+    });
+  },
+
   // handle term changes
   fetchTerm(state, term) {
     fetchTerm1(state, term);
@@ -152,13 +160,18 @@ export const mutations = {
 
         //@TODO: now faked owner/collaborate/bookmared for DEMO
         state.collections.forEach(function (collection) {
-          collection.authorisation = globalData.AUTHTYPE.NONE;
+          if (collection.created_by==state.userinfo.id) {
+            collection.authorisation = globalData.AUTHTYPE.OWNER;
+          } else if (collection.bookmarked) {
+            collection.authorisation = globalData.BOOKMARKED;
+          } else {
+            collection.authorisation = globalData.NONE;
+          }
+          //collection.authorisation = globalData.AUTHTYPE.CONTRIBUTOR;
+
         });
-        state.collections[3].authorisation = globalData.AUTHTYPE.OWNER;
-        state.collections[1].authorisation = globalData.AUTHTYPE.OWNER;
-        state.collections[6].authorisation = globalData.AUTHTYPE.CONTRIBUTOR;
-        state.collections[8].authorisation = globalData.AUTHTYPE.BOOKMARKED;
-        state.collections[9].authorisation = globalData.AUTHTYPE.BOOKMARKED;
+       
+       // state.collections[9].authorisation = globalData.AUTHTYPE.BOOKMARKED;
       })
       .catch(error => {
         console.log(error.response, error);
@@ -218,6 +231,7 @@ export const mutations = {
         state.collection_relationList = makeRelations();
         state.collection.public = state.collection.public.toString();
         state.collection.receive_notifications = state.collection.receive_notifications.toString();
+        state.collection.editable = (state.userinfo.id===state.collection.created_by);
       })
       .catch(error => {
         console.log(error.response, error);
@@ -325,6 +339,8 @@ function fetchTerm1(state, term) {
     .then(response => {
       var data = response.data;
       constructRelations(data);
+      console.log(data, state.userinfo);
+      data.editable =(state.userinfo.id==data.created_by);
       // avoid that a term occurs twice, so first remove from list, then add again
       state.showTermList = state.showTermList.filter(function (thisterm) {
         return thisterm.id != term.termId;

@@ -16,12 +16,14 @@ import Autocomplete from './plugins/autocomplete';
 import store from './store';
 import globalData from './global_data';
 import axios from './backend/vue-axios';
+import Notifications from 'vue-notification';
 
 Vue.use(VueTinymce);
 Vue.use(Autocomplete);
 Vue.use(EditTermList);
 Vue.use(BootstrapVue);
 Vue.use(VueRouter);
+Vue.use(Notifications);
 
 //Vue.use(VueResource);
 
