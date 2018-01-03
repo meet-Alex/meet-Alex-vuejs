@@ -53,7 +53,7 @@ import collectionDetails from "../../plugins/collection-details.vue";
 import termList from "../../plugins/term-list.vue";
 import relationList from "../../plugins/relation-list.vue";
 import visual from "../../plugins/visual.vue";
-import { mapGetters, mapState, mapMutations } from "vuex";
+import { mapGetters, mapState } from "vuex";
 
 export default {
   components: { collectionDetails, termList, relationList, visual },
@@ -64,7 +64,6 @@ export default {
     };
   },
   created: function() {
-    this.fetchCollection(this.$route.params.id);
     if (this.$route.params.id !== "new") {
       if (this.$route.params.tab && this.$route.params.tab === "terms") {
         this.selectedTab = 1;
@@ -79,7 +78,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["collection", "userinfo"]),
+    ...mapState(["collection"]),
     breadCrum: function() {
       return [
         {
@@ -97,8 +96,8 @@ export default {
       ];
     }
   },
-  methods: {
-    ...mapMutations(["fetchCollection"])
+  mounted :function () {
+      this.$store.dispatch("FETCH_COLLECTION",this.$route.params.id )
   }
 };
 </script>

@@ -100,7 +100,7 @@ export default {
     // The callback function which is triggered when the user hits on an item
     // (required)
     onHit (item) {
-        console.log(this.relation, item);
+        
       if (this.relation) {
             this.change(item, this.relation);
             this.query=item.term_name;

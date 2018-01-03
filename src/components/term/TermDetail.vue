@@ -45,18 +45,16 @@ export default {
     ...mapState(["showTermList"])
      },
     created: function() {
-        
-        this.refreshTermList();  
+         this.$store.dispatch("REFRESH_TERMLIST");
         if (this.$route.params.id!=='none') {
-            this.fetchTerm({termId:this.$route.params.id,position:0}); 
+            this.$store.dispatch("FETCH_TERM", {id:this.$route.params.id, position:0});
         }
     },
     methods: {
-        ...mapMutations(["fetchTerm", "clearTermList", "refreshTermList"]),
-        
+        ...mapMutations(["clearTermList"]),
         getTerm: function(term) {
             console.log(term);
-            this.fetchTerm({termId:term.id,position:0}); 
+               this.$store.dispatch("FETCH_TERM", {id:term.id, position:0});
         },
         closeAll: function () {
             console.log('clearing');

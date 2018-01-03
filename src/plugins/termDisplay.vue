@@ -114,11 +114,11 @@ export default {
    
   },
   methods: {
-    ...mapMutations(["removeTermFromList", "fetchTerm", "changeTerm"]),
+    ...mapMutations(["removeTermFromList"]),
     changed: function() {},
     changeEditMode: function() {
       if (this.editMode) {
-        this.changeTerm(this.term);
+        this.$store.dispatch("CHANGE_TERM", this.term);
       }
       this.editMode=!this.editMode;
     },
@@ -133,7 +133,7 @@ export default {
     beforeDestroy: function() {
     console.log("beforedestroy");
       if (this.editMode) {
-        this.changeTerm(this.term);
+        this.$store.dispatch("CHANGE_TERM", this.term);
       }
   }
 };

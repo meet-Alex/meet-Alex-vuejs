@@ -99,7 +99,7 @@ window.onbeforeunload = function() {
 import Fullscreen from "vue-fullscreen/src/component.vue";
 import Vue from "vue";
 
-import { mapState, mapMutations } from "vuex";
+import { mapState } from "vuex";
 import axios from '../backend/vue-axios';
 export default {
   components: { Fullscreen },
@@ -149,7 +149,6 @@ export default {
     }
   },
   methods: {
-     ...mapMutations(["fetchTerm", "clearTermList", "fetchVisual", "fetchCollection"]),
     toggle: function() {
       this.$refs["fullscreen"].toggle();
       Fullscreen1 = !this.fullscreen;
@@ -237,8 +236,7 @@ export default {
   beforeDestroy() {
       // need to refetch the collection to update the store with the visual changes, and save layout of visual
       if (Mgraph.isDirty()) {
-        console.log('refetch collection');
-         this.fetchCollection(this.collectionId);
+           this.$store.dispatch("FETCH_COLLECTION",this.collectionId )
       }
       Mgraph.saveLayout(this.collectionId, "name8");
   }

@@ -11,8 +11,10 @@ Vue.axios.interceptors.response.use((response) => { // intercept the global erro
     console.log(error, error.response, error.message);
     Vue.prototype.$notify({
       group: 'foo',
-      title: 'Error in API call',
-      text: error.message
+      position: 'top center',
+      type: 'error',
+      title: 'Error in API call--',
+      text: error.response.data
     });
 
       console.log("-------expired--------------");

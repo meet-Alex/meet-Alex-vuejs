@@ -12,7 +12,7 @@
 
 
 <script>
-    import { mapMutations, mapGetters } from 'vuex';
+    import {mapGetters } from 'vuex';
      
     export default {
         data() {
@@ -22,10 +22,9 @@
         },
         created: function () {
             this.getLogin();
-            this.fetchCollections();
+            this.$store.dispatch("FETCH_COLLECTIONS");
         },
         methods: {
-             ...mapMutations(['fetchCollections']),
              ...mapGetters(['getLogin'])
         }
     }

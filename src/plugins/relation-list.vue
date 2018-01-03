@@ -62,12 +62,12 @@
 
                     
                         <td v-if="relation.type===0" class='bold'> {{relation.subject.term_name}} </td>
-                        <td v-else class="link" v-on:click="fetchTerm({termId:relation.subject.id,position:index+1})" >
+                        <td v-else class="link" v-on:click="fetchTerm({id:relation.subject.id,position:index+1})" >
                         {{relation.subject.term_name}} 
                         </td>
                         <td> {{relation.name}} </td>
                         <td v-if="relation.type===1" class='bold'> {{relation.object.term_name}} </td>
-                        <td v-else class="link" v-on:click="fetchTerm({termId:relation.object.id,position:index+1})" >
+                        <td v-else class="link" v-on:click="fetchTerm({id:relation.object.id,position:index+1})" >
                         {{relation.object.term_name}} 
                         </td>
                         <td></td>
@@ -110,7 +110,7 @@
 <script>
 import Vue from "vue";
 import globalData from "../global_data";
-import { mapGetters, mapState, mapMutations } from "vuex";
+import { mapGetters, mapState } from "vuex";
 import tablemenu from "./tablemenu.vue";
 import findterm from "./findTerm.vue";
 
@@ -154,10 +154,12 @@ export default {
     this.editCollectionId=this.term?this.term.collection_id:this.collection.id;
   },
   methods: {
-    ...mapMutations(["addRelation", "removeRelation", "changeRelation", "fetchTerm"]),
     tabPressed(e) {
       e.preventDefault();
       this.focusNewInput();
+    },
+    fetchTerm(term) {
+      this.$store.dispatch("FETCH_TERM", term);
     },
     addNewRelation() {
       this.focusNewInput();
@@ -166,10 +168,13 @@ export default {
         this.newRelation.object.term_name.length &&
         this.newRelation.name.length
       ) {
-        this.addRelation({
+
+         this.$store.dispatch("ADD_RELATION", {
           relation: this.newRelation,
           collectionId: this.editCollectionId
         });
+
+
         this.newRelation = {
           subject: { term_name: "" },
           name: "",
@@ -209,7 +214,8 @@ export default {
     updateSubject(newterm, relation) {
       var newRel = JSON.parse(JSON.stringify(relation));
       newRel.subject = JSON.parse(JSON.stringify(newterm));
-      this.changeRelation({
+
+       this.$store.dispatch("CHANGE_RELATION", {
         relation: newRel,
         collectionId: this.editCollectionId
       });
@@ -218,7 +224,7 @@ export default {
     updateObject(newterm, relation) {
       var newRel = JSON.parse(JSON.stringify(relation));
       newRel.object = JSON.parse(JSON.stringify(newterm));
-      this.changeRelation({
+       this.$store.dispatch("CHANGE_RELATION", {
         relation: newRel,
         collectionId: this.editCollectionId
       });
@@ -226,14 +232,14 @@ export default {
     },
     updateRelName(relation) {
       var newRel = JSON.parse(JSON.stringify(relation));
-      this.changeRelation({
+      this.$store.dispatch("CHANGE_RELATION", {
         relation: newRel,
         collectionId: this.editCollectionId
       });
       this.editCol = 0;
     },
     remRelation: function(id, event) {
-      this.removeRelation(id);
+       this.$store.dispatch("REMOVE_RELATION", id);
       if (event) event.stopPropagation();
     },
     clickTest: function(relationId, col) {

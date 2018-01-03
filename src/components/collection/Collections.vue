@@ -49,7 +49,7 @@
     import globalData from '../../global_data';
     import tablemenu from '../../plugins/tablemenu.vue';
     import tableindex from '../../plugins/tableindex.vue';
-    import { mapGetters, mapState, mapMutations } from 'vuex';
+    import { mapGetters, mapState } from 'vuex';
 
     export default {
         components: { tablemenu, tableindex },
@@ -70,7 +70,7 @@
             }
         },
         created: function() {
-            this.fetchCollections();
+              this.$store.dispatch("FETCH_COLLECTIONS")
         },
         computed: { 
             ...mapState(["collections", "userinfo"]),
@@ -96,10 +96,6 @@
                 });
                 return list;
             }
-        },
-        methods: {
-            ...mapGetters(['getLogin', 'getCollections']),
-            ...mapMutations(['fetchCollections']),
         }
     }
 </script>
