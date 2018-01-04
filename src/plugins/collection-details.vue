@@ -17,7 +17,7 @@
         </b-form-checkbox>
         <br>
         <b-button v-if="$route.params.id==='new'" v-on:click="createCollection" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
-        <b-button v-if="value&&$route.params.id!=='new'" variant="primary" size="sm">Update</b-button>
+        
         <h3>Statistics</h3>
         <table class="infotable">
             <tr>
@@ -102,9 +102,18 @@ export default {
   computed: {
     ...mapState(["collection"])
   },
+  watch: {
+      value: function(x) {
+        if (!this.value) {
+             this.$store.dispatch("CHANGE_COLLECTION", this.collection)
+        }
+      }
+  },
   beforeDestroy: function() {
-    console.log("beforedestroy");
-    this.changeCollection(this.collection);
+      if (this.value) {
+        console.log("beforedestroy");
+        this.$store.dispatch("CHANGE_COLLECTION", this.collection)
+      }
   }
 };
 </script>

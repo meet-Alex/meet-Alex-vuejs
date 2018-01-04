@@ -70,7 +70,6 @@ export const FETCH_COLLECTIONS = ({ commit }) => {
         })
 }
 export const ADD_COLLECTION = ({ commit }, collection) => {
-
     return new Promise((resolve, reject) => {
         Vue.axios.post("collections", collection)
         .then(response => {
@@ -79,6 +78,15 @@ export const ADD_COLLECTION = ({ commit }, collection) => {
   
     })
 }
+
+export const CHANGE_COLLECTION = ({ commit }, collection) => {
+    Vue.axios.put("collections/" + collection.id, collection)
+        .then(response => {
+            console.log('changed collection');
+        })
+}
+
+
 
 export const DELETE_COLLECTION = ({ commit }, collection) => {
     // maybe make a promise here
