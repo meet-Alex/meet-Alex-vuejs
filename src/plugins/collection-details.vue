@@ -16,7 +16,7 @@
             Public
         </b-form-checkbox>
         <br>
-        <b-button v-if="$route.params.id==='new'" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
+        <b-button v-if="$route.params.id==='new'" v-on:click="createCollection" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
         <b-button v-if="value&&$route.params.id!=='new'" variant="primary" size="sm">Update</b-button>
         <h3>Statistics</h3>
         <table class="infotable">
@@ -88,7 +88,16 @@ export default {
   created: function() {},
   methods: {
     ...mapMutations(["changeCollection"]),
-    tinyMCE_Changed: function() {}
+    tinyMCE_Changed: function() {},
+    createCollection: function() {
+        console.log(this.collection);
+        this.$store.dispatch("ADD_COLLECTION", this.collection)
+        .then(collection => {
+            console.log(collection);
+             this.$store.dispatch("FETCH_COLLECTION", collection.id)
+            this.$router.replace({ name: 'collectionDetail', params: { id: collection.id }})
+         })
+    }
   },
   computed: {
     ...mapState(["collection"])

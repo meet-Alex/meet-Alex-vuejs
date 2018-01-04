@@ -87,6 +87,7 @@ export const mutations = {
     state.collections = collections;
   },
   fetchCollection(state, collection) {  // fetch one collection
+    console.log(collection);
     function makeRelations() {
       var ontology, term, orgRelation;
       var relation = {}, relationList = [];
@@ -97,6 +98,7 @@ export const mutations = {
         relation = {};
         relation.id = ontology.id;
         // replace ids by the objects
+        // @todo: this should come from the api
         for (a = 0; a < state.collection.terms.length; a++) {
           term = state.collection.terms[a];
           if (ontology.subject_id === term.id) {
@@ -136,9 +138,14 @@ export const mutations = {
   changeCollection(state, collection) {
     console.log('call collection change api here..', collection);
   },
+  addCollection(state, collection) {
+    state.collection=collection;
+    state.collections.push(collection);
+  },
   addRelation(state, newRel) {
     state.collection_relationList.push(newRel);
   }
+
 
 }
 

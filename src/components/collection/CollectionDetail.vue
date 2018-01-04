@@ -21,7 +21,7 @@
                                 <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
                                 <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
                                 <b-dropdown-divider></b-dropdown-divider>
-                                <b-dropdown-item title="***todo***">Archive</b-dropdown-item>
+                                <b-dropdown-item v-on:click="deleteCollection" title="Delete this collection">Delete</b-dropdown-item>
                       </b-dropdown>       
                     </b-nav>
                 </td>
@@ -33,15 +33,17 @@
                     <collectionDetails v-if="selectedTab===0" v-model="editMode" />
                     <!-- the v-if is to force a beforeDestory, so the update collection api is called when another tab is selected -->
                 </b-tab>
-                <b-tab title="Terms" class='nopadding'>
-                    <termList :editMode="editMode" />
-                </b-tab>
-                <b-tab title="Relations">
-                    <relationList v-if="selectedTab===2" :editMode="editMode" :showHeader="true" />
-                </b-tab>
-                <b-tab title="Graph">
-                     <visual v-if="selectedTab===3" id="aa" v-model="editMode" :collectionId="''+$route.params.id"  />
-                </b-tab>
+                <template v-if="collection.id !==-1">
+                  <b-tab title="Terms" class='nopadding'>
+                      <termList :editMode="editMode" />
+                  </b-tab>
+                  <b-tab title="Relations">
+                      <relationList v-if="selectedTab===2" :editMode="editMode" :showHeader="true" />
+                  </b-tab>
+                  <b-tab title="Graph">
+                      <visual v-if="selectedTab===3" id="aa" v-model="editMode" :collectionId="''+$route.params.id"  />
+                  </b-tab>
+                </template>
             </b-tabs>
         </b-card>
 
@@ -75,6 +77,16 @@ export default {
       }
     } else {
       this.editMode = true;
+    }
+  },
+  methods : {
+    deleteCollection: function () {
+      console.log('delete collection');
+        this.$store.dispatch("DELETE_COLLECTION", this.collection)
+        .then(response => {
+          this.$router.push("/collections");
+        })
+
     }
   },
   computed: {

@@ -50,7 +50,6 @@ export const REMOVE_TERM = ({ commit }, term) => {
         })
 }
 
-
 export const FETCH_TERM = ({ commit }, term) => {
     Vue.axios.get('terms/' + term.id)
         .then(response => {
@@ -64,15 +63,38 @@ export const FETCH_TERM = ({ commit }, term) => {
 export const FETCH_COLLECTIONS = ({ commit }) => {
     Vue.axios.get("collections")
         .then(response => {
-            var data = response.data;
+            var data = response.data
             //data is an object, change it to array
             var collections = Object.keys(data).map(key => data[key])
             commit('fetchCollections', collections)
         })
 }
+export const ADD_COLLECTION = ({ commit }, collection) => {
+
+    return new Promise((resolve, reject) => {
+        Vue.axios.post("collections", collection)
+        .then(response => {
+            resolve(response.data);
+        })
+  
+    })
+}
+
+export const DELETE_COLLECTION = ({ commit }, collection) => {
+    // maybe make a promise here
+
+    return new Promise((resolve, reject) => {
+        Vue.axios.delete("collections/" + collection.id)
+        .then(response => {
+            resolve(response.data);
+        })
+    })
+}
+
+
 export const FETCH_COLLECTION = ({ commit }, collectionId) => {
     if (collectionId === 'new') {
-        state.collection = JSON.parse(JSON.stringify(noCollection));
+        var collection = JSON.parse(JSON.stringify(noCollection));
         commit('fetchCollection', collection)
     } else {
         Vue.axios.get("collections/" + collectionId)
@@ -191,14 +213,7 @@ export const CHANGE_RELATION = ({ commit, state }, parms) => {
             }
         }
     })
-
-
-
-
-
-
 }
-
 
 function constructRelations(data) {
     var relations = [];
@@ -214,7 +229,30 @@ function constructRelations(data) {
     return relations;
 }
 
-var noCollection = {};
+const noCollection = {
+    "id": -1,
+    "parent_id": null,
+    "collection_name": "",
+    "collection_description": "",
+    "public": "1",
+    "receive_notifications": "1",
+    "created_by": -1,
+    "created_at": "",
+    "updated_at": "",
+    "term_count": 0,
+    "ontologies_count": 0,
+    "owner_name": "",
+    "bookmarked": true,
+    "relations": [],
+    "relationList": [],
+    "ontologies": [],
+    "terms": [],
+    "owner": {},
+    "links": []
+  };
+
+
+
 
 
 
