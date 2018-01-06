@@ -104,4 +104,7 @@
     .table {
         border:1px solid grey;
     }
+    button:hover, i:hover {
+        cursor: pointer;
+    }
 </style>

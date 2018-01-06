@@ -9,9 +9,9 @@
                 <td class="compact title-header">
                     Collection: {{collection.collection_name}}
                 </td>
-                <td align="right">
+                <td align="right" v-if="collection.editable">
                     <b-nav class="float-right">
-                        <button v-if="collection.editable" v-bind:class="{'button-close':true, red:editMode}" v-on:click="editMode=!editMode">
+                        <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="editMode=!editMode">
                           <i class="fa fa-pencil" aria-hidden="true" title="Edit this collection"></i>
                         </button>
                         <b-dropdown variant="link" size="lg" no-caret title='Actions' :disabled="$route.params.id==='new'">
@@ -38,7 +38,7 @@
                       <termList :editMode="editMode" />
                   </b-tab>
                   <b-tab title="Relations">
-                      <relationList v-if="selectedTab===2" :editMode="editMode" :showHeader="true" />
+                      <relationList  :editMode="editMode" :showHeader="true" />
                   </b-tab>
                   <b-tab title="Graph">
                       <visual v-if="selectedTab===3" id="aa" v-model="editMode" :collectionId="''+$route.params.id"  />
@@ -79,14 +79,19 @@ export default {
       this.editMode = true;
     }
   },
-  methods : {
-    deleteCollection: function () {
-      console.log('delete collection');
-        this.$store.dispatch("DELETE_COLLECTION", this.collection)
-        .then(response => {
-          this.$router.push("/collections");
-        })
-
+  methods: {
+    deleteCollection: function() {
+      console.log("delete collection");
+      var r = confirm(
+        "This will delete the collection and its terms and relations. \n Are you sure you want to delete this collection?"
+      );
+      if (r) {
+        this.$store
+          .dispatch("DELETE_COLLECTION", this.collection)
+          .then(response => {
+            this.$router.push("/collections");
+          });
+      }
     }
   },
   computed: {
@@ -108,8 +113,8 @@ export default {
       ];
     }
   },
-  mounted :function () {
-      this.$store.dispatch("FETCH_COLLECTION",this.$route.params.id )
+  mounted: function() {
+    this.$store.dispatch("FETCH_COLLECTION", this.$route.params.id);
   }
 };
 </script>
@@ -125,9 +130,13 @@ button {
   border: none;
   color: grey;
 }
-button:focus {outline:0 !important;}
-.red {
-    color:red;
+button:focus {
+  outline: 0 !important;
 }
-
+ button:hover, i:hover {
+        cursor: pointer;
+    }
+.red {
+  color: red;
+}
 </style>

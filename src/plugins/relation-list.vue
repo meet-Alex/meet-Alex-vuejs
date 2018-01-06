@@ -16,7 +16,7 @@
                     </tr>
                     <tr v-if="editMode&&editRelationId!==0">
                         <td>
-                            <b-button v-on:click="editRelationId=0" variant="default" size="sm">New Relation</b-button>
+                            <b-button v-on:click="editRelationId=0" variant="primary" size="sm">New Relation</b-button>
                         </td>
                         <td></td>
                         <td></td>

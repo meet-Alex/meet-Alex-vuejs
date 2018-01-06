@@ -23,7 +23,12 @@
         </div>
         <table class='term-header'>
           <tr>
-            <td class="term-title">{{term.term_name}} </td>
+            <td v-if="!editMode" class="term-title">{{term.term_name}} </td>
+            <td v-else>
+              <strong> Name: </strong>
+               <textarea class="form-control lightblue" type="text" v-model="term.term_name" v-on:keydown="preventEnter($event)"></textarea>
+
+            </td>
             <td class="term-collection" title="Go to collection"> 
                <router-link :to="{ name: 'collectionDetail', params: { id: term.collection.id, tab:'terms' } }">  {{term.collection.collection_name}} </router-link>
             </td>
@@ -32,7 +37,7 @@
  
 
         <div v-if="!editMode" class="term-desciption-div" v-html="term.term_definition"> </div>
-        <div v-if="editMode">
+        <div v-else>
             <strong>Description:</strong>
             <tinymce id="nameEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
         </div>
@@ -74,7 +79,8 @@ export default {
   components: {relationList},
   props: {
     term: { type: Object, required: true },
-    index: { type: Number, required: true }
+    index: { type: Number, required: true },
+    newTerm: {type:Boolean, required: false}
   },
 
   data() {
@@ -110,11 +116,18 @@ export default {
       }
     };
   },
-  created: function() {
-   
+  mounted: function() {
+    if (this.newTerm) {
+      this.editMode=true;
+    }
   },
   methods: {
     ...mapMutations(["removeTermFromList"]),
+    preventEnter: function(e) {
+       if (e.keyCode === 13) {
+        e.preventDefault();
+      }
+    },
     changed: function() {},
     changeEditMode: function() {
       if (this.editMode) {

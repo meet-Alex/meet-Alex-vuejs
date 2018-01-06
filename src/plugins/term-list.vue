@@ -10,11 +10,10 @@
                         <td class="def bold">Term description</td>
                     </tr>
                     <tr v-if="editMode&&editTermId!==0">
-                        <td>
-                            <b-button v-on:click="editTermId=0" variant="default" size="sm">New term</b-button>
+                        <td colspan="2">
+                            <b-button v-on:click="editTermId=0" variant="primary" size="sm">New term (list)</b-button>
+                            <b-button v-on:click="addTermForm" variant="primary" size="sm">New term (form)</b-button>
                         </td>
-                        <td></td>
-                       
                     </tr>
                     <tr v-if="editMode&&editTermId===0">
                         <td colspan="2">
@@ -54,7 +53,7 @@ export default {
   data() {
     return {
       globalData: globalData,
-      editTermId: 0,
+      editTermId: -1,
       newTerm: { id: 0, term_name: "", term_definition: "" },
       termMenu: {
         filter: "",
@@ -68,7 +67,11 @@ export default {
   },
   created: function() {},
   methods: {
-    tinyMCE_Changed: function() {}
+    tinyMCE_Changed: function() {},
+    addTermForm() {
+      console.log('add from')
+      this.$router.push({name: 'newTerm' , params:{id:'new'}})
+    }
   },
   computed: {
     ...mapState(["collection"]),

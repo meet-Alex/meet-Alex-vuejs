@@ -157,12 +157,16 @@ export default {
   width: 100%;
 }
 
+
 .inline-edit-row {
   display: table-row;
 }
 
 .inline-edit-cell {
   display: table-cell;
+}
+.iconbutton {
+  width:30px;
 }
 
 .mce-ico.mce-i-fa {

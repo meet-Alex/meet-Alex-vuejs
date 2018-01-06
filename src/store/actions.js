@@ -31,10 +31,14 @@ export const REGISTER = ({ commit }, userData) => {
     })
 }
 export const ADD_TERM = ({ commit }, term) => {
+    console.log(term);
+    return new Promise((resolve, reject) => {
     Vue.axios.post("terms", term)
         .then(response => {
             commit('addTerm', response.data)
+            resolve(response.data)
         })
+    })
 }
 export const CHANGE_TERM = ({ commit }, term) => {
     Vue.axios.put("terms/" + term.id, term)
@@ -232,8 +236,13 @@ function constructRelations(data) {
     data.subjects.map(function (subject) {
         if (!subject.archived)
             relations.push({ object: { id: data.id, term_name: data.term_name }, name: subject.relation.relation_name, id: subject.id, subject: { id: subject.subject.id, term_name: subject.subject.term_name }, type: 1 })
-
     })
+
+    // when object and subject are the same in the relation, it is added twice, so remove duplictes
+    relations= relations.filter((obj, pos, arr) => {
+        return arr.map(mapObj => mapObj["id"]).indexOf(obj["id"]) === pos;
+    });
+    console.log(relations)
     return relations;
 }
 

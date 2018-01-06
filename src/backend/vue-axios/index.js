@@ -15,6 +15,7 @@ Vue.axios.interceptors.response.use((response) => { // intercept the global erro
       displayerror="Please log in again"
     
       localStorage.loggedin = false;  
+      localStorage.id = -1;
       window.location.href = '/login'
      
       Vue.prototype.$notify({

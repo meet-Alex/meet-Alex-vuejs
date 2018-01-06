@@ -16,7 +16,7 @@
             Public
         </b-form-checkbox>
         <br>
-        <b-button v-if="$route.params.id==='new'" v-on:click="createCollection" variant="primary" size="sm" :disabled='!collection.collection_name.length'>Create</b-button>
+        <b-button v-if="$route.params.id==='new'" v-on:click="createCollection" variant="primary" size="sm" :disabled='(!collection.collection_name.length) || (!collection.collection_description.length)'>Create</b-button>
         
         <h3>Statistics</h3>
         <table class="infotable">

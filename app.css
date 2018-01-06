@@ -1,5 +1,6 @@
 html {
     height: 100%;
+    font-family: "Roboto Condensed Medium","helvetica","Liberation Sans",sans-serif;
 }
 body {
     height: 100%;
@@ -43,6 +44,9 @@ font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word
     width:220px;
     padding: 0px;
     vertical-align: top;
+}
+.def {
+   
 }
 .lightblue {
     padding:5px !important;

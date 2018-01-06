@@ -41,6 +41,7 @@ export const mutations = {
 
   // handle term changes
   fetchTerm(state, term) {
+    console.log(term);
     state.showTermList = state.showTermList.filter(function (thisterm) {
       return thisterm.id != term.id
     })
@@ -61,6 +62,10 @@ export const mutations = {
   removeTerm(state, term) {
     state.collection.terms = state.collection.terms.filter(function (thisterm) {
       return thisterm.id != term.id
+    });
+    // also remove the relations to this term
+    state.collection_relationList = state.collection_relationList.filter(function (relation) {
+      return (relation.object.id!=term.id) && (relation.subject.id!=term.id)
     });
   },
   // handle relation changes
