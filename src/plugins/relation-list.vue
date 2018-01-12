@@ -173,8 +173,6 @@ export default {
           relation: this.newRelation,
           collectionId: this.editCollectionId
         });
-
-
         this.newRelation = {
           subject: { term_name: "" },
           name: "",

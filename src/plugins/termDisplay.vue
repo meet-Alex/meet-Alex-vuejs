@@ -51,12 +51,8 @@
 
         <div class="term-details" v-if="viewType>1">
           <span class="subtitle"> Relations </span>
-
               <relationList :editMode="editMode" :term="term" :index="index" :showHeader="false"/>
         </div>
-        
-
-
             <div v-bind:class="{'div-menu-bottom':true, hide:!showMenus}">
                   <button class="button" v-if="viewType===0" v-on:click="viewType=2" title="Hide this term">
                     <i class="fa fa-angle-down fa-lg grey" aria-hidden="true"></i>

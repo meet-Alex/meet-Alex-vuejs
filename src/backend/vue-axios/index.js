@@ -1,16 +1,13 @@
 import Vue from 'vue'
 import VueAxios from 'vue-axios'
-import store from '../../store'
 
 import axios from './axios'
 
-Vue.use(VueAxios, axios, store)
+Vue.use(VueAxios, axios)
 Vue.axios.interceptors.response.use((response) => { // intercept the global error
     return response
   }, function (error) {
-
     var displayerror=error.response.data;
-
     if (error.response.status === 401) {
       displayerror="Please log in again"
     
