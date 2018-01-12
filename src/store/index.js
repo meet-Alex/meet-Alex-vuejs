@@ -9,6 +9,8 @@ Vue.use(Vuex)
 
 const state = {
   userinfo: { email: "", token: "" },
+  showSearchBox: true,
+  isLoading: false,
   collections: [],
   emptyCollection: {},
   collection:  {

@@ -55,22 +55,26 @@ export const REMOVE_TERM = ({ commit }, term) => {
 }
 
 export const FETCH_TERM = ({ commit }, term) => {
+    commit("isLoading", true);
     Vue.axios.get('terms/' + term.id)
         .then(response => {
             var data = response.data
             data.relations = constructRelations(data)
             data.position = term.position
             commit('fetchTerm', data)
+            commit("isLoading", false);
         })
 }
 
 export const FETCH_COLLECTIONS = ({ commit }) => {
+  //  commit("isLoading", true);
     Vue.axios.get("collections")
         .then(response => {
             var data = response.data
             //data is an object, change it to array
             var collections = Object.keys(data).map(key => data[key])
             commit('fetchCollections', collections)
+       //     commit("isLoading", false);
         })
 }
 export const ADD_COLLECTION = ({ commit }, collection) => {
@@ -104,17 +108,23 @@ export const DELETE_COLLECTION = ({ commit }, collection) => {
 }
 
 
-export const FETCH_COLLECTION = ({ commit }, collectionId) => {
+export const FETCH_COLLECTION = ({ commit, state }, collectionId) => {
+    commit('clearCollection', collectionId)  // clear the collection screen if a different collection is shown, otherwise keep the current one and resfresh
     if (collectionId === 'new') {
         var collection = JSON.parse(JSON.stringify(noCollection));
         commit('fetchCollection', collection)
     } else {
+        if (!state.collection.id) {
+            // only show loading spinner when the page is empty, otherwise you can secretly refresh the current collection
+            commit("isLoading", true);
+        }
         Vue.axios.get("collections/" + collectionId)
             .then(response => {
                 var collection = response.data;
                 collection.public = collection.public.toString();
                 collection.receive_notifications = collection.receive_notifications.toString();
                 commit('fetchCollection', collection)
+                commit("isLoading", false);
             })
     }
 }

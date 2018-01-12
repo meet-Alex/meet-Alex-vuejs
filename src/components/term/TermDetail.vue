@@ -1,9 +1,11 @@
 <template>
     <div class="container flex">
         <b-breadcrumb :items="breadCrum" />
-        <table class='toprow'> <tr>
+      
+        <div v-if="showTermList.length>0">
+              <table class='toprow'> <tr>
             <td class="findTermWidth">
-                <findterm :change="getTerm"/>
+             <!--  <findterm :change="getTerm"/> -->
             </td>
             <td class='alignright'>
                  <button class="button-close" v-on:click="closeAll" title="Clear all">
@@ -11,8 +13,12 @@
                 </button>
             </td>
         </tr></table>
-        <div v-for="(term, index) in showTermList">
-        <termdisplay  :term="term" :index="index" />
+        <div  v-for="(term, index) in showTermList">
+            <termdisplay  :term="term" :index="index" />
+        </div>
+        </div>
+        <div v-else>
+            No terms to display. Use the search box to display a term.
         </div>
          
     </div>

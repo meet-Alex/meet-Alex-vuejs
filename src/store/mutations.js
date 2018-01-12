@@ -21,6 +21,12 @@ export const mutations = {
     }
     handleLoginAdmin(state);
   },
+  showSearchBox(state, value) {
+    state.showSearchBox=value;
+  },
+  isLoading(state, value) {
+    state.isLoading=value;
+  },
   logOut(state) {
     state.userinfo = {
       email: "",
@@ -90,6 +96,11 @@ export const mutations = {
       //collection.authorisation = globalData.AUTHTYPE.CONTRIBUTOR;
     });
     state.collections = collections;
+  },
+  clearCollection(state, collectionId) {
+    console.log(state.collection.id, collectionId);
+    if (state.collection.id !== collectionId)
+      state.collection = {}
   },
   fetchCollection(state, collection) {  // fetch one collection
     console.log(collection);

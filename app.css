@@ -14,15 +14,7 @@ body {
     position: relative;
     box-sizing: inherit;
 }
-.alex {
-font-weight:normal;font-variant:small-caps;color:#000000;letter-spacing:0em;word-spacing:3em;font-size:78px;text-align:left;font-family:trebuchet MS, sans-serif;line-height:0;
-}
-.alex-below {
-    background-color: #292b2c;
-    width:100%;
-    height: 4em;
-    margin-top: 10em;
-}
+
 .compact {
     display:table-cell;
     white-space: nowrap;

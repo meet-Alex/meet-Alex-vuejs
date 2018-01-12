@@ -35,8 +35,10 @@
           </tr>
         </table>
  
-
-        <div v-if="!editMode" class="term-desciption-div" v-html="term.term_definition"> </div>
+        <template v-if="!editMode">
+        <div v-if="term.term_definition" class="term-desciption-div" v-html="term.term_definition"> </div>
+         <div v-else class="term-desciption-div none"> No description available </div>
+        </template>
         <div v-else>
             <strong>Description:</strong>
             <tinymce id="nameEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
@@ -151,6 +153,10 @@ export default {
 
 
 <style scoped>
+.none {
+  color:grey;
+  font-style: italic;
+}
 
 table.term-header {
   width: calc(100% - 80px);
@@ -164,11 +170,12 @@ td.term-collection {
 }
 
 .term-container-div {
-  border: 1px solid lightgrey;
-  border-radius: 5px;
+ 
+ 
   padding: 0.1em 1em 1em 1em;
   margin-bottom: 1em;
   position: relative;
+    box-shadow: 2px 2px 8px grey;
 }
 .term-container-div h2 {
   font-size: 1.1em;

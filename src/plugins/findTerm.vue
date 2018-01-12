@@ -183,7 +183,9 @@ export default {
     position: absolute;
     padding: 0;
     margin-top: 8px;
-    min-width: 100%;
+    /*min-width: 100%; */
+    text-align:left;
+    width:600px;
     background-color: #eee;
     list-style: none;
     border-radius: 4px;
@@ -194,6 +196,7 @@ export default {
     padding: 4px 16px;
     border-bottom: 1px solid #ccc;
     cursor: pointer;
+    color:black;
     }
     li:first-child {
     border-top-left-radius: 4px;
