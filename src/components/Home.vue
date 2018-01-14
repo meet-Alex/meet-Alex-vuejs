@@ -1,50 +1,55 @@
 <template>
    <div>
         <div style="text-align:center">
-            <div class='alex'>
-                <table style="margin:auto">
-                    <tr>
-                        <td><img src="../images/navbar-icon.png"></td>
-                <td class='alextext'>A-Lex</td>
-                </tr>
-                </table>
+            <div  v-if="!modeUp">
+                <div class='alex'>
+                    <table style="margin:auto">
+                        <tr>
+                            <td><img src="../images/navbar-icon.png"></td>
+                    <td class='alextext'>A-Lex</td>
+                    </tr>
+                    </table>
+                </div>
             </div>
             <div id="findTerm">
-                <findterm :change="getTerm"/>
+                <findterm :change="getTerm" @hasText="switchMode" />
             </div>
-            <div id="buttons">
-                or <br> <br>
-                <router-link :to="{ name: 'collections' }"> 
-                     <span class="btn btn-primary"> Browse collections </span>
-                </router-link>
-                <br> <br>
-                <transition name="fade">
-                    <button v-if="!viewExplain" class="nobutton" v-on:click="viewExplain=true">
-                            <i class="fa fa-angle-down fa-3x grey" aria-hidden="true"></i>
-                    </button>
-                    <button v-else class="nobutton" v-on:click="viewExplain=false">
-                            <i class="fa fa-angle-up fa-3x grey" aria-hidden="true"></i>  
-                    </button>
-                 </transition>
-            </div>
-             <transition name="fade">
-                <div v-if="viewExplain" id='addinfo'>
-                    <h2>Everything you need to describe your data</h2>
-
-                    <h3>Term</h3>
-                    <p>The basic unit in meet-Alex. It's a word or a few words combined, used to name something. For example "tomato", "table", or "dinner table", "customer", "name", "colour", "calorie". All information is basically organised by <strong>terms</strong>.</p>  
+            <div  >
+                <div id="buttons" v-if="!modeUp">
+                    or <br> <br>
+                    <router-link :to="{ name: 'collections' }"> 
+                        <span class="btn btn-primary"> Browse collections </span>
+                    </router-link>
+                    <br> <br>
                    
-                    <h3>Description</h3>
-                    <p>The mechanism to communicate the meaning of a <strong>term</strong> inside a <strong>collection</strong>. Here you can describe what the term represents (for example "tomato is a fruit"), and how it distincts from other terms (for example which characteristic clearly distincts a "tomato" from an "apple"?). </p>
-
-                    <h3>Relation</h3>
-                    <p>The mechanism to structure data, by connecting two <strong>terms</strong> inside a <strong>collection</strong>. <strong>Relations</strong> are always stored in the context of a <strong>collection</strong> though some of the terms which are in the <strong>relation</strong> might be used in other <strong>collections</strong>.</p>
-
-                    <h3>Collection</h3>
-                    <p>The mechanism to group a number of <strong>terms</strong> by a user. Currently we only allow creating <strong>terms</strong> through a <strong>collection</strong>. But we also allow using <strong>terms</strong> from other collections inside your collection.</p>
-                    <p><strong>Collections</strong> enable management of <strong>terms</strong> and organise collaboration on <strong>terms</strong>.</p>
+                        <button v-if="!viewExplain" class="nobutton" v-on:click="viewExplain=true">
+                                <i class="fa fa-angle-down fa-3x grey" aria-hidden="true"></i>
+                        </button>
+                        <button v-else class="nobutton" v-on:click="viewExplain=false">
+                                <i class="fa fa-angle-up fa-3x grey" aria-hidden="true"></i>  
+                        </button>
+                   
                 </div>
-            </transition>
+              
+                    <div v-if="viewExplain && !modeUp" id='addinfo'>
+                        <h2>Everything you need to describe your data</h2>
+
+                        <h3>Term</h3>
+                        <p>The basic unit in meet-Alex. It's a word or a few words combined, used to name something. For example "tomato", "table", or "dinner table", "customer", "name", "colour", "calorie". All information is basically organised by <strong>terms</strong>.</p>  
+                    
+                        <h3>Description</h3>
+                        <p>The mechanism to communicate the meaning of a <strong>term</strong> inside a <strong>collection</strong>. Here you can describe what the term represents (for example "tomato is a fruit"), and how it distincts from other terms (for example which characteristic clearly distincts a "tomato" from an "apple"?). </p>
+
+                        <h3>Relation</h3>
+                        <p>The mechanism to structure data, by connecting two <strong>terms</strong> inside a <strong>collection</strong>. <strong>Relations</strong> are always stored in the context of a <strong>collection</strong> though some of the terms which are in the <strong>relation</strong> might be used in other <strong>collections</strong>.</p>
+
+                        <h3>Collection</h3>
+                        <p>The mechanism to group a number of <strong>terms</strong> by a user. Currently we only allow creating <strong>terms</strong> through a <strong>collection</strong>. But we also allow using <strong>terms</strong> from other collections inside your collection.</p>
+                        <p><strong>Collections</strong> enable management of <strong>terms</strong> and organise collaboration on <strong>terms</strong>.</p>
+                    </div>
+                    <br><br>
+            </div>
+           
         </div>
    </div>
 </template>
@@ -60,7 +65,8 @@
         data() {
             return {
                 isDropdownOpen: false,
-                viewExplain: false
+                viewExplain: false,
+                modeUp: false
             }
         },
         mounted: function () {
@@ -73,6 +79,10 @@
             getTerm: function(term) {
                     this.$router.push("/terms/"+ term.id);
             },
+            switchMode: function(hasText) {
+                this.modeUp=hasText;
+                console.log('jajaja')
+            }
         },
          beforeDestroy: function() {
                this.$store.commit('showSearchBox', true);

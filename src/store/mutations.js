@@ -64,6 +64,16 @@ export const mutations = {
   changeTerm(state, term) {
     var nr = state.collection.terms.findIndex(x => x.id === term.id)
     state.collection.terms.splice(nr, 1, term)
+    // also update the relations with the changed term
+    state.collection_relationList.forEach(function (relation) {
+      if (relation.object.id==term.id) {
+        relation.object=term;
+      }
+      if (relation.subject.id==term.id) {
+        relation.subject=term;
+      }
+    })
+
   },
   removeTerm(state, term) {
     state.collection.terms = state.collection.terms.filter(function (thisterm) {

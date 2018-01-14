@@ -95,6 +95,16 @@ export default {
       console.log("mounted");
        this.$refs["focusIt"].focus();
   },
+   watch: {
+    query: function (val) {
+      console.log(val);
+      if (val.length===0) {
+          this.$emit('hasText', false);
+      } else if (val.length===1) {
+          this.$emit('hasText', true);
+      }
+    }
+   },
 
   methods: {
     // The callback function which is triggered when the user hits on an item
@@ -186,7 +196,7 @@ export default {
     /*min-width: 100%; */
     text-align:left;
     width:600px;
-    background-color: #eee;
+    background-color: rgb(253, 253, 253);
     list-style: none;
     border-radius: 4px;
     box-shadow: 0 0 10px rgba(0,0,0, 0.25);
@@ -212,7 +222,7 @@ export default {
     color: #2c3e50;
     }
     .active {
-    background-color: #3aa373;
+    background-color: #dfecd0
     }
     .active span {
     color: white;
@@ -227,6 +237,7 @@ export default {
     font-style: italic;
     font-size: 0.8rem;
     float: right;
+    color:orange;
     }
     .term-description {
         font-size: 0.8rem;

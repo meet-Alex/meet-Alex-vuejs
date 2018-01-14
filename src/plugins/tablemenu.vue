@@ -76,6 +76,6 @@ export default {
         border:1px solid grey;
     }
     .bg-info {
-        background-color: #18bc9c !important;
+     /*   background-color: #18bc9c !important;*/
     }
 </style>

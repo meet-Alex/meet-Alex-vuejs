@@ -66,6 +66,7 @@ export default {
     };
   },
   created: function() {
+    console.log(this.$route.params)
     if (this.$route.params.id !== "new") {
       if (this.$route.params.tab && this.$route.params.tab === "terms") {
         this.selectedTab = 1;
