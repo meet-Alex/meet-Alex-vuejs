@@ -35,7 +35,9 @@ export default {
     },
     mounted() {
         //Initial configuration
-
+        this.content = this.value ? JSON.parse(JSON.stringify(this.value)) : "";
+        
+        console.log(this.content);
         let options = {}
         let s1 = new Function()
         let config = (editor) => {
@@ -65,9 +67,11 @@ export default {
         } else options.selector = '#' + this.id
 
         options.setup = (editor) => s1(editor);
-        this.content = this.value ? JSON.parse(JSON.stringify(this.value)) : "";
+        
 
-        Vue.nextTick(() => tinymce.init(options));
+        Vue.nextTick(() => {tinymce.init(options)
+            tinymce.get(this.id).setContent(this.content)
+        });
     },
     beforeDestroy() {
         tinymce.execCommand('mceRemoveEditor', false, this.id)

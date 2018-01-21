@@ -41,9 +41,10 @@ body {
    
 }
 .lightblue {
-    padding:5px !important;
+    padding:2px 5px !important;
     line-height: 1.3;
     font-size:1rem;
+    border-color:lightblue !important;
 }
 
 .table>tbody>tr>td {
@@ -105,9 +106,6 @@ body {
 }
 .iconbutton {
     width:50px;
-}
-.lightblue {
-    border-color:lightblue !important;
 }
 
 .highlight {

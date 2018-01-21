@@ -282,16 +282,19 @@ var Mgraph = function(d3,$, getData) {
      * @param {String} name 
      */
     function loadLayout(collectionId, name) {
+       
         G_modelId = collectionId;
         getData.getSketches(collectionId, showIt);
 
         function showIt(newData) {
+          
             if (newData) {
               //  G_graph = newData.G_graph;
-
             
+            console.log(newData);
               setClusterRelations(newData.G_clusterRelations);
-              console.log(">>>>" ,G_graph);
+              console.log(">>>>" , G_graph);
+           
               console.log(newData);
               newData.nodePositions.map(function(nodePosition){
                 var fndnode=G_graph.nodes.find(function(orgnode){
@@ -352,7 +355,7 @@ var Mgraph = function(d3,$, getData) {
         if (active) {
             d3.selectAll('.menuItems').remove();
             setShowLocks(false);
-            setAllNodesLock(true);
+            //setAllNodesLock(true);
 
             svg0.selectAll('.zoomRect').style('stroke', 'red');
             G_dirty=true; // it is possibly edited, so update everything on leave
@@ -814,10 +817,10 @@ var Mgraph = function(d3,$, getData) {
         gnodesRectEnter.append("path")
             .attr("class", "fixpin")
             .attr("d", FIX_PIN_SVG)
-            .style("fill", "grey")
+            .style("fill", "purple")
             .style("stroke-width", "1px")
             .style("opacity", "0")
-            .attr("transform", "translate(" + (0.5 * (Dims.node.width) - 14) + "," + (-Dims.node.height + 24) + ") scale(0.5)")
+            .attr("transform", "translate(" + (0.5 * (Dims.node.width) - 14) + "," + (-Dims.node.height + 24) + ") scale(0.7)")
             .on("mousedown", function(d) { termFixpin_mousedown(d, this); });
 
         gnodesRectEnter
@@ -876,13 +879,13 @@ var Mgraph = function(d3,$, getData) {
         gnodesRelationEnter.append("path")
             .attr("class", "fixpin")
             .attr("d", FIX_PIN_SVG)
-            .style("fill", "lightgrey")
+            .style("fill", "purple")
             .style("stroke-width", "1px")
             .style("opacity", "0")
             .attr("transform", function(d) {
-                var x = (30 - 0.08 * 0.5 * this.parentNode.getBBox().width);
-                var y = (-40);
-                return "translate(" + x + "," + y + ") scale(0.08)";
+                var x = (0.5* this.parentNode.getBBox().width-10);
+                var y = (-20);
+                return "translate(" + x + "," + y + ") scale(0.7)";
             })
             .on("mousedown", function(d) { termFixpin_mousedown(d, this); });
 
@@ -1487,6 +1490,14 @@ var Mgraph = function(d3,$, getData) {
      * @param {boolean} fixed - true=lock all, false=free all
      */
     function setAllNodesLock( fixed) {
+        console.log('lock positions', fixed);
+
+        G_graph.nodes.map(function(d)  {
+            console.log(d);
+            d.fx = fixed ? d.x : null;
+            d.fy = fixed ? d.y : null;
+            d.fixed = fixed;
+        });
 
         svg.selectAll('.gnode').each(function(d) {
             if (d.relationCount) { // leave the terms without relations as is
@@ -1501,6 +1512,7 @@ var Mgraph = function(d3,$, getData) {
             .selectAll('.fixpin')
             .data(G_graph.nodes, function(d) { return d.id; })
             .style("opacity", function(d) { return (d.fixed ? showit : 0); });
+        
         updateGraph();
     }
 
@@ -1521,7 +1533,7 @@ var Mgraph = function(d3,$, getData) {
     function setClusterRelations(clusterType) {
         G_clusterRelations = clusterType;
         // updateNodeList(getNodeList());
-        displayTerms(G_nodelist);
+       // displayTerms(G_nodelist);
     }
 
     function getUserInput(type, dataObject) {

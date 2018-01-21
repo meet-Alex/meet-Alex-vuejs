@@ -59,8 +59,6 @@
                         <td></td>
                       </template>
                       <template v-else>
-
-                    
                         <td v-if="relation.type===0" class='bold'> {{relation.subject.term_name}} </td>
                         <td v-else class="link" v-on:click="fetchTerm({id:relation.subject.id,position:index+1})" >
                         {{relation.subject.term_name}} 
@@ -74,29 +72,29 @@
                         </template>
                     </tr>
 
-                    <tr v-if="editMode"  v-for="(relation, index) in filteredRelationList">
-                        <td v-if="relation.id===editRelationId && editCol===1">
-                            <findterm :prefill="relation.subject.term_name" :relation="relation" :change="updateSubject"/>
+                    <tr v-if="editMode"  v-for="(relation, index) in filteredRelationList" v-on:mouseover="editRelationId=editRelationId===0?0:relation.id" v-on:click="editRelationId=relation.id">
+                        <td class='edit' v-if="relation.id===editRelationId">
+                            <findterm id="ft1" :prefill="relation.subject.term_name" :relation="relation" :change="updateSubject"/>
                         </td>
-                        <td v-else v-on:click="clickTest(relation.id,1)">
+                        <td class='edit' v-else >
                             {{relation.subject.term_name}}
                         </td>     
-                        <td v-if="relation.id===editRelationId && editCol===2">
+                        <td class='edit' v-if="relation.id===editRelationId ">
                             <input ref="newInput" class="form-control lightblue" type="text" v-model="relation.name" @change="updateRelName(relation)">
                         </td>
-                         <td v-else  v-on:click="clickTest(relation.id,2)">
+                         <td class='edit' v-else>
                             {{relation.name}}
                         </td>
-                        <td v-if="relation.id===editRelationId && editCol===3">
-                             <findterm :prefill="relation.object.term_name" :relation="relation" :change="updateObject"/>
+                        <td class='edit' v-if="relation.id===editRelationId">
+                             <findterm id="ft2" :prefill="relation.object.term_name" :relation="relation" :change="updateObject"/>
                         </td>
-                         <td v-else v-on:click="clickTest(relation.id,3)">
+                         <td class='edit' v-else>
                             {{relation.object.term_name}}
                         </td>
 
                         <td>
-                            <a  href="#" class='iconbutton' v-on:click="remRelation(relation.id, $event)">
-                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            <a  v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="remRelation(relation.id, $event)">
+                                <i class="fa fa-trash red" aria-hidden="true"></i>
                             </a>
                         </td>
                     </tr>
@@ -150,8 +148,8 @@ export default {
     index: {type:Number, required:false},
     showHeader :{ type: Boolean, required: true }
   },
-  created: function() {
-    this.editCollectionId=this.term?this.term.collection_id:this.collection.id;
+  mounted: function() {
+   // this.editCollectionId=this.term?this.term.collection_id:this.collection.id;
   },
   methods: {
     tabPressed(e) {
@@ -276,6 +274,11 @@ export default {
   },
   computed: {
     ...mapState(["collection", "collection_relationList"]),
+
+    editCollectionId: function () {
+      return this.term?this.term.collection_id:this.collection.id;
+    },
+
     filteredRelationList: function() {
 
       var relationList=this.term? this.term.relations:this.collection_relationList;
@@ -330,8 +333,20 @@ export default {
 .link {
   color:blue;
 }
+.red {
+  color:red;
+}
 .link:hover {
   text-decoration: underline;
   cursor: pointer;
+}
+.edit {
+  height: 30px;
+    display:table-cell;
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+   
+ 
 }
 </style>

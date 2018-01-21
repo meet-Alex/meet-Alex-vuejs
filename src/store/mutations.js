@@ -48,14 +48,30 @@ export const mutations = {
   // handle term changes
   fetchTerm(state, term) {
     console.log(term);
-    state.showTermList = state.showTermList.filter(function (thisterm) {
-      return thisterm.id != term.id
-    })
+
+    var nr = state.showTermList.findIndex(x => x.id === term.id)
+    // if term is already displayed and at same position, refresh. Otherwise remove the term, and add it at the right position
+    if (nr===term.position) {
+      state.showTermList.splice(term.position, 1, term)
+    } else {
+      state.showTermList = state.showTermList.filter(function (thisterm) {
+            return thisterm.id != term.id
+      })
+      state.showTermList.splice(term.position, 0, term)
+
+    }
+
+
+
+   // state.showTermList = state.showTermList.filter(function (thisterm) {
+  //    return thisterm.id != term.id
+  //  })
 
     // @todo: is this term editable, should come from api actually
     term.editable = (state.userinfo.id == term.created_by)
 
-    state.showTermList.splice(term.position, 0, term)
+    //Vue.set(state.showTermList, term.position, term)
+   
   },
 
   addTerm(state, newTerm) {

@@ -16,7 +16,7 @@
     "jquery": "^3.2.1",
     "popper.js": "^1.11.1",
     "querystringify": "^1.0.0",
-    "tinymce": "^4.6.7",
+    "tinymce": "^4",
     "vue": "^2.5.13",
     "vue-axios": "^2.0.2",
     "vue-fullscreen": "^2.1.3",

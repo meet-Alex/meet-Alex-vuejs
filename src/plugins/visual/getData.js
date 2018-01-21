@@ -4,9 +4,10 @@ var getData = function ($) {
     var G_parms;
     var G_token;
     var Vue;
+    var That;
 
-    function init(parms, vue) {
-
+    function init(parms, vue, that) {
+        That = that;
         Vue = vue;
         G_parms = parms;
         console.log(G_parms);
@@ -89,10 +90,14 @@ var getData = function ($) {
     }
 
     function getModelId(modelId, callback) {
+        That.$store.commit("isLoading", true);
+        console.log('isloading')
         Vue.axios.get('visualise?getCollection=' + modelId)
         .then(graph => {
             var terms = createTerms(graph.data.nodes);
             var relations = createRelations(graph.data.links);
+            That.$store.commit("isLoading", false);
+           
             callback({ terms: terms, relations: relations });
         })
         .catch(error => {
@@ -242,15 +247,16 @@ var getData = function ($) {
           })
           .catch(error => {
             console.log(error.response);
-            alert(error.response.data.message);
           });
     }
     function getSketches(collection_id, callback) {
         $(document).ready(function () {
+            That.$store.commit("isLoading", true);
             Vue.axios.get("collections/" +collection_id + "/sketches",)
             .then(response => {
              console.log(response);
              var retVal = null;
+             That.$store.commit("isLoading", false);
              if (response.data.sketch_data && response.data.sketch_data[0] === '{') {
                  try {
                      retVal = JSON.parse(response.data.sketch_data);
@@ -262,7 +268,8 @@ var getData = function ($) {
             })
             .catch(error => {
               console.log(error.response, error);
-              alert(error.response.data.message);
+             
+              That.$store.commit("isLoading", false);
             });
         });
     }

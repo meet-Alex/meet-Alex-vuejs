@@ -8,19 +8,20 @@
                     <tr>
                         <td class="name bold">Term name</td>
                         <td class="def bold">Term description</td>
+                        <td v-if="editMode"></td>
                     </tr>
                     <tr v-if="editMode&&editTermId!==0">
-                        <td colspan="2">
+                        <td colspan="3">
                             <b-button v-on:click="editTermId=0" variant="primary" size="sm">New term (list)</b-button>
                             <b-button v-on:click="addTermForm" variant="primary" size="sm">New term (form)</b-button>
                         </td>
                     </tr>
                     <tr v-if="editMode&&editTermId===0">
-                        <td colspan="2">
+                        <td colspan="3">
                             <editTermList></editTermList>
                         </td>
                     </tr>
-                    <tr class="" v-for="term in filteredList" v-on:click="editTermId=editMode?term.id:0">
+                    <tr class="" v-for="term in filteredList" v-on:mouseover="editTermId=editMode?term.id:0">
                         <td v-if="!editMode" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, name:1}">
                             <router-link :to="{ name: 'termDetail', params: { id: term.id } }" v-html="$options.filters.highlight(term.term_name, termMenu.filter)"></router-link>
                         </td>
@@ -28,9 +29,10 @@
                         </td>
                         <td v-if="editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}" v-html="$options.filters.highlight(term.term_definition, termMenu.filter)">
                         </td>
-                        <td colspan="2" v-if="editTermId == term.id && editMode">
+                        <td colspan="3" v-if="editTermId == term.id && editMode">
                             <editTermList :editTerm="term"></editTermList>
                         </td>
+                        <td v-if="editMode && editTermId != term.id"></td>
                     </tr>
                 </tbody>
             </table>

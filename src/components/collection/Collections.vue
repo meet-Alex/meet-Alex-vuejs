@@ -102,7 +102,7 @@
 
 <style scoped>
     .table {
-        border:1px solid grey;
+        border:1px solid lightgrey;
     }
     button:hover, i:hover {
         cursor: pointer;

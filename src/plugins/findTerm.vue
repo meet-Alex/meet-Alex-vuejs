@@ -23,8 +23,8 @@
             @keydown.esc="reset"
             @blur="reset"
             @input="update"
-            ref="focusIt"
            >
+            <!--  ref="focusIt" -->
 
         <!-- the list -->
         <ul v-show="hasItems">
@@ -37,7 +37,7 @@
                     <td class="term-collection" v-text="item.collection_name"></td>
                 </tr>
                 <tr> 
-                    <td colspan="2" v-text="item.term_definition" class='term-description'> </td>
+                    <td colspan="2" v-html="item.term_definition" class='term-description'> </td>
                 </tr>
             </table>
           </div>
@@ -88,12 +88,12 @@ export default {
     }
   },
   created : function(){
-       console.log("created");
       this.query=this.prefill||"";
+       console.log("created", this.prefill, this.query);
   },
   mounted : function () {
       console.log("mounted");
-       this.$refs["focusIt"].focus();
+     //  this.$refs["focusIt"].focus();
   },
    watch: {
     query: function (val) {
@@ -152,7 +152,7 @@ export default {
     }
     .Typeahead {
     position: relative;
-    margin-bottom:10px;
+    margin-bottom:0px;
     width:100%;
     }
     .Typeahead table tr td{

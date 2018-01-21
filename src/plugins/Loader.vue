@@ -29,7 +29,7 @@ export default {
     height:100%;
 }
 i {
-     position:absolute;
+     position:relative;
     top: calc(50% - 15px); /* 50% - 3/4 of icon height */
     left: calc(50% - 25px);
 }

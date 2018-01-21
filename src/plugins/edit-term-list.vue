@@ -30,7 +30,6 @@ export default {
   },
   data() {
     var that = this;
-
     return {
       isNew: false,
       isRemoved: false,
@@ -101,9 +100,14 @@ export default {
     tinymce.baseURL = "../node_modules/tinymce";
   },
   beforeDestroy: function() {
+    var isDirty=false;
+    if (this.editTerm && this.activeTerm) {
+       isDirty=!(this.editTerm.term_name===this.activeTerm.term_name && this.editTerm.term_definition===this.activeTerm.term_definition);
+    }
     if (this.isNew) {
       this.addTerm();
-    } else if (!this.isRemoved) {
+    } else if (!this.isRemoved && isDirty) {
+      console.log('change term');
       this.$store.dispatch("CHANGE_TERM", this.activeTerm);
     }
   },
@@ -114,7 +118,8 @@ export default {
         e.preventDefault();
       }
     },
-    changed: function() {},
+    changed: function() {
+    },
 
     expand: function() {
       this.$router.push("home");

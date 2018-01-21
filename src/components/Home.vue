@@ -5,7 +5,7 @@
                 <div class='alex'>
                     <table style="margin:auto">
                         <tr>
-                            <td><img src="../images/navbar-icon.png"></td>
+                            <td><img class='aleximage' src="../images/navbar-icon.png"></td>
                     <td class='alextext'>A-Lex</td>
                     </tr>
                     </table>
@@ -100,12 +100,30 @@
     .grey {
         color:grey;
     }
+    .grey:hover {
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: translate(0px, 10px);
+    transform: translate(0px, 10px);
+    box-shadow: 0 0 1px transparent;
+    position: relative;
+  
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    }
     .nobutton {
         background:none;
         border:none;
     }
     .nobutton:focus {
       outline:0;
+    }
+    .nobutton:hover {
+        cursor: pointer;
+       
+    }
+   .grey:hover {
+         color:blue;
     }
     #addinfo {
         margin:auto;
@@ -151,15 +169,44 @@
     .alextext {
         padding:0px 0px 30px 30px;
         vertical-align:bottom;
-        color:#2c3e50
+        color:#2c3e50;
        
     }
+     .aleximage {
+         /*
+        animation-name: bounceIn;
+        animation-duration: 450ms;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+        */
+    }
+
+    
 
 .fade-enter-active, .fade-leave-active {
   transition: opacity .3s
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0
+}
+
+@keyframes bounceIn{
+  0%{
+    opacity: 0;
+    transform: scale(0.3) translate3d(0,0,0);
+  }
+  50%{
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+  80%{
+    opacity: 1;
+    transform: scale(0.89);
+  }
+  100%{
+    opacity: 1;
+    transform: scale(1) translate3d(0,0,0);
+  }
 }
 
 </style>

@@ -154,6 +154,7 @@ export const ADD_RELATION = ({ commit, state }, parms) => {
             commit('addRelation', { subject: newRelation.subject, name: newRelation.name, object: newRelation.object, id: response.data.id });
             for (var i = 0; i < state.showTermList.length; i++) {
                 var term = state.showTermList[i];
+                term.position=i;
                 //@todo: should come from api
                 if ((term.id === newRelation.subject.id) || (term.id === newRelation.object.id)) {
                     Vue.axios.get('terms/' + term.id)
@@ -190,6 +191,8 @@ export const REMOVE_RELATION = ({ commit, state }, id) => {
 export const CHANGE_RELATION = ({ commit, state }, parms) => {
     //todo: should come from api
     // now delete/add
+
+    console.log('change relation', parms);
     Vue.axios.delete("ontologies/" + parms.relation.id)
     .then(response => {
         commit('removeRelation', parms.relation.id)

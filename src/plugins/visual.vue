@@ -45,7 +45,10 @@
                 <b-dropdown-item v-if="relationClusterSet!==Mgraph.NODECLUSTER.none" v-on:click="relationClustering(Mgraph.NODECLUSTER.none)">No Clustering</b-dropdown-item>
             </b-nav-item-dropdown>
         </b-nav>
-        <button type="button" @click="toggle" >Fullscreen</button>
+        <button class="nobutton" @click="toggle" >
+          <i v-if="!fullscreen" class="fa fa-expand white" aria-hidden="true" title="Fullscreen"></i>
+          <i v-if="fullscreen" class="fa fa-compress white" aria-hidden="true" title="Exit fullscreen"></i>
+        </button>
       </b-navbar-nav>
     </b-navbar>
       <div id="Mgraph">
@@ -93,7 +96,7 @@ window.onbeforeunload = function() {
   console.log("saving layout");
   //@todo
   //Mgraph.saveLayout(collection_id, "name8");
-  // debugger;
+
 };
 
 import Fullscreen from "vue-fullscreen/src/component.vue";
@@ -127,7 +130,7 @@ export default {
       showLocksSet: false,
       relationClusterSet: Mgraph.NODECLUSTER.none,
       Mgraph: Mgraph,
-      editTerm: { id: 0, term_name: "", term_definition: "---" },
+      editTerm: { id: 0, term_name: "", term_definition:  " " },
       tinymceOptions: {
         inline: false,
         plugins:
@@ -203,7 +206,7 @@ export default {
     getData.init({
       remote: true, // true=remote (fill remoteURL), false=local
       remoteURL: globalData.apiURL
-    }, Vue);
+    }, Vue, this);
     getData.setToken(this.userinfo.token);
 
     //typeahead.initTypeAhead(G_remote, url + '/api'); // the typeahead search function
@@ -216,7 +219,7 @@ export default {
     Mgraph.initGraph({
       mainDivId: "Mgraph"
     });
-
+    
     // do we want to see a complete collection, or only a term?
     $(".spinner").hide();
     if (typeof collection_id !== "undefined") {
@@ -237,8 +240,9 @@ export default {
       // need to refetch the collection to update the store with the visual changes, and save layout of visual
       if (Mgraph.isDirty()) {
            this.$store.dispatch("FETCH_COLLECTION",this.collectionId )
+           Mgraph.saveLayout(this.collectionId, "name8")
       }
-      Mgraph.saveLayout(this.collectionId, "name8");
+      
   }
 };
 </script>
@@ -263,6 +267,17 @@ export default {
 #descriptionField {
   
 }
+.white {
+  color:white;
+}
+ .nobutton {
+        background:none;
+        border:1px white solid;
+        
+    }
+ .nobutton :active {
+    border:1px white solid;
+ }
 
 #descriptionEditor {
     border: 1px solid lightgrey;

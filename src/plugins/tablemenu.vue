@@ -71,11 +71,15 @@ export default {
 <style scoped>
     .filter-input {
         width: 15em;
+        padding:0.2rem;
     }
     .menu-div {
         border:1px solid grey;
     }
     .bg-info {
      /*   background-color: #18bc9c !important;*/
+    }
+    .navbar {
+        padding:0.2rem;
     }
 </style>
