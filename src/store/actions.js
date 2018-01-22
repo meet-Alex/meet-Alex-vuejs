@@ -122,7 +122,8 @@ export const FETCH_COLLECTION = ({ commit, state }, collectionId) => {
             .then(response => {
                 var collection = response.data;
                 collection.public = collection.public.toString();
-                collection.receive_notifications = collection.receive_notifications.toString();
+               // collection.receive_notifications = collection.receive_notifications.toString();
+               collection.receive_notifications = "1"
                 commit('fetchCollection', collection)
                 commit("isLoading", false);
             })
