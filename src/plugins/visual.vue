@@ -1,23 +1,17 @@
 <template>
-
   <div id="MContainer" class='content'>
     <div id="inputDialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header header-xs">
-                   
                     <h4 class="modal-title" id='inputDialog_title'></h4>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="dataField">
                     <input type="text" placeholder="Enter name..." id="nameField">
                     <div id="descriptionField">
-                        <!--<div ui-tinymce="tinymceOptions" class="editDescription" ng-model="inputObject.description"></div> -->
                         <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
                     </div>
-                    <!--
-                    <textarea id="descriptionField" placeholder="Enter description..."></textarea>
-                    -->
                 </div>
                 <div class="modal-footer header-xs">
                     <button type="button" id='btn_newTerm' class="btn btn-info btn-xs" data-dismiss="modal">Create</button>
@@ -52,8 +46,7 @@
       </b-navbar-nav>
     </b-navbar>
       <div id="Mgraph">
-          <!-- <img style="top:40%;" id="alexlogo" height="42" width="42" src={{ URL::asset( "img/spinner.gif") }}></img> -->
-      </div>
+       </div>
    </fullscreen> 
   </div>
 </template>
@@ -63,12 +56,11 @@
 const d3 = require("./visual/libs/d3.min");
 const $ = require("./visual/libs/jquery-2.1.1.min");
 d3.fisheye = require("./visual/libs/fisheye").fisheye;
-var getData = require("./visual/getData").getData($);
+var getData = require("./visual/getData").getData();
 var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
 
 import globalData from "../global_data";
 import vuex from "vuex";
-console.log(globalData, vuex);
 var Fullscreen1 = false;
 
 function changedZoom(event, zoomLevel) {
@@ -95,7 +87,7 @@ function sizeDivs() {
 window.onbeforeunload = function() {
   console.log("saving layout");
   //@todo
-  //Mgraph.saveLayout(collection_id, "name8");
+  Mgraph.saveLayout(collection_id, "name8");
 
 };
 
@@ -190,30 +182,14 @@ export default {
     Fullscreen1 = this.fullscreen;
     sizeDivs();
 
-    console.log("ja");
-
-    /*
-      $('#zoomSlide').bootstrapSlider({ tooltip: 'hide' })
-        .on('slide', function (e, f) { $.publish("/graph/set/zoom", [e.value]); });
-    */
-
-    //  $.subscribe("/graph/event/changedZoom", changedZoom);
-
-    // var url = " http://localhost/meet-Alex/public/index.php";
     var term_id = null;
     var collection_id = this.collectionId;
 
     getData.init({
-      remote: true, // true=remote (fill remoteURL), false=local
+      remote: true, 
       remoteURL: globalData.apiURL
     }, Vue, this);
     getData.setToken(this.userinfo.token);
-
-    //typeahead.initTypeAhead(G_remote, url + '/api'); // the typeahead search function
-    // typeahead.initTypeAhead(false, url + '/api'); // the typeahead search function
-    //defBox.initDefBox({
-    //	mainDivId: "Mgraph"
-    //}); // the boxes with the definitions and details
 
     // initialise the visualisation, and define the callback functions
     Mgraph.initGraph({
@@ -249,17 +225,6 @@ export default {
 
 <style scoped>
 @import "/src/plugins/visual/css/app.css";
-@import "/src/plugins/visual/css/defBox.css";
-
-@import "/src/plugins/visual/libs/typeahead.css";
-@import "/src/plugins/visual/libs/jquery-ui.min.css";
-@import "/src/plugins/visual/libs/jquery-ui.theme.min.css";
-@import "/src/plugins/visual/libs/jquery-ui.structure.min.css";
-@import "/src/plugins/visual/libs/bootstrap-slider.css";
-/*
-@import '/src/plugins/visual/sm-core-css.css';
-@import '/src/plugins/visual/sm-simple.css';
-*/
 
 .content {
   padding-top: 0.5rem;

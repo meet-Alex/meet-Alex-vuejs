@@ -121,6 +121,7 @@ body {
      width:250px;
     font-weight: 400;
     padding-right: 10px;
+    overflow-wrap: break-word;
 }
 .subscript {
     font-size: 0.7em;

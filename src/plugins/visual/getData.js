@@ -1,4 +1,4 @@
-var getData = function ($) {
+var getData = function () {
     var G_termList = [];
     var G_relList = [];
     var G_parms;
@@ -10,28 +10,8 @@ var getData = function ($) {
         That = that;
         Vue = vue;
         G_parms = parms;
-        console.log(G_parms);
-        if (!G_parms.remote) {
-            $.each(DATA_term, function (i, term) {
-                var def = $.grep(DATA_def, function (e) { return e.id == term.id; })[0];
-                G_termList.push({
-                    id: term.id,
-                    name: term.name,
-                    description: def.description,
-                    addinfo: def.addinfo
-                });
-            });
-            $.each(DATA_relation, function (i, relation) {
-                G_relList.push({
-                    name: relation.relation,
-                    subject: relation.subject,
-                    object: relation.object
-                });
-            });
-        }
     }
     function setToken(token) {
-      
         G_token=token;
     }
 
@@ -44,12 +24,8 @@ var getData = function ($) {
         };
     }
 
-
-    
-
     function createTerm(node) {
         console.log(node);
-        // var term = $.grep(graph.nodes, function(e) { return (e.id === termId); })[0];
         return {
             id: node.id,
             name: node.term_name,
@@ -62,7 +38,6 @@ var getData = function ($) {
     }
 
     function createTerm1(node) {
-        // var term = $.grep(graph.nodes, function(e) { return (e.id === termId); })[0];
         return {
             id: node.id,
             name: node.term_name,
@@ -75,7 +50,7 @@ var getData = function ($) {
 
     function createTerms(nodes) {
         var termArray = [];
-        $.each(nodes, function (i, node) {
+        nodes.forEach (function ( node) {
             termArray.push(createTerm1(node));
         });
         return termArray;
@@ -83,7 +58,7 @@ var getData = function ($) {
 
     function createRelations(links) {
         var relationArray = [];
-        $.each(links, function (i, link) {
+        links.forEach(function (link) {
             relationArray.push(createRelation(link));
         });
         return relationArray;
@@ -134,14 +109,18 @@ var getData = function ($) {
     }
 
     function processArray(graph) {
-        $.each(graph.nodes, function (i, node) {
-            if ($.grep(G_termList, function (e) { return e.id == node.id; }).length === 0) {
+        console.log('processarray')
+        
+        graph.nodes.forEach(function (node) {
+           // if ($.grep(G_termList, function (e) { return e.id == node.id; }).length === 0) {
+              if (G_termList.findIndex(x => x.id === node.id) <0) {
                 G_termList.push(createTerm1(node));
             }
         });
 
-        $.each(graph.links, function (i, link) {
-            if ($.grep(G_relList, function (e) { return e.name == link.name && e.subject == link.source && e.object == link.target; }).length === 0) {
+        graph.links.forEach(function (link) {
+          //  if ($.grep(G_relList, function (e) { return e.name == link.name && e.subject == link.source && e.object == link.target; }).length === 0) {
+                if (G_relList.findIndex(x => x.name === link.name && e.subject==link.source && e.object==link.target) <0) {  
                 G_relList.push(createRelation(link));
             }
         });
@@ -250,7 +229,7 @@ var getData = function ($) {
           });
     }
     function getSketches(collection_id, callback) {
-        $(document).ready(function () {
+     //   $(document).ready(function () {
             That.$store.commit("isLoading", true);
             Vue.axios.get("collections/" +collection_id + "/sketches",)
             .then(response => {
@@ -271,10 +250,12 @@ var getData = function ($) {
              
               That.$store.commit("isLoading", false);
             });
-        });
+      //  });
     }
 
     function deleteSketches(collection_id) {
+        //@todo create axios call for this
+        /*
         var token = $('meta[name="_token"]').attr('content');
         var url = G_parms.remoteURL;
         console.log(url + "/sketches/" + parseInt(collection_id));
@@ -291,6 +272,7 @@ var getData = function ($) {
                 console.log(errMsg);
             }
         });
+        */
     }
 
     function saveSketch(collection_id, sketch_name, graph) {
@@ -330,22 +312,20 @@ var getData = function ($) {
      * @param {any} callback
      */
     function fetchTerm(termIdArray, callback, orgcallback) {
+        //@todo get from axios
+        /*
         var element = termIdArray.pop();
-        if (G_parms.remote) {
             var query = G_parms.remoteURL + '/visualise?withIds=' + element + '&getUnfetchedRelations=1&levelsDeep=2';
-            console.log(query);
             $.getJSON(query, function (graph) {
                 console.log(graph);
                 processArray(graph);
                 callback(null, termIdArray, orgcallback);
             })
-                .fail(function (jqxhr) {
-                    console.log(jqxhr.responseJSON);
-                    processArray(jqxhr.responseJSON);
-                });
-        } else {
-            callback(null, termIdArray, orgcallback);
-        }
+            .fail(function (jqxhr) {
+                console.log(jqxhr.responseJSON);
+                processArray(jqxhr.responseJSON);
+            });
+        */
     }
 
     /**
