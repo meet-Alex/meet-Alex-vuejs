@@ -4,7 +4,7 @@
         <div class='tableContent' ref='tabcontent'>
             <table class="table relationtable">
                 <tbody>
-                    <tr>
+                    <tr v-if="filteredRelationList && filteredRelationList.length">
                         <td v-for="column in ['Subject', 'Relation', 'Object']">
                             <a href="#" v-on:click="sortBy(column)">{{column}}</a>
                             <i v-if="column===relationTableSort.column&&relationTableSort.order===1" class="fa fa-sort-desc"></i>
@@ -14,13 +14,15 @@
                         <td>
                         </td>
                     </tr>
+                    <tr v-else>
+                      <td colspan="4">
+                        <em> No relations available </em>
+                      </td>
+                    </tr>
                     <tr v-if="editMode&&editRelationId!==0">
-                        <td>
+                        <td colspan="4">
                             <b-button v-on:click="editRelationId=0" variant="primary" size="sm">New Relation</b-button>
                         </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
                     </tr>
                     <tr v-if="editMode&&editRelationId===0">
                         <td v-if="editCol===1">
@@ -47,7 +49,6 @@
                     </tr>
                    <tr v-if="!editMode" class="" v-for="relation in filteredRelationList">
                       <template v-if="!term">
-                         
                         <td>
                             <router-link :to="{ name: 'termDetail', params: { id: relation.subject.id } }" v-html="$options.filters.highlight(relation.subject.term_name, relationMenu.filter)"></router-link>
                         </td>
@@ -91,7 +92,6 @@
                          <td class='edit' v-else>
                             {{relation.object.term_name}}
                         </td>
-
                         <td>
                             <a  v-if="relation.id===editRelationId" href="#" class='iconbutton' v-on:click="remRelation(relation.id, $event)">
                                 <i class="fa fa-trash red" aria-hidden="true"></i>
@@ -100,7 +100,6 @@
                     </tr>
                 </tbody>
             </table>
-            <a href="#"></a>
         </div>
     </div>
 </template>

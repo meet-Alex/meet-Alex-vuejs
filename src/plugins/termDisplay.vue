@@ -3,6 +3,10 @@
         <div v-bind:class="{'div-menu-top':true, hide:!showMenus}">
             <b-nav class="float-right">
               <template v-if="term.editable">
+                 <button  v-bind:class="{'button-close':true}" v-on:click="changeVisualMode">
+                      <i v-if ="!visualMode" class="fa fa-file-image-o visual-icon" aria-hidden="true" title="Show visual"></i>
+                      <i v-if ="visualMode" class="fa fa-file-text-o visual-icon" aria-hidden="true" title="Show text"></i>
+                  </button>
                   <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditMode">
                       <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
                   </button>
@@ -34,35 +38,39 @@
             </td>
           </tr>
         </table>
- 
-        <template v-if="!editMode">
-        <div v-if="term.term_definition" class="term-desciption-div" v-html="term.term_definition"> </div>
-         <div v-else class="term-desciption-div none"> No description available </div>
-        </template>
-        <div v-else>
-            <strong>Description:</strong>
-            <tinymce id="nameEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
-        </div>
-        <div v-if="viewType>0">
-            <div v-if="!editMode" class="term-addinfo" v-html="term.term_definition"> </div>
-        <div v-if="editMode">
-            <strong>Additional notes:</strong>
-            <tinymce id="notesEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
-        </div>
-        </div>
+        <template v-if="!visualMode">
+          <template v-if="!editMode">
+          <div v-if="term.term_definition" class="term-desciption-div" v-html="term.term_definition"> </div>
+          <div v-else class="term-desciption-div none"> No description available </div>
+          </template>
+          <div v-else>
+              <strong>Description:</strong>
+              <tinymce id="nameEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
+          </div>
+          <div v-if="viewType>0">
+              <div v-if="!editMode" class="term-addinfo" v-html="term.term_definition"> </div>
+          <div v-if="editMode">
+              <strong>Additional notes:</strong>
+              <tinymce id="notesEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
+          </div>
+          </div>
 
-        <div class="term-details" v-if="viewType>1">
-          <span class="subtitle"> Relations </span>
-              <relationList :editMode="editMode" :term="term" :index="index" :showHeader="false"/>
-        </div>
-            <div v-bind:class="{'div-menu-bottom':true, hide:!showMenus}">
-                  <button class="button" v-if="viewType===0" v-on:click="viewType=2" title="Hide this term">
-                    <i class="fa fa-angle-down fa-lg grey" aria-hidden="true"></i>
-                </button>
-                 <button class="button" v-else v-on:click="viewType=0" title="Hide this term">
-                    <i class="fa fa-angle-up fa-lg grey" aria-hidden="true"></i>
-                </button>
-        </div>     
+          <div class="term-details" v-if="viewType>1">
+            <span class="subtitle"> Relations </span>
+                <relationList :editMode="editMode" :term="term" :index="index" :showHeader="false"/>
+          </div>
+          <div v-bind:class="{'div-menu-bottom':true, hide:!showMenus}">
+                    <button class="button" v-if="viewType===0" v-on:click="viewType=2" title="Hide this term">
+                      <i class="fa fa-angle-down fa-lg grey" aria-hidden="true"></i>
+                  </button>
+                  <button class="button" v-else v-on:click="viewType=0" title="Hide this term">
+                      <i class="fa fa-angle-up fa-lg grey" aria-hidden="true"></i>
+                  </button>
+          </div>   
+        </template>  
+
+           <visual v-else id="term.id" v-model="editMode" :termId="'624'" />
+       
     </div>
 </template>
 
@@ -71,10 +79,11 @@ import Vue from "vue";
 import globalData from "../global_data";
 import { mapGetters, mapState, mapMutations } from "vuex";
 import relationList from "../plugins/relation-list.vue";
+import visual from "./visual.vue";
 
 export default {
   name: "termDisplay",
-  components: {relationList},
+  components: {relationList, visual},
   props: {
     term: { type: Object, required: true },
     index: { type: Number, required: true },
@@ -85,6 +94,7 @@ export default {
     return {
       viewType: 0,
       editMode: false,
+      visualMode:false,
       showMenus: false,
       viewOptions: [
         { text: "Description", value: 0 },
@@ -133,6 +143,12 @@ export default {
       }
       this.editMode=!this.editMode;
     },
+     changeVisualMode: function() {
+      if (this.visualMode) {
+       
+      }
+      this.visualMode=!this.visualMode;
+    },
     closeWindow: function() {
       console.log("removing", this.index);
       this.removeTermFromList(this.index);
@@ -153,13 +169,16 @@ export default {
 
 
 <style scoped>
+.visual-icon {
+  padding:10px;
+}
 .none {
   color:grey;
   font-style: italic;
 }
 
 table.term-header {
-  width: calc(100% - 80px);
+  width: calc(100% - 96px);
 }
 td.term-collection {
   float:right;

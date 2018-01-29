@@ -180,10 +180,7 @@ var Mgraph = function(d3,$, getData) {
         createDropShadow();
 
         simulation = d3.forceSimulation()
-            //.velocityDecay(0.1)
             .force("link", d3.forceLink().id(function(d) { return d.id; }).distance(function(d) { return (d.target.nodeType === NODETYPE.relation) ? 150 : 150; }).iterations(1) /*.strength(0.3)*/ )
-            //   .force("charge", d3.forceManyBody().strength(function(d) { return (d.nodeType === NODETYPE.relation) ? -600 : -600; }).distanceMax(600).distanceMin(400).theta(0.1))
-            // .force("center", d3.forceCenter(parseFloat(svg.style("width")) / 2, parseFloat(svg.style("height")) / 2))
             .force("node", d3.forceCollide().radius(60).strength(0.5).iterations(1))
             .on("tick", ticked)
             .on('end', function() {});
@@ -196,18 +193,14 @@ var Mgraph = function(d3,$, getData) {
                 .extent(function() {
                     var svg1 = svg0.select('.zoomRect');
                     // svg1 = svg;
-
                     var bbox = svg1.node().getBBox();
-
                     return [
                         [bbox.x, bbox.y],
                         [bbox.x + bbox.width, bbox.y + bbox.height]
                     ];
                 })
                 .on("start", function(d) {
-
                     var node = svg.selectAll('.gnode');
-
                     node.each(function(d) { d.previouslySelected = G_shiftKey && d.selected; });
                 })
                 .on("brush", function() {
@@ -215,16 +208,12 @@ var Mgraph = function(d3,$, getData) {
                     if (G_brushing) {
                         var node = svg.selectAll('.gnode');
                         node.selectAll('.nodeRect').classed("selected", function(d) {
-                            //    return (selection[0][0] <= (d.x + panzoom.x * panzoom.k) && (d.x + panzoom.x * panzoom.k) < selection[1][0] &&
-                            //        selection[0][1] <= (d.y + panzoom.y * panzoom.k) && (d.y + panzoom.y * panzoom.k) < selection[1][1]);
                             return (selection[0][0] <= (d.x * panzoom.k + panzoom.x) && (d.x * panzoom.k + panzoom.x) < selection[1][0] &&
                                 selection[0][1] <= (d.y * panzoom.k + panzoom.y) && (d.y * panzoom.k + panzoom.y) < selection[1][1]);
-
                         });
                         node.each(function(d) {
                             d.selected = (selection[0][0] <= (d.x * panzoom.k + panzoom.x) && (d.x * panzoom.k + panzoom.x) < selection[1][0] &&
                                 selection[0][1] <= (d.y * panzoom.k + panzoom.y) && (d.y * panzoom.k + panzoom.y) < selection[1][1]);
-
                         });
                     } else {
                         var dx = G_brushing_selection[0][0] - selection[0][0];
@@ -248,8 +237,6 @@ var Mgraph = function(d3,$, getData) {
                 .attr("class", "brush")
                 .attr("transform", "translate(0,0)");
             var node = svg.selectAll('.nodeRect').classed('selected', false);
-
-
         }
     }
 
@@ -277,25 +264,15 @@ var Mgraph = function(d3,$, getData) {
     /**
      * Load the term and relations positions, and display it.
      * 
-     * @param {Object} event 
      * @param {any} collectionId 
      * @param {String} name 
      */
     function loadLayout(collectionId, name) {
-       
         G_modelId = collectionId;
         getData.getSketches(collectionId, showIt);
-
         function showIt(newData) {
-          
             if (newData) {
-              //  G_graph = newData.G_graph;
-            
-            console.log(newData);
               setClusterRelations(newData.G_clusterRelations);
-              console.log(">>>>" , G_graph);
-           
-              console.log(newData);
               newData.nodePositions.map(function(nodePosition){
                 var fndnode=G_graph.nodes.find(function(orgnode){
                     return orgnode.id==nodePosition.id;
@@ -308,28 +285,10 @@ var Mgraph = function(d3,$, getData) {
                     fndnode.fixed=true;
                 }        
               });
-
-
                 G_clusterRelations = newData.G_clusterRelations;
             }
-            //showModel( G_modelId, true);
         }
     }
-
-    function deleteLayout(event, collectionId, name) {
-        G_modelId = collectionId;
-        getData.deleteSketches(collectionId, showIt);
-
-        function showIt(newData) {
-            if (newData) {
-                G_graph = newData.G_graph;
-                G_clusterRelations = newData.G_clusterRelations;
-            }
-            //showModel( G_modelId, true);
-        }
-    }
-
-
 
     /**
      * Save the term and relation positions
@@ -341,8 +300,6 @@ var Mgraph = function(d3,$, getData) {
     function saveLayout(collectionId, name) {
         getData.saveSketch(collectionId, name, { G_termid: G_termid, G_graph: G_graph, G_nodelist: G_nodelist, G_clusterRelations: G_clusterRelations });
     }
-
-
 
     /**
      * Sets the graphical edit mode, and fix all elements
@@ -356,7 +313,6 @@ var Mgraph = function(d3,$, getData) {
             d3.selectAll('.menuItems').remove();
             setShowLocks(false);
             //setAllNodesLock(true);
-
             svg0.selectAll('.zoomRect').style('stroke', 'red');
             G_dirty=true; // it is possibly edited, so update everything on leave
         } else {
@@ -457,13 +413,13 @@ var Mgraph = function(d3,$, getData) {
      * @param {Array.<number>} toFetchIDs - List of IDs to fetch
      */
     function getOneTerm(toFetchIDs) {
-        $('#alexlogo').show();
+        console.log("getoneterm", toFetchIDs)
         getData.fetchAllTerms(toFetchIDs, showIt);
 
         function showIt(newData) {
+            console.log("showit")
             G_data = newData;
             displayTerms(G_nodelist);
-            $('#alexlogo').hide();
         }
     }
 
@@ -525,9 +481,9 @@ var Mgraph = function(d3,$, getData) {
      * @param {Array.<number>} termIDs
      */
     function displayTerms(termIDs) {
+        console.log("display", termIDs)
         if (!termIDs.length) return;
         // when there is nothing displayed in the graph, show the logo, and remove the border of the graph rectangle
-        $('#alexlogo').show();
         var relations = getRelations(termIDs, hierarchyOnly);
         var terms = getTerms(relations);
         // add terms which have no relations
@@ -562,8 +518,6 @@ var Mgraph = function(d3,$, getData) {
         setTimeout(function() {
             zoomFit();
         }, 1000);
-
-        $('#alexlogo').hide();
     }
 
     /**
@@ -586,29 +540,20 @@ var Mgraph = function(d3,$, getData) {
         panzoom.x = d3.event.transform.x;
         panzoom.y = d3.event.transform.y;
         panzoom.k = d3.event.transform.k;
-
         if (!G_editMode) {
-
             fisheye = d3.fisheye
                 .circular()
                 .radius(200)
                 .distortion(1 / panzoom.k);
         }
-       // $.publish("/graph/event/changedZoom", [panzoom.k]);
     }
 
     function showModel( modelId, restorePositions) {
         G_modelId = modelId;
         restorePositions = (typeof restorePositions === 'undefined') ? false : restorePositions;
-
-        $('#alexlogo').show();
-
         getData.getModelId(modelId, showIt);
 
         function showIt(newData) {
-            //		 G_nodelist=?;
-            //
-            console.log('showit', newData);
             G_data = newData;
             G_nodelist = [];
             $.each(newData.terms, function(i, term) {
@@ -617,27 +562,8 @@ var Mgraph = function(d3,$, getData) {
 
             G_graph = getGraph(newData.terms, newData.relations);
             loadLayout(modelId, "name8");
-            /*
-            if (restorePositions) {
-                $.each(newGraph.nodes, function(i, node) {
-                   
-                    var curnode = $.grep(G_graph, function(cnode) { return node.id === cnode.id; })[0];
-                    if (curnode) {
-                        node.fixed = curnode.fixed;
-                        node.fx = curnode.fx;
-                        node.fy = curnode.fy;
-                    }
-                });
-            }
-            */
-        
-
             positionUnrelatedTerms();
-
-
-
             updateGraph();
-            $('#alexlogo').hide();
             svg.selectAll('.zoomRect').style('stroke', 'grey');
 
             // Let the graph settle a bit before zooming
@@ -653,18 +579,13 @@ var Mgraph = function(d3,$, getData) {
      */
     function positionUnrelatedTerms() {
         var unrelTerm = $.grep(G_graph.nodes, function(d) { return (!d.relationCount) && (!d.fixed); });
-
-
         var horCount = Math.ceil(Math.sqrt(unrelTerm.length + 1));
-
         function SortByName(a, b) {
             var aName = a.name.toLowerCase();
             var bName = b.name.toLowerCase();
             return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
         }
-
         unrelTerm.sort(SortByName);
-
         var col = 0,
             row = 0;
         $.each(unrelTerm, function(i, term) {
@@ -690,8 +611,9 @@ var Mgraph = function(d3,$, getData) {
      * @param {Array.<string>} termIds
      */
     function showTerms(termIds) {
+        console.log(termIds);
         updateNodeList(termIds);
-        // updateGraph();
+        updateGraph();
     }
 
     /**
@@ -894,21 +816,16 @@ var Mgraph = function(d3,$, getData) {
         simulation
             .nodes(G_graph.nodes);
 
-
         simulation.force("link")
             .links(G_graph.links);
         $.each(G_graph.links, function(i, d) {
             if (typeof d.real_source === 'string' || typeof d.real_source === 'number') {
                 d.real_source = getNodeObject(d.real_source);
-
             }
             if (typeof d.real_target === 'string' || typeof d.real_target === 'number') {
 
                 d.real_target = getNodeObject(d.real_target);
-
             }
-
-
         });
         simulation.alpha(1).restart();
     }
@@ -974,11 +891,15 @@ var Mgraph = function(d3,$, getData) {
      * @param {Object} term
      */
     function toggleNode(term) {
+        console.log('togglenode', term, G_nodelist)
         if ($.grep(G_nodelist, function(d) { return d == term.id; }).length === 0) {
             G_nodelist.push(term.id);
         } else {
-            if (G_nodelist.length > 1) // avoid removal of last node
+            if (G_nodelist.length > 1) {// avoid removal of last node
                 G_nodelist = $.grep(G_nodelist, function(d) { return d != term.id; }); //remove node
+                console.log('remove')
+                console.log(G_nodelist)
+            }
         }
         updateNodeList(G_nodelist);
     }
@@ -1080,7 +1001,7 @@ var Mgraph = function(d3,$, getData) {
                // $.publish("/show/description/termId", [d.id]);
             });
         menuDef.append("text")
-            .text("description")
+            .text("Description")
             .attr("class", "node-text")
             .attr("x", (Dims.node.width - 4) / 2)
             .attr("y", 12)
@@ -1132,11 +1053,7 @@ var Mgraph = function(d3,$, getData) {
                 termrel[0].relcount++;
                 relation.repeat = termrel[0].relcount;
             }
-
-
         });
-
-
         // for each relation create the links and the relation-node
         $.each(relations, function(i, relation) {
             var relationBoxId;
@@ -1167,9 +1084,6 @@ var Mgraph = function(d3,$, getData) {
                     relationCount: 3 // @todo find real amount for a relation, because it can be clustered
                 });
             }
-
-
-
             // create the link from subject to relation node
             if ($.grep(relation1, function(e) { return (e.target == relationBoxId) && (e.source == relation.subject); }).length === 0) {
                 relation1.push({
@@ -1180,7 +1094,6 @@ var Mgraph = function(d3,$, getData) {
                     stroke: Dims.rel.fill,
                     highlight: Dims.rel.highlight //,
                         //	id:'R_'+relation.name+'.'+relation.object + '.'+relation.subject
-
                 });
             }
             // create the link from the relation node to the object
@@ -1196,7 +1109,6 @@ var Mgraph = function(d3,$, getData) {
                         //id:'R_'+relation.name+'.'+relation.object
                 });
             }
-
         });
 
         // for each term create the term node
@@ -1299,15 +1211,15 @@ var Mgraph = function(d3,$, getData) {
 
         var gLinks = svg.selectAll('.links');
         // to support links in IE11
+        /*
         //(http://stackoverflow.com/questions/15693178/svg-line-markers-not-updating-when-line-moves-in-ie10)
-        //	if (navigator.userAgent.match(/msie/i) || navigator.userAgent.match(/trident/i) ){
-        //gLink
-        gLinks.each(function() { this.parentNode.insertBefore(this, this); });
-        //	}
+        if (navigator.userAgent.match(/msie/i) || navigator.userAgent.match(/trident/i) ){
 
+             gLinks.each(function() { this.parentNode.insertBefore(this, this); });
+        }
+        */
         // hierarchical mode will show sources above the targets
         if (hierarchyOnly) {
-            //gLink
             gLinks.each(function(d) {
                 if (d.source.nodeType === NODETYPE.relation) {
                     d.source.x = d.target.x; // relation boxes have the same x position as its target
@@ -1328,7 +1240,6 @@ var Mgraph = function(d3,$, getData) {
             }
         });
 
-        // gLink
         gLinks
             .attr("x1", function(d) { return d.source.x; })
             .attr("y1", function(d) { return d.source.y; })
@@ -1490,8 +1401,6 @@ var Mgraph = function(d3,$, getData) {
      * @param {boolean} fixed - true=lock all, false=free all
      */
     function setAllNodesLock( fixed) {
-        console.log('lock positions', fixed);
-
         G_graph.nodes.map(function(d)  {
             console.log(d);
             d.fx = fixed ? d.x : null;
@@ -1532,8 +1441,8 @@ var Mgraph = function(d3,$, getData) {
      */
     function setClusterRelations(clusterType) {
         G_clusterRelations = clusterType;
-        // updateNodeList(getNodeList());
-       // displayTerms(G_nodelist);
+        //updateNodeList(getNodeList());
+        displayTerms(G_nodelist);
     }
 
     function getUserInput(type, dataObject) {
@@ -1580,6 +1489,7 @@ var Mgraph = function(d3,$, getData) {
     }
 
     function createRelation(relname, nodes) {
+        console.log(relname)
         if (relname !== null && relname.length > 1) {
             var relation = {
                 name: relname,
@@ -1680,12 +1590,8 @@ var Mgraph = function(d3,$, getData) {
     }
 
     function changeRelation(name, oldRelation) {
-
         if (name === null) return;
-
-
         var relation = $.grep(G_data.relations, function(d) { return d.id == oldRelation.orgId; })[0];
-
         if (name.length) {
             getData.updateRelation(G_modelId, { name: name, id: relation.id, subject: relation.subject, object: relation.object }, showIt);
         }
@@ -1716,7 +1622,7 @@ var Mgraph = function(d3,$, getData) {
        
         G_mousepos = d3.mouse(svg.select('.gWindow').node());
         if (!G_editMode) return;
-        getUserInput(DIALOG.newTerm, {});
+        getUserInput(DIALOG.newTerm, { id: 0, term_name: "", term_definition:  " " });
     }
 
     function zoomRect_mouseup(node, that) {
@@ -1876,11 +1782,12 @@ var Mgraph = function(d3,$, getData) {
     }
 
     function termBorderRect_mouseup(node, that) {
-      
+        console.log("1")
         if (!G_editMode) return;
+        console.log("2")
         G_editLinkParms.mouseup_node = $.grep(G_graph.nodes, function(d) { return d.id === node.id; })[0];
         if (G_editLinkParms.mouseup_node === G_editLinkParms.mousedown_node) { resetMouseVars(); return; }
-
+        console.log("3")
         //  var relname = prompt("Enter relation name", "");
         getUserInput(DIALOG.newRelation, G_editLinkParms);
     }
@@ -1942,15 +1849,12 @@ var Mgraph = function(d3,$, getData) {
 
     // ********* help functions
     function onKeydown(event) {
-
         if (event.key === 'Control') {
             setBrushing(true);
         }
-
     }
 
     function onKeyup(event) {
-
         if (event.key === 'Control') {
             setBrushing(false);
         }

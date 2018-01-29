@@ -1,15 +1,13 @@
 var getData = function () {
     var G_termList = [];
     var G_relList = [];
-    var G_parms;
     var G_token;
     var Vue;
     var That;
 
-    function init(parms, vue, that) {
+    function init(vue, that) {
         That = that;
         Vue = vue;
-        G_parms = parms;
     }
     function setToken(token) {
         G_token=token;
@@ -25,7 +23,6 @@ var getData = function () {
     }
 
     function createTerm(node) {
-        console.log(node);
         return {
             id: node.id,
             name: node.term_name,
@@ -66,13 +63,11 @@ var getData = function () {
 
     function getModelId(modelId, callback) {
         That.$store.commit("isLoading", true);
-        console.log('isloading')
         Vue.axios.get('visualise?getCollection=' + modelId)
         .then(graph => {
             var terms = createTerms(graph.data.nodes);
             var relations = createRelations(graph.data.links);
-            That.$store.commit("isLoading", false);
-           
+            That.$store.commit("isLoading", false); 
             callback({ terms: terms, relations: relations });
         })
         .catch(error => {
@@ -101,16 +96,28 @@ var getData = function () {
     }
 
     function fetchAllTerms(toFetchIds, callback) {
+     
+        //@todo: all terms are refetched, actually only the new term is needed to be fetched.
+
         if (toFetchIds.length) {
-            fetchTerm(toFetchIds, fetchAllTerms, callback);
+            var promises=[];
+            toFetchIds.map(function(term) {
+                 promises.push( Vue.axios.get('visualise?withIds='+term + '&getUnfetchedRelations=1&levelsDeep=2'))
+             });
+             Promise.all(promises).then(values=> {
+                 values.map(function(item) {
+                    processArray(item.data)
+                 })
+                 callback({ terms: G_termList, relations: G_relList })
+             })
+             .catch(error => {console.log(error)})
+
         } else {
             callback({ terms: G_termList, relations: G_relList });
         }
     }
 
     function processArray(graph) {
-        console.log('processarray')
-        
         graph.nodes.forEach(function (node) {
            // if ($.grep(G_termList, function (e) { return e.id == node.id; }).length === 0) {
               if (G_termList.findIndex(x => x.id === node.id) <0) {
@@ -181,7 +188,6 @@ var getData = function () {
         "term_definition": term.description
         })
         .then(response => { 
-            console.log(response);
             var term = {
                 name: response.data.term_name,
                 description: response.data.term_definition,
@@ -197,11 +203,8 @@ var getData = function () {
     }
 
     function updateRelation(collection_id, relation, callback) {
-        console.log(relation);
         deleteRelation(null, relation, createNew);
-
         function createNew(relation) {
-            console.log('createnew', relation);
             saveRelation(collection_id[0], relation, callback);
         }
     }
@@ -213,7 +216,6 @@ var getData = function () {
             "term_definition": term.description,
         })
           .then(response => {
-            console.log(response);
             var term = {
                 id: response.data.id,
                 name: response.data.term_name,
@@ -233,7 +235,6 @@ var getData = function () {
             That.$store.commit("isLoading", true);
             Vue.axios.get("collections/" +collection_id + "/sketches",)
             .then(response => {
-             console.log(response);
              var retVal = null;
              That.$store.commit("isLoading", false);
              if (response.data.sketch_data && response.data.sketch_data[0] === '{') {
@@ -247,7 +248,6 @@ var getData = function () {
             })
             .catch(error => {
               console.log(error.response, error);
-             
               That.$store.commit("isLoading", false);
             });
       //  });
@@ -279,18 +279,15 @@ var getData = function () {
     
         var positions=extractNodePositions(graph);
         var newgraph={G_clusterRelations:graph.G_clusterRelations, G_termid:graph.G_termid, G_nodelist:graph.G_nodelist, nodePositions:positions};
-        console.log(newgraph);
         Vue.axios.post("sketches", {
             "collection_id": parseInt(collection_id),
             "sketch_name": "name8",
             "sketch_data": JSON.stringify(newgraph),
           })
             .then(response => {
-              console.log(response);
             })
             .catch(error => {
               console.log(error.response);
-              alert(error.response.data.message);
             });
     }
     function extractNodePositions(graph) {
@@ -302,40 +299,6 @@ var getData = function () {
             }
         });
         return(positions);
-    }
-
-    /**
-     * Fetches the first termID from the provided array, including all related terms and relations 2 levels deep
-     * It adds the nodes to the global var G_termList, and the links to the global var G_relList
-     *
-     * @param {Array.<number>} termIdArray
-     * @param {any} callback
-     */
-    function fetchTerm(termIdArray, callback, orgcallback) {
-        //@todo get from axios
-        /*
-        var element = termIdArray.pop();
-            var query = G_parms.remoteURL + '/visualise?withIds=' + element + '&getUnfetchedRelations=1&levelsDeep=2';
-            $.getJSON(query, function (graph) {
-                console.log(graph);
-                processArray(graph);
-                callback(null, termIdArray, orgcallback);
-            })
-            .fail(function (jqxhr) {
-                console.log(jqxhr.responseJSON);
-                processArray(jqxhr.responseJSON);
-            });
-        */
-    }
-
-    /**
-     * returns an array of ALL term Objects (used for finding termname via typeahead)
-     * @todo Only is available in local data. It uses global var DATA_term. Need to implement a remote option
-     *
-     * @returns {Array.<Object>} termObjectArray
-     */
-    function getAllTerms(event, query, callback) {
-
     }
 
     /**

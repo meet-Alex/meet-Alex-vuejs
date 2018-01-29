@@ -1,6 +1,6 @@
 <template>
   <div id="MContainer" class='content'>
-    <div id="inputDialog">
+    <div v-if="editTerm" id="inputDialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header header-xs">
@@ -84,13 +84,6 @@ function sizeDivs() {
   $("#Mgraph").css("marginTop", "5px");
 }
 
-window.onbeforeunload = function() {
-  console.log("saving layout");
-  //@todo
-  Mgraph.saveLayout(collection_id, "name8");
-
-};
-
 import Fullscreen from "vue-fullscreen/src/component.vue";
 import Vue from "vue";
 
@@ -104,10 +97,13 @@ export default {
       type: String,
       required: true
     },
-
     collectionId: {
       type: String,
-      required: true
+      required: false
+    },
+    termId: {
+      type: String,
+      required: false
     },
     value: {
       type: Boolean,
@@ -165,6 +161,7 @@ export default {
       this.showLocksSet = showLockOn;
     },
     relationClustering: function(clusterType) {
+      console.log("relation clustering")
       Mgraph.setClusterRelations(clusterType);
       this.relationClusterSet = clusterType;
     }
@@ -182,35 +179,33 @@ export default {
     Fullscreen1 = this.fullscreen;
     sizeDivs();
 
-    var term_id = null;
+    var term_id = this.termId;
     var collection_id = this.collectionId;
 
-    getData.init({
-      remote: true, 
-      remoteURL: globalData.apiURL
-    }, Vue, this);
+    getData.init(Vue, this);
     getData.setToken(this.userinfo.token);
 
     // initialise the visualisation, and define the callback functions
     Mgraph.initGraph({
       mainDivId: "Mgraph"
     });
-    
+     this.autoFix(this.autoFixSet);
+    this.showLocks(this.showLockOn);
+    this.relationClustering(this.relationClusterSet);
+    Mgraph.setEditMode(this.value);
     // do we want to see a complete collection, or only a term?
     $(".spinner").hide();
     if (typeof collection_id !== "undefined") {
       Mgraph.showModel(collection_id);
     //  Mgraph.loadLayout(collection_id, "name8");
     } else {
+      console.log('term selected')
       Mgraph.showTerms([term_id]);
     }
 
     //Initial configuration
 
-    this.autoFix(this.autoFixSet);
-    this.showLocks(this.showLockOn);
-    this.relationClustering(this.relationClusterSet);
-    Mgraph.setEditMode(this.value);
+   
   },
   beforeDestroy() {
       // need to refetch the collection to update the store with the visual changes, and save layout of visual
