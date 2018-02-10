@@ -23,10 +23,10 @@
                     <br> <br>
                    
                         <button v-if="!viewExplain" class="nobutton" v-on:click="viewExplain=true">
-                                <i class="fa fa-angle-down fa-3x grey" aria-hidden="true"></i>
+                                <i class="fa fa-angle-down fa-3x grey down" aria-hidden="true"></i>
                         </button>
                         <button v-else class="nobutton" v-on:click="viewExplain=false">
-                                <i class="fa fa-angle-up fa-3x grey" aria-hidden="true"></i>  
+                                <i class="fa fa-angle-up fa-3x grey up" aria-hidden="true"></i>  
                         </button>
                    
                 </div>
@@ -100,11 +100,22 @@
     .grey {
         color:grey;
     }
-    .grey:hover {
+    .down:hover {
     display: inline-block;
     vertical-align: middle;
     -webkit-transform: translate(0px, 10px);
     transform: translate(0px, 10px);
+    box-shadow: 0 0 1px transparent;
+    position: relative;
+  
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    }
+     .up:hover {
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: translate(0px, -10px);
+    transform: translate(0px, -10px);
     box-shadow: 0 0 1px transparent;
     position: relative;
   

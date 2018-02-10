@@ -3,24 +3,23 @@
         <b-breadcrumb :items="breadCrum" />
       
         <div v-if="showTermList.length>0">
-              <table class='toprow'> <tr>
-            <td class="findTermWidth">
-             <!--  <findterm :change="getTerm"/> -->
-            </td>
-            <td class='alignright'>
-                 <button class="button-close" v-on:click="closeAll" title="Clear all">
-                    <i class="fa fa-times fa-lg" aria-hidden="true"></i>
-                </button>
-            </td>
-        </tr></table>
-        <div  v-for="(term, index) in showTermList">
-            <termdisplay  :term="term" :index="index" />
-        </div>
+            <table class='toprow'> 
+                <tr>
+                <td class="findTermWidth">
+                <!--  <findterm :change="getTerm"/> -->
+                </td>
+                <td class='alignright'>
+                    <button class="button-close" v-on:click="closeAll" title="Clear all">
+                        <i class="fa fa-times fa-lg" aria-hidden="true"></i>
+                    </button>
+                </td>
+                </tr>
+            </table>      
+            <termdisplay  v-for="(term, index) in showTermList" :key="term.id" :id="term.id"  :term="term" :index="index" />
         </div>
         <div v-else>
             No terms to display. Use the search box to display a term.
         </div>
-         
     </div>
 </template>
 

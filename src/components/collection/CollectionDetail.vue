@@ -1,52 +1,56 @@
 <template>
-    <div class="container flex">
+    <div id="coldetail" class="container flex" >
         <br>
         <b-breadcrumb :items="breadCrum" />
         <!-- Collection title and action menu -->
-
-        <table style="width: 100%;">
-            <tr>
-                <td class="compact title-header">
-                    Collection: {{collection.collection_name}}
-                </td>
-                <td align="right" v-if="collection.editable">
-                    <b-nav class="float-right">
-                        <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="editMode=!editMode">
-                          <i class="fa fa-pencil" aria-hidden="true" title="Edit this collection"></i>
-                        </button>
-                        <b-dropdown variant="link" size="lg" no-caret title='Actions' :disabled="$route.params.id==='new'">
-                            <template slot="button-content">
-                            <i class="fa fa-ellipsis-h grey" aria-hidden="true"></i>
-                            </template>
-                                <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
-                                <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
-                                <b-dropdown-divider></b-dropdown-divider>
-                                <b-dropdown-item v-on:click="deleteCollection" title="Delete this collection">Delete</b-dropdown-item>
-                      </b-dropdown>       
-                    </b-nav>
-                </td>
-            </tr>
-        </table>
-        <b-card no-body>
-            <b-tabs no-body small  v-model="selectedTab" class='nopadding'>
-                <b-tab title="Collection" class='nopadding' >
-                    <collectionDetails v-if="selectedTab===0" v-model="editMode" />
-                    <!-- the v-if is to force a beforeDestory, so the update collection api is called when another tab is selected -->
-                </b-tab>
-                <template v-if="collection.id !==-1">
-                  <b-tab title="Terms" class='nopadding'>
-                      <termList :editMode="editMode" />
+        <template>
+          <table style="width: 100%;">
+              <tr>
+                  <td class="compact title-header">
+                      Collection: {{collection.collection_name}}
+                  </td>
+                  <td align="right" v-if="collection.editable">
+                      <b-nav class="float-right">
+                          <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditmode">
+                            <i class="fa fa-pencil" aria-hidden="true" title="Edit this collection"></i>
+                          </button>
+                          <b-dropdown variant="link" size="lg" no-caret title='Actions' :disabled="$route.params.id==='new'">
+                              <template slot="button-content">
+                              <i class="fa fa-ellipsis-h grey" aria-hidden="true"></i>
+                              </template>
+                                  <b-dropdown-item title="***todo***">Bookmark</b-dropdown-item>
+                                  <b-dropdown-item title="***todo***">Contribute</b-dropdown-item>
+                                  <b-dropdown-item v-if="collection.editable" v-on:click="doImport" title="Import terms and relations from file">Import data</b-dropdown-item>
+                                  <b-dropdown-divider></b-dropdown-divider>
+                                  <b-dropdown-item v-on:click="deleteCollection" title="Delete this collection">Delete</b-dropdown-item>
+                        </b-dropdown>       
+                      </b-nav>
+                  </td>
+              </tr>
+          </table>
+          <b-card no-body>
+              <b-tabs no-body small  v-model="selectedTab" class='nopadding'>
+                  <b-tab title="Collection" class='nopadding' >
+                      <collectionDetails v-if="selectedTab===0" v-model="editMode" />
+                      <!-- the v-if is to force a beforeDestory, so the update collection api is called when another tab is selected -->
                   </b-tab>
-                  <b-tab title="Relations">
-                      <relationList  :editMode="editMode" :showHeader="true" />
-                  </b-tab>
-                  <b-tab title="Graph">
-                      <visual v-if="selectedTab===3" id="aa" v-model="editMode" :collectionId="''+$route.params.id"  />
-                  </b-tab>
-                </template>
-            </b-tabs>
-        </b-card>
-
+                  <template v-if="collection.id !==-1">
+                    <b-tab title="Terms" class='nopadding'>
+                        <termList :editMode="editMode" />
+                    </b-tab>
+                    <b-tab title="Relations">
+                        <relationList  :editMode="editMode" :showHeader="true" />
+                    </b-tab>
+                    <b-tab title="Graph">
+                        <visual v-if="selectedTab===3" :id="1" v-model="editMode" :collectionId="''+$route.params.id"  />
+                    </b-tab>
+                     <b-tab v-if="editMode" title="Import">
+                          <collectionimport :id="collection.id" />
+                    </b-tab>
+                  </template>
+              </b-tabs>
+          </b-card>
+        </template>
     </div>
 </template>
 
@@ -55,10 +59,12 @@ import collectionDetails from "../../plugins/collection-details.vue";
 import termList from "../../plugins/term-list.vue";
 import relationList from "../../plugins/relation-list.vue";
 import visual from "../../plugins/visual.vue";
+import collectionimport from '../../plugins/collection-import.vue';
+
 import { mapGetters, mapState } from "vuex";
 
 export default {
-  components: { collectionDetails, termList, relationList, visual },
+  components: { collectionDetails, termList, relationList, visual, collectionimport },
   data() {
     return {
       editMode: false,
@@ -93,6 +99,18 @@ export default {
             this.$router.push("/collections");
           });
       }
+    },
+    doImport: function() {
+      this.editMode=true; 
+      this.$nextTick(function() {
+          this. selectedTab = 4
+        });
+    },
+    changeEditmode: function () {
+      if (this.selectedTab===4) {
+        this.selectedTab=1;
+      }
+      this.editMode=!this.editMode
     }
   },
   computed: {
@@ -108,7 +126,7 @@ export default {
           to: { name: "collections" }
         },
         {
-          text: this.collection ? this.collection.name : "",
+          text: this.collection ? this.collection.collection_name : "",
           active: true
         }
       ];

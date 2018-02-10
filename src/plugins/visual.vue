@@ -1,27 +1,8 @@
 <template>
-  <div id="MContainer" class='content'>
-    <div v-if="editTerm" id="inputDialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header header-xs">
-                    <h4 class="modal-title" id='inputDialog_title'></h4>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="dataField">
-                    <input type="text" placeholder="Enter name..." id="nameField">
-                    <div id="descriptionField">
-                        <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
-                    </div>
-                </div>
-                <div class="modal-footer header-xs">
-                    <button type="button" id='btn_newTerm' class="btn btn-info btn-xs" data-dismiss="modal">Create</button>
-                    <button type="button" id='btn_deleteTerm' class="btn btn-danger btn-xs" data-dismiss="modal">Delete</button>
-                    <button type="button" id='btn_closeInputDialog' class="btn btn-xs cancelDialog" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-   <fullscreen ref="fullscreen" :fullscreen.sync="fullscreen" :background="'#ffffff'">
+  <div v-bind:id="'MContainer'+ id" class='visual'>
+
+
+  <fullscreen ref="fullscreen" :fullscreen.sync="fullscreen" :background="'#ffffff'" class=""> 
     <b-navbar toggleable="md" type="dark" variant="info">
         <b-navbar-nav class="ml-auto">
         <b-nav>
@@ -45,9 +26,34 @@
         </button>
       </b-navbar-nav>
     </b-navbar>
-      <div id="Mgraph">
-       </div>
-   </fullscreen> 
+      <div v-bind:id="'Mgraph'+id" class="svg-container">
+      </div>
+          <div v-if="editTerm" id="inputDialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header header-xs">
+                    <h4 class="modal-title" id='inputDialog_title'></h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="dataField">
+                    <input type="text" placeholder="Enter name..." id="nameField">
+                    <div id="descriptionField">
+                        <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
+                    </div>
+                </div>
+                <div class="modal-footer header-xs">
+                    <button type="button" id='btn_newTerm' class="btn btn-info btn-xs" data-dismiss="modal">Create</button>
+                    <button type="button" id='btn_deleteTerm' class="btn btn-danger btn-xs" data-dismiss="modal">Delete</button>
+                    <button type="button" id='btn_closeInputDialog' class="btn btn-xs cancelDialog" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- the fullscreen removes all divs, so re-add them to show loading and messages -->
+    <show-loader v-if="fullscreen" /></show-loader>
+    <notifications v-if="fullscreen" group="foo" />
+  </fullscreen>
   </div>
 </template>
 
@@ -61,7 +67,8 @@ var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
 
 import globalData from "../global_data";
 import vuex from "vuex";
-var Fullscreen1 = false;
+  import Loader from '../plugins/Loader.vue';
+
 
 function changedZoom(event, zoomLevel) {
   /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
@@ -70,31 +77,24 @@ function changedZoom(event, zoomLevel) {
 $(window).resize(function() {
   //	$('#content').height($(window).height() - 46);
  
-  sizeDivs();
+ // sizeDivs();
 });
 
-function sizeDivs() {
- 
-  $("#Mgraph").height($(window).height() - $("#Mmenu").height() - 20);
-  if (Fullscreen1) {
-    $("#Mgraph").width($(window).width());
-  } else {
-    $("#Mgraph").width($("#MContainer").width());
-  }
-  $("#Mgraph").css("marginTop", "5px");
-}
 
-import Fullscreen from "vue-fullscreen/src/component.vue";
+
+import Fullscreen from "vue-fullscreen/src/component.vue"
 import Vue from "vue";
+
+
 
 import { mapState } from "vuex";
 import axios from '../backend/vue-axios';
 export default {
-  components: { Fullscreen },
+  components: { Fullscreen ,showLoader: Loader},
   name: "visual",
   props: {
     id: {
-      type: String,
+      type: Number,
       required: true
     },
     collectionId: {
@@ -102,7 +102,7 @@ export default {
       required: false
     },
     termId: {
-      type: String,
+      type: Number,
       required: false
     },
     value: {
@@ -141,11 +141,27 @@ export default {
   },
   methods: {
     toggle: function() {
-      this.$refs["fullscreen"].toggle();
-      Fullscreen1 = !this.fullscreen;
-      this.fullscreen = !this.fullscreen;
-      sizeDivs();
+        
+    this.$refs['fullscreen'].toggle()
+      //this.sizeDivs();
     },
+    fullscreenChange: function(fullscreen) {
+       this.fullscreen =fullscreen
+       console.log(fullscreen)
+    },
+    sizeDivs: function() {
+      var Mgraph=$("#Mgraph"+this.id);
+      //this.fullscreen = !this.fullscreen
+    
+      // this.$nextTick(function () {
+     //       var height=this.fullscreen?screen.height:$("#MContainer"+this.id).height();
+      //      Mgraph.height(height - 38);
+      //      Mgraph.width($(parentContainer).width());
+     //   })
+     // Mgraph.height(height - 38);
+    //  Mgraph.width($(parentContainer).width());
+  
+},
     changed : function(){
       console.log(' changed');
     },
@@ -169,6 +185,24 @@ export default {
   watch: {
     value: function(val) {
       Mgraph.setEditMode(val);
+    },
+    fullscreen: function(fs) {
+      
+      var height=$(document).height()-56;
+      var widthapp=$("#app").width();
+      var widthcontainer=$(".visual").width();
+      console.log('fs', fs, height, widthapp, widthcontainer )
+      var Mgraph1=$("#Mgraph"+this.id);
+      if (fs) {
+        Mgraph1.height(height)
+        Mgraph1.width(widthapp)
+        }
+      else {
+        Mgraph1.height(500)
+       // .width(widthcontainer)
+        Mgraph1.css('width', '100%');
+        }
+      Mgraph.setsize()
     }
   },
   created() {},
@@ -176,20 +210,17 @@ export default {
     ...mapState(["userinfo"])
   },
   mounted() {
-    Fullscreen1 = this.fullscreen;
-    sizeDivs();
-
+    this.sizeDivs();
     var term_id = this.termId;
     var collection_id = this.collectionId;
-
     getData.init(Vue, this);
     getData.setToken(this.userinfo.token);
 
     // initialise the visualisation, and define the callback functions
     Mgraph.initGraph({
-      mainDivId: "Mgraph"
+      id: this.id
     });
-     this.autoFix(this.autoFixSet);
+    this.autoFix(this.autoFixSet);
     this.showLocks(this.showLockOn);
     this.relationClustering(this.relationClusterSet);
     Mgraph.setEditMode(this.value);
@@ -221,29 +252,51 @@ export default {
 <style scoped>
 @import "/src/plugins/visual/css/app.css";
 
-.content {
-  padding-top: 0.5rem;
-}
-#descriptionField {
+.visual {
   
 }
-.white {
-  color:white;
+
+#descriptionField {
 }
- .nobutton {
-        background:none;
-        border:1px white solid;
-        
-    }
- .nobutton :active {
-    border:1px white solid;
- }
+.fullscreen_container {
+  width:100%;
+  height: 100%;
+}
+.white {
+  color: white;
+}
+.nobutton {
+  background: none;
+  border: 1px white solid;
+}
+.nobutton :active {
+  border: 1px white solid;
+}
 
 #descriptionEditor {
-    border: 1px solid lightgrey;
-    border-radius: 3px;
-    padding: 5px 10px;
-    font-size: 14px;
-    background-color: white;
+  border: 1px solid lightgrey;
+  border-radius: 3px;
+  padding: 5px 10px;
+  font-size: 14px;
+  background-color: white;
+}
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    clear: both;
+    height: 100%;
+    height: 500px;
+    /*padding-bottom: 60px; /* aspect ratio */
+    vertical-align: top;
+    /*overflow: hidden;*/
+  
+  
+}
+.svg-content-responsive {
+    display: inline-block;
+    position: absolute;
+    top: 0px;
+    left: 0;
 }
 </style>

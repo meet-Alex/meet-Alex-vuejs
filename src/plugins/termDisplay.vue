@@ -3,26 +3,26 @@
         <div v-bind:class="{'div-menu-top':true, hide:!showMenus}">
             <b-nav class="float-right">
               <template v-if="term.editable">
-                 <button  v-bind:class="{'button-close':true}" v-on:click="changeVisualMode">
-                      <i v-if ="!visualMode" class="fa fa-file-image-o visual-icon" aria-hidden="true" title="Show visual"></i>
-                      <i v-if ="visualMode" class="fa fa-file-text-o visual-icon" aria-hidden="true" title="Show text"></i>
-                  </button>
-                  <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditMode">
-                      <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
-                  </button>
-                  <b-dropdown variant="link" size="lg" no-caret title='Actions'>
-                      <template slot="button-content">
-                      <i class="fa fa-ellipsis-h grey" aria-hidden="true"></i>
-                      </template>
-                          <b-dropdown-item>Copy</b-dropdown-item>
-                          <b-dropdown-item>Edit</b-dropdown-item>
-                          <b-dropdown-divider></b-dropdown-divider>
-                          <b-dropdown-item>Archive</b-dropdown-item>
-                  </b-dropdown>
-              </template>
-                <button class="button-close" v-on:click="closeWindow" title="Hide this term">
-                    <i class="fa fa-times" aria-hidden="true"></i>
+                <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditMode">
+                    <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
                 </button>
+                <b-dropdown variant="link" size="lg" no-caret title='Actions'>
+                    <template slot="button-content">
+                    <i class="fa fa-ellipsis-h grey" aria-hidden="true"></i>
+                    </template>
+                        <b-dropdown-item>Copy</b-dropdown-item>
+                        <b-dropdown-item>Edit</b-dropdown-item>
+                        <b-dropdown-divider></b-dropdown-divider>
+                        <b-dropdown-item>Archive</b-dropdown-item>
+                </b-dropdown>
+              </template>
+              <button  v-bind:class="{'button-close':true}" v-on:click="changeVisualMode">
+                  <i v-if ="!visualMode" class="fa fa-file-image-o visual-icon" aria-hidden="true" title="Show visual"></i>
+                  <i v-if ="visualMode" class="fa fa-file-text-o visual-icon" aria-hidden="true" title="Show text"></i>
+              </button>
+              <button class="button-close" v-on:click="closeWindow" title="Hide this term">
+                  <i class="fa fa-times" aria-hidden="true"></i>
+              </button>
             </b-nav>
         </div>
         <table class='term-header'>
@@ -68,9 +68,7 @@
                   </button>
           </div>   
         </template>  
-
-           <visual v-else id="term.id" v-model="editMode" :termId="'624'" />
-       
+        <visual v-else :key="term.id" :id="term.id" v-model="editMode" :termId="term.id" />
     </div>
 </template>
 
@@ -83,18 +81,18 @@ import visual from "./visual.vue";
 
 export default {
   name: "termDisplay",
-  components: {relationList, visual},
+  components: { relationList, visual },
   props: {
     term: { type: Object, required: true },
     index: { type: Number, required: true },
-    newTerm: {type:Boolean, required: false}
+    newTerm: { type: Boolean, required: false }
   },
 
   data() {
     return {
       viewType: 0,
       editMode: false,
-      visualMode:false,
+      visualMode: false,
       showMenus: false,
       viewOptions: [
         { text: "Description", value: 0 },
@@ -126,13 +124,13 @@ export default {
   },
   mounted: function() {
     if (this.newTerm) {
-      this.editMode=true;
+      this.editMode = true;
     }
   },
   methods: {
     ...mapMutations(["removeTermFromList"]),
     preventEnter: function(e) {
-       if (e.keyCode === 13) {
+      if (e.keyCode === 13) {
         e.preventDefault();
       }
     },
@@ -141,13 +139,12 @@ export default {
       if (this.editMode) {
         this.$store.dispatch("CHANGE_TERM", this.term);
       }
-      this.editMode=!this.editMode;
+      this.editMode = !this.editMode;
     },
-     changeVisualMode: function() {
+    changeVisualMode: function() {
       if (this.visualMode) {
-       
       }
-      this.visualMode=!this.visualMode;
+      this.visualMode = !this.visualMode;
     },
     closeWindow: function() {
       console.log("removing", this.index);
@@ -157,11 +154,11 @@ export default {
   computed: {
     ...mapState(["showTermList", "userinfo"])
   },
-    beforeDestroy: function() {
+  beforeDestroy: function() {
     console.log("beforedestroy");
-      if (this.editMode) {
-        this.$store.dispatch("CHANGE_TERM", this.term);
-      }
+    if (this.editMode) {
+      this.$store.dispatch("CHANGE_TERM", this.term);
+    }
   }
 };
 </script>
@@ -170,10 +167,10 @@ export default {
 
 <style scoped>
 .visual-icon {
-  padding:10px;
+  padding-right: 10px;
 }
 .none {
-  color:grey;
+  color: grey;
   font-style: italic;
 }
 
@@ -181,20 +178,18 @@ table.term-header {
   width: calc(100% - 96px);
 }
 td.term-collection {
-  float:right;
-  color:lightgrey;
-  border:none;
-  padding:0px 8px;
+  float: right;
+  color: lightgrey;
+  border: none;
+  padding: 0px 8px;
   border-radius: 5px;
 }
 
 .term-container-div {
- 
- 
   padding: 0.1em 1em 1em 1em;
   margin-bottom: 1em;
   position: relative;
-    box-shadow: 2px 2px 8px grey;
+  box-shadow: 2px 2px 8px grey;
 }
 .term-container-div h2 {
   font-size: 1.1em;
@@ -214,7 +209,7 @@ td.term-collection {
   font-weight: 400;
 }
 .fa-2 {
-    width: 2rem;
+  width: 2rem;
 }
 div.term-addinfo {
   font-size: 0.9rem;
@@ -223,11 +218,10 @@ div.term-addinfo {
   margin-top: 0.3em;
 }
 div.term-details {
-   font-size: 0.9rem;
+  font-size: 0.9rem;
   font-weight: 400;
 
   margin-top: 0.3em;
-
 }
 .term-header-div .nav-link {
   font-size: 0.8rem;
@@ -242,7 +236,6 @@ div.term-details {
   color: grey;
 }
 button {
- 
   background: none;
   border: none;
   color: grey;
@@ -258,16 +251,19 @@ button {
   bottom: -5px;
 }
 .grey {
-    color:grey;
+  color: grey;
 }
 .red {
-    color:red;
+  color: red;
 }
 .hide {
-    display:none;
+  display: none;
 }
-button:focus {outline:0 !important;}
-button:hover, i:hover {
+button:focus {
+  outline: 0 !important;
+}
+button:hover,
+i:hover {
   cursor: pointer;
 }
 
@@ -276,14 +272,13 @@ button:hover, i:hover {
   font-weight: 700;
 }
 table.relations {
-  margin:0px 0px;
-  border:none;
-  padding:5px;
+  margin: 0px 0px;
+  border: none;
+  padding: 5px;
 }
 table.relations td {
-  padding:0px 10px;
+  padding: 0px 10px;
   background-color: #f9f9f9;
-  border:1px solid white;
+  border: 1px solid white;
 }
-
 </style>

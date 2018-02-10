@@ -221,3 +221,17 @@ path.link.hidden {
 .tt-dataset .tt-suggestion {
 	border-bottom: 1px solid black;
 }
+
+div.tooltip {	
+    position: absolute;			
+    text-align: left;			
+    width: 100%;
+    max-height:3rem;				
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightgray;	
+    border: 0px;		
+    border-radius: 2px;			
+    pointer-events: none;		
+    overflow: hidden;
+}

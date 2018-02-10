@@ -25,6 +25,7 @@
     "vue-template-compiler": "^2.5.13",
     "vue-tinymce": "^1.0.5",
     "vue-typeahead": "^2.3.2",
+    "vue-upload-component": "^2.8.3",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

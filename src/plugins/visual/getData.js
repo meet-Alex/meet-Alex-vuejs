@@ -100,6 +100,7 @@ var getData = function () {
         //@todo: all terms are refetched, actually only the new term is needed to be fetched.
 
         if (toFetchIds.length) {
+            That.$store.commit("isLoading", true);
             var promises=[];
             toFetchIds.map(function(term) {
                  promises.push( Vue.axios.get('visualise?withIds='+term + '&getUnfetchedRelations=1&levelsDeep=2'))
@@ -108,9 +109,10 @@ var getData = function () {
                  values.map(function(item) {
                     processArray(item.data)
                  })
+                 That.$store.commit("isLoading", false);
                  callback({ terms: G_termList, relations: G_relList })
              })
-             .catch(error => {console.log(error)})
+             .catch(error => {console.log(error); That.$store.commit("isLoading", false);})
 
         } else {
             callback({ terms: G_termList, relations: G_relList });

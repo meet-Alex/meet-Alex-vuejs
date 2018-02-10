@@ -47,13 +47,16 @@ var Mgraph = function(d3,$, getData) {
         autozoom,
         xposScale,
         yposScale,
-        showLocks;
+        showLocks,
+        tooltip,
+        showWholeCollection;
 
     function initGraph(parms) {
         G_graph = { nodes: [], links: [] };
      
-
+        showWholeCollection=false;
         initParms = parms; // make parms global
+        initParms.mainDivId="Mgraph"+parms.id;
         // fill interface variables with defaults. These can be changed by provided functions
         showLocks = true;
         hierarchyOnly = false; //only show hierarchy
@@ -64,18 +67,15 @@ var Mgraph = function(d3,$, getData) {
         autoFix = true; //fix an element after dragging
         G_nodelist = []; // terms to display (with related terms)
         Dims = {
-            node: { width: 110, height: 40, fill: "#ffffff", highlight: '#ff8080', font_family: 'helvetica, sans-serif', font_size: '10' },
-            rel: { fill: "#9999aa", highlight: '#ff3333', font_family: 'helvetica, sans-serif', font_size: '10' },
-            link: { stroke: "#1f77b4", highlight: '#ff3333' }
+            node: { width: 110, height: 40, fill: "#ffffff", highlight: '#f00000', font_family: 'helvetica, sans-serif', font_size: '10' },
+            rel: { fill: "#ffffff", highlight: '#f00000', font_family: 'helvetica, sans-serif', font_size: '10', text_color:'#9999aa', highlight_text_color:"#ffffff" },
+            link: { stroke: "#9999aa", highlight: '#f00000' }
         };
 
         // fill helper global variables
         dragging = false; // holds info if node is dragged
         dragpos = 0; //hold the amount (distance) of dragging
         panzoom = { x: 0, y: 0, k: 1 }; // pan and zoom paremeters
-        zoom = d3.zoom()
-            .scaleExtent([0.1, 2])
-            .on("zoom", zoomed);
 
         fisheye = d3.fisheye.circular()
             .radius(200)
@@ -84,22 +84,41 @@ var Mgraph = function(d3,$, getData) {
         var mainDiv = "#" + initParms.mainDivId;
         if (!$(mainDiv).length)
             console.log('Div [' + mainDiv + '] does not exist');
-        G_windowDims.width = Math.floor($(mainDiv).width());
-        G_windowDims.height = Math.floor($(mainDiv).height());
+      
+      //  G_windowDims.width = 1300;
+       // G_windowDims.height = 600;
 
-        svg0 = d3.select(mainDiv).append("svg").style("overflow", "hidden").attr("width", G_windowDims.width).attr("height", G_windowDims.height).append('g');
+       // svg0 = d3.select(mainDiv).append("svg").style("overflow", "hidden").attr("width", G_windowDims.width).attr("height", G_windowDims.height).append('g');
+        
+        svg0 = d3.select(mainDiv)
+            .append("svg")
+        //responsive SVG needs these 2 attributes and no width and height attr
+       // .attr("preserveAspectRatio", "xMinYMin meet")
+      
+        .append("g")
+      ;
+      
+       tooltip = d3.select(mainDiv).append("div")	
+      .attr("class", "tooltip")				
+      .style("opacity", 0);  
+
+
+        zoom = d3.zoom()
+        .scaleExtent([0.1, 2])
+        .on("zoom", zoomed);
+        
         var zoomRect = svg0.append("rect") // the zoomable container where graph is drawn
             .attr("class", "zoomRect")
-            .attr("width", G_windowDims.width)
-            .attr("height", G_windowDims.height)
+            .attr("width",  G_windowDims.width)
+            .attr("height",G_windowDims.height)
             .style("fill", "transparent")
             .style("stroke", 'none')
             .on("dblclick", function(d) { zoomRect_doubleclick(d, this); })
             .on("mouseup", function(d) { zoomRect_mouseup(d, this); })
-            .on("mousemove", function(d) { zoomRect_mousemove(d, this); })
+            .on("mousemove", function(d) { zoomRect_mousemove(d, this, mainDiv); })
             .call(zoom).on("dblclick.zoom", null);
 
-
+/*
         d3.select(window).on("resize.updatesvg", function() {
             G_windowDims.width = $(mainDiv).width();
             G_windowDims.height = $(mainDiv).height();
@@ -111,8 +130,11 @@ var Mgraph = function(d3,$, getData) {
             svg0.selectAll('.zoomRect').attr("width", G_windowDims.width)
                 .attr("height", G_windowDims.height);
         });
+        */
         // svg = d3.select(mainDiv).append("svg").attr("id", "svg").style("overflow", "hidden").attr("width", "100%").attr("height", "100%");
-        svg = svg0.append("svg").attr("id", "svg").style("overflow", "hidden").attr("width", G_windowDims.width).attr("height", G_windowDims.height);
+    //    svg = svg0.append("svg").attr("id", "svg").style("overflow", "hidden").attr("width", G_windowDims.width).attr("height", G_windowDims.height);
+        svg = svg0.append("svg").attr("id", "svg"+initParms.id)
+        setsize();
         // set up the pan/zoom/fisheye
 
         xposScale = d3.scaleLinear().domain([-500, 500]).range([-Dims.node.width / 2, Dims.node.width / 2]);
@@ -133,7 +155,7 @@ var Mgraph = function(d3,$, getData) {
             .attr("orient", "auto")
             .append("path")
             .attr("d", function(d) { return (d == 'no') ? "" : "M0,-5L10,0L0,5"; })
-            .style("fill", function(d) { return (d == 'target_red') ? "red" : Dims.rel.fill; }) //Dims.link.stroke;
+            .style("fill", function(d) { return (d == 'target_red') ? "red" : Dims.link.stroke })
             .style("stroke-width", "2px")
             .style("opacity", "1");
 
@@ -185,6 +207,25 @@ var Mgraph = function(d3,$, getData) {
             .on("tick", ticked)
             .on('end', function() {});
     }
+    function setsize() {
+        var mainDiv="#" + initParms.mainDivId
+        G_windowDims.width = Math.floor($(mainDiv).width());
+        G_windowDims.height = Math.floor($(mainDiv).height());
+        console.log(G_windowDims)
+
+
+        d3.select(mainDiv).select("svg")
+        .attr("preserveAspectRatio", "xMinYMin meet")
+        .attr("viewBox", "0 0 " + G_windowDims.width + " " + G_windowDims.height)
+      // .attr("viewBox", "0 0 1300 800")
+        //class to make it responsive
+        .classed("svg-content-responsive", true);
+       
+    svg.attr("width", G_windowDims.width)
+        .attr("height", G_windowDims.height);
+    svg0.selectAll('.zoomRect').attr("width", G_windowDims.width)
+        .attr("height", G_windowDims.height);
+    }
 
     function setBrushing(bool) {
         if (bool) {
@@ -204,6 +245,7 @@ var Mgraph = function(d3,$, getData) {
                     node.each(function(d) { d.previouslySelected = G_shiftKey && d.selected; });
                 })
                 .on("brush", function() {
+                  
                     var selection = d3.event.selection;
                     if (G_brushing) {
                         var node = svg.selectAll('.gnode');
@@ -399,12 +441,25 @@ var Mgraph = function(d3,$, getData) {
      * @param {Array.<string>} termIds
      */
     function updateNodeList(termIds) {
-        G_nodelist = termIds;
+       
+        console.log(G_nodelist, termIds)
+
         var newlist = [];
-        $.each(termIds, function(i, term) {
-            newlist.push(term);
+
+        termIds.map(function(d)  {
+            var fndnode=G_nodelist.find(function(orgnode){
+                return d==orgnode;
+            });
+            if (!fndnode) {
+                newlist.push(d);
+            }
         });
-        getOneTerm(newlist);
+        G_nodelist = termIds; // @todo: move to api, because when a fetch does not work, it should not be added to termlist
+        if(newlist.length) {
+            getOneTerm(newlist);
+        } else {
+            displayTerms(G_nodelist);
+        }
     }
 
     /**
@@ -494,6 +549,7 @@ var Mgraph = function(d3,$, getData) {
                 terms.push(term);
             }
         });
+        console.log(terms)
 
         // TODO: create artificial different models
         {
@@ -508,10 +564,11 @@ var Mgraph = function(d3,$, getData) {
             });
         }
 
-        if (relations.length === 0 && termIDs.length) { // no relations found, just show the element then
-            terms = $.grep(G_data.terms, function(e) { return (e.id == termIDs[0]); });
-            relations = [];
-        }
+      //  if (relations.length === 0 && termIDs.length) { // no relations found, just show the element then
+      //     terms = $.grep(G_data.terms, function(e) { return (e.id == termIDs[0]); });
+     //       relations = [];
+      //  }
+        console.log(terms)
         G_graph = getGraph(terms, relations);
         updateGraph();
         // Let the graph settle a bit before zooming
@@ -536,7 +593,13 @@ var Mgraph = function(d3,$, getData) {
      * zoomlevel is between 0-1 for zoom out, and above 1 for zoom in
      */
     function zoomed() {
-        svg.select('.gWindow').attr("transform", d3.event.transform);
+       // var x=this.parentElement;
+       // var y=d3.select(x);
+
+       // console.log('burshed', svg, x,y)
+       // y.select('.gWindow').attr("transform", d3.event.transform);
+       svg.select('.gWindow').attr("transform", d3.event.transform);
+      
         panzoom.x = d3.event.transform.x;
         panzoom.y = d3.event.transform.y;
         panzoom.k = d3.event.transform.k;
@@ -550,10 +613,12 @@ var Mgraph = function(d3,$, getData) {
 
     function showModel( modelId, restorePositions) {
         G_modelId = modelId;
+        showWholeCollection=true;
         restorePositions = (typeof restorePositions === 'undefined') ? false : restorePositions;
         getData.getModelId(modelId, showIt);
 
         function showIt(newData) {
+            console.log(newData)
             G_data = newData;
             G_nodelist = [];
             $.each(newData.terms, function(i, term) {
@@ -568,7 +633,7 @@ var Mgraph = function(d3,$, getData) {
 
             // Let the graph settle a bit before zooming
             setTimeout(function() {
-                zoomFit();
+               zoomFit();
             }, 1000);
         }
     }
@@ -580,6 +645,7 @@ var Mgraph = function(d3,$, getData) {
     function positionUnrelatedTerms() {
         var unrelTerm = $.grep(G_graph.nodes, function(d) { return (!d.relationCount) && (!d.fixed); });
         var horCount = Math.ceil(Math.sqrt(unrelTerm.length + 1));
+        
         function SortByName(a, b) {
             var aName = a.name.toLowerCase();
             var bName = b.name.toLowerCase();
@@ -589,8 +655,8 @@ var Mgraph = function(d3,$, getData) {
         var col = 0,
             row = 0;
         $.each(unrelTerm, function(i, term) {
-            var x = (col - horCount) * (Dims.node.width + 5);
-            var y = (row - horCount) * (Dims.node.height + 5);
+            var x = (col +0.5 ) * (Dims.node.width + 5);
+            var y = (row +0.5 ) * (Dims.node.height + 5);
             term.x = x;
             term.fx = x;
             term.y = y;
@@ -779,11 +845,11 @@ var Mgraph = function(d3,$, getData) {
 
         gnodesRelationEnter
             .append("text") // add text for node
-            .attr("class", "node-text")
+            .attr("class", "node-text relationname")
             .text(function(d) { return d.name; })
             .style("text-anchor", "middle")
             .attr("pointer-events", "none")
-            .attr("fill", "white")
+            .attr("fill", Dims.rel.text_color)
             .style("font-size", Dims.rel.font_size + 'px')
             .style("font-family", Dims.rel.font_family);
 
@@ -795,8 +861,8 @@ var Mgraph = function(d3,$, getData) {
             .attr("height", 20)
             .attr("rx", 4)
             .attr("ry", 4)
-            .attr("stroke", 'none')
-            .attr("stroke-width", 1);
+            .attr("stroke", '#ffffff')
+            .attr("stroke-width", 0);
 
         gnodesRelationEnter.append("path")
             .attr("class", "fixpin")
@@ -835,8 +901,10 @@ var Mgraph = function(d3,$, getData) {
     }
 
     function zoomFit(paddingPercent, transitionDuration) {
+        return;
         var gWindow = svg.select('.gWindow');
         var bounds = gWindow.node().getBBox();
+        console.log(bounds);
         var parent = svg;
         var fullWidth = G_windowDims.width,
             fullHeight = G_windowDims.height;
@@ -848,13 +916,11 @@ var Mgraph = function(d3,$, getData) {
             midY = bounds.y + height / 2;
         if (width === 0 || height === 0) return; // nothing to fit
         var scale = Math.min(1, (paddingPercent || 0.75) / Math.max(width / fullWidth, height / fullHeight));
-        var translate = [fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY];
-
+    
         function transform() {
             return d3.zoomIdentity
                 .translate(fullWidth / 2 - scale * midX, fullHeight / 2 - scale * midY)
                 .scale(scale);
-            // .translate(-point[0], -point[1]);
         }
         svg0.select('.zoomRect').transition().duration(1500).call(zoom.transform, transform)
             .on('end', function(d) { if (simulation.alpha() > 0.01) { zoomFit(0.95, 1500); } });
@@ -877,6 +943,10 @@ var Mgraph = function(d3,$, getData) {
             .style("filter", function(d) {
                 return (d.expandable) ? "url(#drop-shadow)" : "";
             });
+        svg.selectAll('.relationname').attr("fill", function(nodeRect) {
+            return  "grey"
+        });
+        
         var showit = showLocks ? 1 : 0;
         svg
             .selectAll('.fixpin')
@@ -892,16 +962,22 @@ var Mgraph = function(d3,$, getData) {
      */
     function toggleNode(term) {
         console.log('togglenode', term, G_nodelist)
-        if ($.grep(G_nodelist, function(d) { return d == term.id; }).length === 0) {
-            G_nodelist.push(term.id);
+        var newList=[];
+
+        G_nodelist.map(function(d){
+            newList.push(d);
+        })
+
+        if ($.grep(newList, function(d) { return d == term.id; }).length === 0) {
+            newList.push(term.id);
         } else {
-            if (G_nodelist.length > 1) {// avoid removal of last node
-                G_nodelist = $.grep(G_nodelist, function(d) { return d != term.id; }); //remove node
+            if (newList.length > 1) {// avoid removal of last node
+                newList = $.grep(G_nodelist, function(d) { return d != term.id; }); //remove node
                 console.log('remove')
-                console.log(G_nodelist)
+                console.log(newList)
             }
         }
-        updateNodeList(G_nodelist);
+        updateNodeList(newList);
     }
 
     function resetMouseVars() {
@@ -1033,6 +1109,7 @@ var Mgraph = function(d3,$, getData) {
      */
 
     function getGraph(terms, relations) {
+        console.log(terms, relations)
         var term1 = [];
         var relation1 = [];
         var term_rels = [];
@@ -1078,6 +1155,7 @@ var Mgraph = function(d3,$, getData) {
                     repeat: relation.repeat,
                     fill: Dims.rel.fill,
                     highlight: Dims.rel.highlight,
+                    highlight_text: Dims.rel.highlight_text_color,
                     fixed: (relation.fx || null) > 0,
                     fx: relation.fx || null,
                     fy: relation.fy || null,
@@ -1091,9 +1169,8 @@ var Mgraph = function(d3,$, getData) {
                     real_target: relation.object,
                     target: relationBoxId,
                     targetIsRelation: true,
-                    stroke: Dims.rel.fill,
-                    highlight: Dims.rel.highlight //,
-                        //	id:'R_'+relation.name+'.'+relation.object + '.'+relation.subject
+                    stroke: Dims.link.stroke,
+                    highlight: Dims.rel.highlight 
                 });
             }
             // create the link from the relation node to the object
@@ -1103,10 +1180,9 @@ var Mgraph = function(d3,$, getData) {
                     real_source: relation.subject,
                     target: relation.object,
                     targetIsRelation: false,
-                    // stroke: Dims.link.stroke,
-                    stroke: Dims.rel.fill,
-                    highlight: Dims.link.highlight //,
-                        //id:'R_'+relation.name+'.'+relation.object
+                    stroke: Dims.link.stroke,
+                    highlight: Dims.link.highlight
+                   
                 });
             }
         });
@@ -1133,6 +1209,7 @@ var Mgraph = function(d3,$, getData) {
                 dragging: false,
                 fill: Dims.node.fill,
                 highlight: Dims.node.highlight,
+                highlight_text: '#000000',
                 fixed: (d.fx || null) > 0,
                 fx: d.fx || null,
                 fy: d.fy || null,
@@ -1199,8 +1276,14 @@ var Mgraph = function(d3,$, getData) {
                 return (($.grep(linksAB, function(linkAB) {
                         return (linkAB.target.id == nodeRect.id);
                     }).length && nodeRect.nodeType === NODETYPE.relation)) ? // this is nB
-                    "red" : (nodeRect.id == highlightedTermId) ? '#ffff33' : nodeRect.fill;
+                    Dims.rel.highlight : (nodeRect.id == highlightedTermId) ? '#ffff33' : nodeRect.fill;
             });
+        svg.selectAll('.relationname').attr("fill", function(nodeRect) {
+            return (($.grep(linksAB, function(linkAB) {
+                return (linkAB.target.id == nodeRect.id);
+            }).length && nodeRect.nodeType === NODETYPE.relation)) ? // this is nB
+            'white' : "grey"
+        });
     }
 
     /**
@@ -1233,7 +1316,6 @@ var Mgraph = function(d3,$, getData) {
         //@todo: if relations are clustered, this can cause drifting, because it tries to reposition in between all the related terms.
         gLinks.each(function(d) {
             if (d.source.nodeType === NODETYPE.relation && !d.source.fixed && !d.source.dragging) { // do not reposition relation box if fixed or dragging
-               
                 if (d.target.id === d.real_source.id) return;
                 d.source.x = (d.target.x + d.real_source.x) / 2 + 30 * d.source.repeat; // there are more relations between the same 2 terms, adjust the relations boxes
                 d.source.y = (d.target.y + d.real_source.y) / 2 + 30 * d.source.repeat;
@@ -1632,7 +1714,8 @@ var Mgraph = function(d3,$, getData) {
         resetMouseVars();
     }
 
-    function zoomRect_mousemove(node, that) {
+    function zoomRect_mousemove(node, that, test) {
+     
         that = svg0.select('.zoomRect').node();
         if (G_editMode) { // no fisheye when in edit mode
             if (!G_editLinkParms.mousedown_node) return;
@@ -1690,6 +1773,7 @@ var Mgraph = function(d3,$, getData) {
     function termRect_mouseout(node, that) {
         if (!dragging) { resetElements(); }
         if (G_editMode) svg.style("cursor", "default");
+        showTermDefinition(null);
     }
 
 
@@ -1705,6 +1789,7 @@ var Mgraph = function(d3,$, getData) {
     function termRect_mouseover(node, that) {
         if (G_editMode && !dragging) svg.style("cursor", "text");
         highlightRelations(node);
+        showTermDefinition(node);
     }
 
     function termGroup_mousemove(node, that) {
@@ -1721,7 +1806,9 @@ var Mgraph = function(d3,$, getData) {
     function termGroup_mouseup(node, that) {}
 
     function termGroup_dblclick(node, that) {
-        toggleNode(node);
+        if (!showWholeCollection) {  // only toggle nodes when not the whole collection is shown
+            toggleNode(node);
+        }
     }
 
     function termGroup_click(node, that) {
@@ -1730,10 +1817,9 @@ var Mgraph = function(d3,$, getData) {
             getUserInput(DIALOG.changeTerm, node);
         } else {
             var d3object = d3.select(that);
-            showNodeMenu(node, d3object);
+           // showNodeMenu(node, d3object); //disable popupmenu
         }
     }
-
     function relationGroup_click(node, that) {
         if (G_editMode) {
             getUserInput(DIALOG.changeRelation, node);
@@ -1800,12 +1886,22 @@ var Mgraph = function(d3,$, getData) {
         svg.style("cursor", "default");
     }
 
+    function showTermDefinition(node) {
+        if (!node) {
+            tooltip.transition().duration(400).style("opacity",0)
+            return
+        }
+       
+        tooltip.transition()		
+        .duration(200)		
+        .style("opacity", .9);		
+    tooltip.html("<strong>" + node.name + "</strong>: " + node.description)	
+        .style("left", "0px")		
+        .style("top", "0px");	
+    }
     $(document).on('click', "#btn_closeInputDialog", function(e) {
         $("#inputDialog").hide();
     });
-
-
-
     $(document).off('click', "#btn_newTerm");
     $(document).on('click', "#btn_newTerm", function(e) {
         var dataObject = JSON.parse($('#dataField').val());
@@ -1934,7 +2030,8 @@ var Mgraph = function(d3,$, getData) {
         showTerms,
         saveLayout,
         setEditMode,
-        isDirty
+        isDirty,
+        setsize
     };
 };
 exports.Mgraph=Mgraph;

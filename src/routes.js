@@ -1,6 +1,7 @@
 import Home from './components/Home.vue';
 import Collections from './components/collection/Collections.vue';
 import CollectionDetail from './components/collection/CollectionDetail.vue';
+import CollectionImport from './components/collection/CollectionImport.vue';
 import TermDetail from './components/term/TermDetail.vue';
 import NewTerm from './components/term/NewTerm.vue';
 import Login from './components/Login.vue';
@@ -12,6 +13,7 @@ export const routes = [
     { path: '/register', component: Login, name: 'Register' },
     { path: '/collections', component: Collections, name: 'collections' },
     { path: '/collections/:id', component: CollectionDetail, name: 'collectionDetail' },
+    { path: '/importcollection/:id', component: CollectionImport, name: 'collectionImport' },
     { path: '/new_term/:id', component: NewTerm, name: 'newTerm' },
     { path: '/terms/:id', component: TermDetail, name: 'termDetail' },
     { path: '/Testpage',  component: TestPage, name:'testpage'}
