@@ -5,7 +5,7 @@
                 <div class='alex'>
                     <table style="margin:auto">
                         <tr>
-                            <td><img class='aleximage' src="../images/navbar-icon.png"></td>
+                            <td><img class='aleximage' src="src/images/navbar-icon.png"></td>
                     <td class='alextext'>A-Lex</td>
                     </tr>
                     </table>
@@ -58,7 +58,7 @@
 
 <script>
     import {mapGetters } from 'vuex';
-    import findterm from "../plugins/findTerm.vue";
+    import findterm from "components/term/partial/find-term.vue";
      
     export default {
          components: {findterm},

@@ -59,15 +59,15 @@
 
 <script>
 
-const d3 = require("./visual/libs/d3.min");
-const $ = require("./visual/libs/jquery-2.1.1.min");
-d3.fisheye = require("./visual/libs/fisheye").fisheye;
-var getData = require("./visual/getData").getData();
-var Mgraph = require("./visual/graph").Mgraph(d3, $, getData);
+const d3 = require("./libs/d3.min");
+const $ = require("./libs/jquery-2.1.1.min");
+d3.fisheye = require("./libs/fisheye").fisheye;
+var getData = require("./getData").getData();
+var Mgraph = require("./graph").Mgraph(d3, $, getData);
 
-import globalData from "../global_data";
+import globalData from "global_data";
 import vuex from "vuex";
-  import Loader from '../plugins/Loader.vue';
+  import Loader from 'components/generic/loader.vue';
 
 
 function changedZoom(event, zoomLevel) {
@@ -88,7 +88,7 @@ import Vue from "vue";
 
 
 import { mapState } from "vuex";
-import axios from '../backend/vue-axios';
+import axios from 'vue-axios';
 export default {
   components: { Fullscreen ,showLoader: Loader},
   name: "visual",
@@ -187,7 +187,6 @@ export default {
       Mgraph.setEditMode(val);
     },
     fullscreen: function(fs) {
-      
       var height=$(document).height()-56;
       var widthapp=$("#app").width();
       var widthcontainer=$(".visual").width();
@@ -196,6 +195,7 @@ export default {
       if (fs) {
         Mgraph1.height(height)
         Mgraph1.width(widthapp)
+       //   Mgraph1.css('width', '100%');
         }
       else {
         Mgraph1.height(500)

@@ -87,7 +87,7 @@
                             {{relation.name}}
                         </td>
                         <td class='edit' v-if="relation.id===editRelationId">
-                             <findterm id="ft2" :prefill="relation.object.term_name" :relation="relation" :change="updateObject"/>
+                             <find-term id="ft2" :prefill="relation.object.term_name" :relation="relation" :change="updateObject"/>
                         </td>
                          <td class='edit' v-else>
                             {{relation.object.term_name}}
@@ -106,14 +106,14 @@
 
 <script>
 import Vue from "vue";
-import globalData from "../global_data";
+import globalData from "global_data";
 import { mapGetters, mapState } from "vuex";
-import tablemenu from "./tablemenu.vue";
-import findterm from "./findTerm.vue";
+import tablemenu from "components/generic/tablemenu.vue";
+import findTerm from "components/term/partial/find-term.vue";
 
 export default {
   name: "relationList",
-  components: { tablemenu, findterm },
+  components: { tablemenu, findTerm },
 
   data() {
     return {

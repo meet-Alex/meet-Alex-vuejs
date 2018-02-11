@@ -113,7 +113,7 @@
 
 
 <script>
-import globalData from "../global_data";
+import globalData from "global_data";
 import {mapGetters, mapState } from "vuex";
 export default {
   data() {

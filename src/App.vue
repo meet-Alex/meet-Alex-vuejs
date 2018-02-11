@@ -9,11 +9,11 @@
 </template>
 
 <script>
-    import Header from './components/Header.vue';
-    import Loader from './plugins/Loader.vue';
+    import header from 'components/generic/header.vue';
+    import Loader from 'components/generic/loader.vue';
     export default {
         components: {
-            appHeader: Header,
+            appHeader: header,
             showLoader: Loader
         }
     }

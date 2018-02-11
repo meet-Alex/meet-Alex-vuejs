@@ -67,10 +67,11 @@ export default {
         } else options.selector = '#' + this.id
 
         options.setup = (editor) => s1(editor);
-        
+            
 
         Vue.nextTick(() => {tinymce.init(options)
-            tinymce.get(this.id).setContent(this.content)
+            console.log(this.content, this.id)
+          //  tinymce.get(this.id).setContent(this.content)
         });
     },
     beforeDestroy() {

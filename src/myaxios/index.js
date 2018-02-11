@@ -7,7 +7,9 @@ Vue.use(VueAxios, axios)
 Vue.axios.interceptors.response.use((response) => { // intercept the global error
   return response
 }, function (error) {
+  commit("isLoading", false);
   var displayerror = error.response.data;
+
   if (error.response.status === 401) {
     displayerror = "Please log in again"
 

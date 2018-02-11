@@ -4,24 +4,47 @@
      <span class="title-header"> Import collection, terms or relations </span>
      <br><br>
       <table>
+        <tr>
         <td>
           <div class="text-center p-5 border1">
             <h4>Drop files to import<br/>or</h4>
             <label for="file" class="btn btn-primary">Select Files</label>
           </div>
-        </td>
-        <td>
-            <ul v-if="files.length">
+           <div class="messages" v-if="files.length">
+                <ul>
                 <li v-for="(file, index) in files" :key="file.id">
-                    <span>{{file.name}}</span> -
-                    <span v-if="file.error">{{file.error}}</span>
-                    <span v-else-if="file.success">success</span>
-                    <span v-else-if="file.active">active</span>
-                    <span v-else-if="file.active">active</span>
-                    <span v-else></span>
+                    <span>{{file.name}}</span>
+                    <span v-if="file.error" class="error">{{file.error}}</span>
+                    <span v-else-if="file.success" class="success">success</span>
+                    <span v-else-if="file.active" class="active">active</span>
                 </li>
-            </ul> 
-          </td>
+                </ul>
+            </div> 
+        </td>
+        <td class="explanation">
+            <h5> How to use </h5>
+            <h6> Excel template </h6>
+            Use the form to create a new Collection and upload a .xlsx (Excel) file.
+            This page can be used to import to a new Collection. 
+            The Excel file to be used contains two different sheets. 
+            <ul>
+                <li>
+                    Terms sheet: must contain terms and definitions. Make sure that every term is unique.
+                </li>
+                <li>
+                    Ontology sheet: is used for importing all relations between terms. 
+                    There's a validation on the integrity of the content, so in any case the integrity is not correct an error message will be displayed and the upload process will be aborted.
+                </li>
+            </ul>
+            You can use this <a href="/src/items/import_template.xlsx"> template</a>.
+            <br><br>
+            <h6> Alex file </h6>
+            Upload a file you exported from A-Lex, a .alex file
+
+            <br><br>
+        </td>
+        </tr>
+     
       </table>
 
       <div v-show="$refs.upload && $refs.upload.dropActive" class="drop-active">
@@ -44,27 +67,7 @@
        
       </div>
     </div>
-    <br>
-    <h5> How to use </h5>
-    <h6> Excel template </h6>
-    Use the form to create a new Collection and upload a .xlsx (Excel) file.
-    This page can be used to import to a new Collection. 
-    The Excel file to be used contains two different sheets. 
-    <ul>
-        <li>
-            Terms sheet: must contain terms and definitions. Make sure that every term is unique.
-        </li>
-        <li>
-            Ontology sheet: is used for importing all relations between terms. 
-            There's a validation on the integrity of the content, so in any case the integrity is not correct an error message will be displayed and the upload process will be aborted.
-        </li>
-    </ul>
-    You can use this <a href="/src/items/import_template.xlsx"> template</a>.
-    <br><br>
-    <h6> Alex file </h6>
-    Upload a file you exported from A-Lex, a .alex file
-
-    <br><br>
+   
   </div>
 </template>
 
@@ -72,7 +75,7 @@
 <script>
 import FileUpload from 'vue-upload-component'
 export default {
-     name: "collectionimport",
+     name: "collection-import",
   components: {
     FileUpload,
   },
@@ -117,6 +120,28 @@ export default {
 </script>
 
 <style scoped>
+table tr td {
+    vertical-align: top;
+}
+.explanation {
+    border-left: 1px solid lightgrey;
+    padding-left: 10px;
+}
+.error {
+    background-color: red;
+    color:white;
+    padding:0px 5px;
+}
+.success {
+    background-color: green;
+     color:white;
+    padding:0px 5px;
+}
+.active {
+    background-color: blue;
+     color:white;
+    padding:0px 5px;
+}
 .example-btn {
   display: none;
 }
@@ -128,6 +153,14 @@ h4 {
 }
 .example-drag label.btn {
   margin-bottom: 0;
+}
+.messages {
+    margin: 10px 0px 0px 0px;
+}
+ul {
+  list-style-type: none;
+  padding:0px;
+  margin:0px;
 }
 
 .example-drag .drop-active {
@@ -158,6 +191,7 @@ h4 {
     border:3px dashed black;
     border-radius: 6px;
     background-color: lightgrey;
+    margin:0px 50px 0px 0px;
    
 }
 </style>

@@ -18,7 +18,7 @@
                     </tr>
                     <tr v-if="editMode&&editTermId===0">
                         <td colspan="3">
-                            <editTermList></editTermList>
+                            <edit-term-list />
                         </td>
                     </tr>
                     <tr class="" v-for="term in filteredList" v-on:mouseover="editTermId=editMode?term.id:0">
@@ -30,7 +30,7 @@
                         <td v-if="editTermId != term.id" v-bind:class="{compact:termMenu.viewType===globalData.VIEWTYPE.COMPACT, def:1}" v-html="$options.filters.highlight(term.term_definition, termMenu.filter)">
                         </td>
                         <td colspan="3" v-if="editTermId == term.id && editMode">
-                            <editTermList :editTerm="term"></editTermList>
+                            <edit-term-list :editTerm="term" />
                         </td>
                         <td v-if="editMode && editTermId != term.id"></td>
                     </tr>
@@ -43,14 +43,15 @@
 
 <script>
 import Vue from "vue";
-import globalData from "../global_data";
+import globalData from "global_data";
 import { mapGetters, mapState } from "vuex";
-import tablemenu from "./tablemenu.vue";
-import tableindex from "./tableindex.vue";
+import tablemenu from "components/generic/tablemenu.vue";
+import tableindex from "components/generic/tableindex.vue";
+import editTermList from "components/term/partial/edit-term-list.vue"
 
 export default {
   name: "termList",
-  components: { tablemenu, tableindex },
+  components: { tablemenu, tableindex, editTermList },
 
   data() {
     return {
@@ -82,16 +83,13 @@ export default {
       var self = this;
       var result = this.collection.terms.filter(function(term) {
         return (
-          term.term_name
-            .toLowerCase()
-            .indexOf(self.termMenu.filter.toLowerCase()) >= 0 ||
-          (term.term_definition &&
-            term.term_definition
-              .toLowerCase()
-              .indexOf(self.termMenu.filter.toLowerCase()) >= 0)
+          foundInFilter(term.term_name) ||
+           foundInFilter(term.term_definition)
+        
         );
       });
 
+      /*
       return result.sort(
         (a, b) =>
           this.termMenu.sortType === globalData.SORTTYPE.CREATED
@@ -100,6 +98,40 @@ export default {
               ? a.updated_at.localeCompare(b.updated_at)
               : a.term_name.localeCompare(b.term_name)
       );
+      */
+     // sort first matched term names, then on matched descriptions
+     return result.sort(
+        (a, b) => {
+          var result;
+          if (foundInFilter(a.term_name) && foundInFilter(b.term_name)) {
+            console.log('both')
+            result=a.term_name.localeCompare(b.term_name);
+          } else if (foundInFilter(a.term_name)) {
+            result=-1
+            console.log('only a')
+          } else if (foundInFilter(b.term_name)) {
+            result=1
+            console.log('only b')
+          } else {
+             result=a.term_name.localeCompare(b.term_name);
+          }
+          console.log(a,b,result)
+          return result
+        }
+           
+        /*
+          this.termMenu.sortType === globalData.SORTTYPE.CREATED
+            ? a.created_at.localeCompare(b.created_at)
+            : this.termMenu.sortType === globalData.SORTTYPE.UPDATED
+              ? a.updated_at.localeCompare(b.updated_at)
+              : a.term_name.localeCompare(b.term_name)
+          */
+      );
+      function foundInFilter(item) {
+        return item && 
+         item.toLowerCase().indexOf(self.termMenu.filter.toLowerCase()) >= 0
+      }
+
     }
   }
 };

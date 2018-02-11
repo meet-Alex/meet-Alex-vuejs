@@ -1,7 +1,7 @@
 /* global localStorage */
 
 import axios from 'axios'
-import globalData from '../../global_data';
+import globalData from 'global_data';
 
 const API_URL = globalData.apiURL + '/';
 

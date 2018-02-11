@@ -15,7 +15,7 @@
                 </td>
                 </tr>
             </table>      
-            <termdisplay  v-for="(term, index) in showTermList" :key="term.id" :id="term.id"  :term="term" :index="index" />
+            <term-display  v-for="(term, index) in showTermList" :key="term.id" :id="term.id"  :term="term" :index="index" />
         </div>
         <div v-else>
             No terms to display. Use the search box to display a term.
@@ -24,12 +24,11 @@
 </template>
 
 <script>
-import termdisplay from "../../plugins/termDisplay.vue";
-import findterm from "../../plugins/findTerm.vue";
+import termDisplay from "components/term/partial/term-display.vue";
 import { mapGetters, mapState, mapMutations } from "vuex";
 
 export default {
-     components: { termdisplay, findterm},
+     components: { termDisplay},
     data() {
         return {
             term: {},

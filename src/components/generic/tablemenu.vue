@@ -28,7 +28,7 @@
 
 <script>
 import Vue from 'vue';
-import globalData from '../global_data';
+import globalData from 'global_data';
 export default {
     name: "tablemenu",
     data() {

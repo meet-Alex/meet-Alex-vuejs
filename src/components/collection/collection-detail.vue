@@ -45,7 +45,7 @@
                         <visual v-if="selectedTab===3" :id="1" v-model="editMode" :collectionId="''+$route.params.id"  />
                     </b-tab>
                      <b-tab v-if="editMode" title="Import">
-                          <collectionimport :id="collection.id" />
+                          <collection-import :id="collection.id" />
                     </b-tab>
                   </template>
               </b-tabs>
@@ -55,16 +55,16 @@
 </template>
 
 <script>
-import collectionDetails from "../../plugins/collection-details.vue";
-import termList from "../../plugins/term-list.vue";
-import relationList from "../../plugins/relation-list.vue";
-import visual from "../../plugins/visual.vue";
-import collectionimport from '../../plugins/collection-import.vue';
+import collectionDetails from "components/collection/partial/collection-details.vue";
+import termList from          "components/term/partial/term-list.vue";
+import relationList from      "components/term/partial/relation-list.vue";
+import visual from            "components/visual/visual.vue";
+import collectionImport from  'components/collection/partial/collection-import.vue';
 
-import { mapGetters, mapState } from "vuex";
+import { mapGetters, mapState, mapMutations } from "vuex";
 
 export default {
-  components: { collectionDetails, termList, relationList, visual, collectionimport },
+  components: { collectionDetails, termList, relationList, visual, collectionImport },
   data() {
     return {
       editMode: false,

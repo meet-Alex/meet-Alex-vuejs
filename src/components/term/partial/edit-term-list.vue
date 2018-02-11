@@ -24,7 +24,7 @@
 <script>
 import { mapGetters } from "vuex";
 export default {
-  name: "editTermList",
+  name: "edit-term-list",
   props: {
     editTerm: Object
   },

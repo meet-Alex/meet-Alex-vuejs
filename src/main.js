@@ -10,15 +10,13 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'font-awesome/css/font-awesome.css';
 
 
-import VueTinymce from './plugins/vue-tinymce';
-import EditTermList from './plugins/edit-term-list';
-import store from './store';
-import axios from './backend/vue-axios';
+import VueTinymce from 'components/generic/vue-tinymce';
+import store from 'store';
+import axios from 'myaxios';
 import Notifications from 'vue-notification';
 
 Vue.use(VueTinymce);
 
-Vue.use(EditTermList);
 Vue.use(BootstrapVue);
 Vue.use(VueRouter);
 Vue.use(Notifications);

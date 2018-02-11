@@ -1,6 +1,6 @@
 import Vue from 'vue'
-import globalData from '../global_data';
-import axios from '../backend/vue-axios';
+import globalData from 'global_data';
+import axios from 'myaxios';
 
 export const LOGIN = ({ commit }, userData) => {
     return new Promise((resolve, reject) => {

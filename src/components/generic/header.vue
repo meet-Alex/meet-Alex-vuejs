@@ -3,7 +3,7 @@
         <b-navbar toggleable type="dark" variant="dark" toggle-breakpoint="md">
             <b-nav-toggle target="nav_collapse"></b-nav-toggle>
             <div class="container">
-                <b-navbar-brand href="/"> <img src="../images/navbar-icon.png"> A-Lex</b-navbar-brand>
+                <b-navbar-brand href="/"> <img src="../../images/navbar-icon.png"> A-Lex</b-navbar-brand>
                 <b-collapse is-nav id="nav_collapse">
                     <b-navbar-nav>
                         <b-nav-item><router-link :to="{ name: 'collections' }" >Collections </router-link></b-nav-item>
@@ -14,7 +14,7 @@
                      <b-navbar-nav>
                         <b-nav-item>
                             <div v-if="showSearchBox" id='searchbox'>
-                                <findterm :change="getTerm"/>
+                                <find-term :change="getTerm"/>
                             </div>
                         </b-nav-item>
                     </b-navbar-nav>
@@ -30,10 +30,10 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import findterm from "../plugins/findTerm.vue";
+import findTerm from "components/term/partial/find-term.vue";
 
 export default {
-     components: {findterm},
+     components: {findTerm},
   data() {
     return {};
   },

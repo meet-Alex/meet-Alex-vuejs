@@ -74,13 +74,13 @@
 
 <script>
 import Vue from "vue";
-import globalData from "../global_data";
+import globalData from "global_data";
 import { mapGetters, mapState, mapMutations } from "vuex";
-import relationList from "../plugins/relation-list.vue";
-import visual from "./visual.vue";
+import relationList from "components/term/partial/relation-list.vue";
+import visual from "components/visual/visual.vue";
 
 export default {
-  name: "termDisplay",
+  name: "term-display",
   components: { relationList, visual },
   props: {
     term: { type: Object, required: true },

@@ -46,9 +46,9 @@
 </template>
 
 <script>
-    import globalData from '../../global_data';
-    import tablemenu from '../../plugins/tablemenu.vue';
-    import tableindex from '../../plugins/tableindex.vue';
+    import globalData from 'global_data';
+    import tablemenu from 'components/generic/tablemenu.vue';
+    import tableindex from 'components/generic/tableindex.vue';
     import { mapGetters, mapState } from 'vuex';
 
     export default {

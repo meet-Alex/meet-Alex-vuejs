@@ -51,7 +51,7 @@
 import VueTypeahead from 'vue-typeahead'
 
 export default {
-     name: "findterm",
+     name: "find-term",
   extends: VueTypeahead, 
   props: {change:{type:Function},
           relation:{type:Object},

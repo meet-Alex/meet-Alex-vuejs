@@ -3,7 +3,7 @@
         <b-breadcrumb :items="breadCrum" />
 
         <div v-for="(term, index) in showTermList">
-        <termdisplay  :term="term" :index="0" :newTerm="newTerm" />
+        <term-display  :term="term" :index="0" :newTerm="newTerm" />
         </div>
              <b-button v-on:click="createTerm" variant="primary" size="sm">Create</b-button>
 
@@ -12,8 +12,8 @@
 </template>
 
 <script>
-import termdisplay from "../../plugins/termDisplay.vue";
-import findterm from "../../plugins/findTerm.vue";
+import termdisplay from "components/term/partial/term-display.vue";
+import findterm from "components/term/partial/find-term.vue";
 import { mapGetters, mapState, mapMutations } from "vuex";
 
 export default {

@@ -49,11 +49,11 @@
 
 <script>
 import Vue from "vue";
-import globalData from "../global_data";
+import globalData from "global_data";
 import { mapGetters, mapState, mapMutations } from "vuex";
 
 export default {
-  name: "collectionDetails",
+  name: "collection-details",
   data() {
     return {
       tinymceOptions: {
