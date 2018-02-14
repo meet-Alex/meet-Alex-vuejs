@@ -193,6 +193,40 @@ h3  {
     display:flex;
     flex-flow: column;
     height:100%;
+    background-color: #f0f0f0;
+    text-align: center;
+}
+.container1 {
+    min-height: 100%;
+    background-color: white;
+    width: 100%;
+    text-align: left;
+    margin: auto;
+}
+
+@media (min-width: 1300px) {
+    .container1 {
+        max-width: 1200px;
+        padding: 50px;
+    }
+}
+
+@media (min-width: 992px) {
+
+.container {
+    max-width: 960px;
+}
+}
+@media (min-width: 768px) {
+
+.container {
+    max-width: 720px;
+}
+}
+@media (min-width: 576px)
+<style>…</style>
+.container {
+    max-width: 540px;
 }
 .div-flex01 {
     flex: 0 1 auto;

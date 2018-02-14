@@ -1,7 +1,6 @@
 <template>
   <div v-bind:id="'MContainer'+ id" class='visual'>
 
-
   <fullscreen ref="fullscreen" :fullscreen.sync="fullscreen" :background="'#ffffff'" class=""> 
     <b-navbar toggleable="md" type="dark" variant="info">
         <b-navbar-nav class="ml-auto">
@@ -67,8 +66,7 @@ var Mgraph = require("./graph").Mgraph(d3, $, getData);
 
 import globalData from "global_data";
 import vuex from "vuex";
-  import Loader from 'components/generic/loader.vue';
-
+import Loader from 'components/generic/loader.vue';
 
 function changedZoom(event, zoomLevel) {
   /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
@@ -233,10 +231,7 @@ export default {
       console.log('term selected')
       Mgraph.showTerms([term_id]);
     }
-
     //Initial configuration
-
-   
   },
   beforeDestroy() {
       // need to refetch the collection to update the store with the visual changes, and save layout of visual
@@ -244,18 +239,14 @@ export default {
            this.$store.dispatch("FETCH_COLLECTION",this.collectionId )
            Mgraph.saveLayout(this.collectionId, "name8")
       }
-      
   }
 };
 </script>
 
 <style scoped>
-@import "/src/plugins/visual/css/app.css";
-
+@import "css/app.css";
 .visual {
-  
 }
-
 #descriptionField {
 }
 .fullscreen_container {
@@ -272,7 +263,6 @@ export default {
 .nobutton :active {
   border: 1px white solid;
 }
-
 #descriptionEditor {
   border: 1px solid lightgrey;
   border-radius: 3px;
@@ -290,9 +280,8 @@ export default {
     /*padding-bottom: 60px; /* aspect ratio */
     vertical-align: top;
     /*overflow: hidden;*/
-  
-  
 }
+
 .svg-content-responsive {
     display: inline-block;
     position: absolute;

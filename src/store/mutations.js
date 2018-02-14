@@ -41,6 +41,11 @@ export const mutations = {
   removeTermFromList(state, index) {
     state.showTermList.splice(index, 1);
   },
+
+  setTermDisplayMode(state, {index, modus}) {
+    console.log(index, modus);
+
+  },
   clearTermList(state) {
     state.showTermList = [];
   },
@@ -48,6 +53,7 @@ export const mutations = {
   // handle term changes
   fetchTerm(state, term) {
     console.log(term);
+    term.displayModus=0;
 
     var nr = state.showTermList.findIndex(x => x.id === term.id)
     // if term is already displayed and at same position, refresh. Otherwise remove the term, and add it at the right position
@@ -58,15 +64,7 @@ export const mutations = {
             return thisterm.id != term.id
       })
       state.showTermList.splice(term.position, 0, term)
-
     }
-
-
-
-   // state.showTermList = state.showTermList.filter(function (thisterm) {
-  //    return thisterm.id != term.id
-  //  })
-
     // @todo: is this term editable, should come from api actually
     term.editable = (state.userinfo.id == term.created_by)
 

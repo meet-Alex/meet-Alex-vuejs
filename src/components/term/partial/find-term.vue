@@ -1,5 +1,5 @@
 <template>
-<div>
+
     <div class="Typeahead">
         <!-- optional indicators -->
         <i class="fa fa-spinner fa-spin" v-if="loading"></i>
@@ -13,7 +13,7 @@
         <input
             class="inputField"  
             type="text"
-            placeholder="find term...."
+            placeholder=""
             autocomplete="on"
             v-model="query"
             @keydown.down="down"
@@ -23,15 +23,16 @@
             @keydown.esc="reset"
             @blur="reset"
             @input="update"
-           >
-            <!--  ref="focusIt" -->
+            >
+    <!--        ref="focusIt" -->
+            
 
         <!-- the list -->
-        <ul v-show="hasItems">
+        <ul >
         <!-- for vue@1.0 use: ($item, item) -->
         <li v-for="(item, $item) in items" :class="activeClass($item)" @mousedown="hit" @mousemove="setActive($item)">
           <div>
-              <table style="width: 100%;">
+              <table style="width: 100%;table-layout:fixed">
                 <tr>
                     <td class='term-name' v-text="item.term_name"></td>
                     <td class="term-collection" v-text="item.collection_name"></td>
@@ -43,7 +44,7 @@
           </div>
         </li>
         </ul>
-  </div>
+ 
 </div>
 </template>
 
@@ -93,15 +94,17 @@ export default {
   },
   mounted : function () {
       console.log("mounted");
+      //  if (this.query.length)
+     //  {this.$refs["focusIt"].focus()}
      //  this.$refs["focusIt"].focus();
   },
    watch: {
     query: function (val) {
       console.log(val);
       if (val.length===0) {
-          this.$emit('hasText', false);
+          this.$emit('hasText', {hasText:false, text:val});
       } else if (val.length===1) {
-          this.$emit('hasText', true);
+          this.$emit('hasText', {hasText:true, text:val});
       }
     }
    },
@@ -134,12 +137,11 @@ export default {
     cancel () {
         console.log('cancelled');
     },
-   
-
     // The callback function which is triggered when the response data are received
     // (optional)
     prepareResponseData (data) {
-      console.log(data);
+      console.log(data, this.items);
+     // this.items=data;
       return data
     }
   }
@@ -188,6 +190,7 @@ export default {
     top: 0px;
     left: 0px;
     opacity: 0.4;
+    width:20px;
     }
     ul {
     position: absolute;
@@ -241,6 +244,8 @@ export default {
     }
     .term-description {
         font-size: 0.8rem;
+        width:600px;
+
     }
     .screen-name {
     font-style: italic;

@@ -31,7 +31,6 @@
             <td v-else>
               <strong> Name: </strong>
                <textarea class="form-control lightblue" type="text" v-model="term.term_name" v-on:keydown="preventEnter($event)"></textarea>
-
             </td>
             <td class="term-collection" title="Go to collection"> 
                <router-link :to="{ name: 'collectionDetail', params: { id: term.collection.id, tab:'terms' } }">  {{term.collection.collection_name}} </router-link>
@@ -128,7 +127,7 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(["removeTermFromList"]),
+    ...mapMutations(["removeTermFromList", "setTermDisplayMode"]),
     preventEnter: function(e) {
       if (e.keyCode === 13) {
         e.preventDefault();
@@ -145,6 +144,8 @@ export default {
       if (this.visualMode) {
       }
       this.visualMode = !this.visualMode;
+      
+      this.setTermDisplayMode({index:this.index, mode:TERMDISPLAYMODE.VISUAL})
     },
     closeWindow: function() {
       console.log("removing", this.index);

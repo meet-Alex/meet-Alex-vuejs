@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container1">
     <template v-if="userinfo.loggedin">
       <div>
         <b-button v-on:click="logOff" variant="primary">Log out</b-button>

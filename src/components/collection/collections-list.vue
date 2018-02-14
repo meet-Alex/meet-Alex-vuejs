@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="container1">
         <br>
         <b-breadcrumb :items="breadCrum" />
         

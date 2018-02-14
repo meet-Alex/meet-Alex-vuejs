@@ -78,6 +78,7 @@ export default {
     }
     .bg-info {
      /*   background-color: #18bc9c !important;*/
+        background-color: rgb(0,146,134) !important;
     }
     .navbar {
         padding:0.2rem;

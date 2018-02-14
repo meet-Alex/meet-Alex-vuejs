@@ -1,78 +1,51 @@
 <template>
-   <div>
-        <div style="text-align:center">
-            <div  v-if="!modeUp">
-                <div class='alex'>
-                    <table style="margin:auto">
-                        <tr>
-                            <td><img class='aleximage' src="src/images/navbar-icon.png"></td>
-                    <td class='alextext'>A-Lex</td>
+    <div style="text-align:center" class="container1">
+        <div>
+            <div class='alex' v-if="!modeUp">
+                <table style="margin:auto" >
+                    <tr>
+                        <td class='aleximage'><img class='aleximage' src="src/images/abn amro lexicon logo black.png"></td>
                     </tr>
-                    </table>
-                </div>
+                    <tr>
+                        <td class='alextext'>ABN AMRO Lexicon</td>
+                    </tr>
+                </table>
             </div>
-            <div id="findTerm">
-                <findterm :change="getTerm" @hasText="switchMode" />
-            </div>
-            <div  >
-                <div id="buttons" v-if="!modeUp">
-                    or <br> <br>
-                    <router-link :to="{ name: 'collections' }"> 
-                        <span class="btn btn-primary"> Browse collections </span>
-                    </router-link>
-                    <br> <br>
-                   
-                        <button v-if="!viewExplain" class="nobutton" v-on:click="viewExplain=true">
-                                <i class="fa fa-angle-down fa-3x grey down" aria-hidden="true"></i>
-                        </button>
-                        <button v-else class="nobutton" v-on:click="viewExplain=false">
-                                <i class="fa fa-angle-up fa-3x grey up" aria-hidden="true"></i>  
-                        </button>
-                   
-                </div>
-              
-                    <div v-if="viewExplain && !modeUp" id='addinfo'>
-                        <h2>Everything you need to describe your data</h2>
-
-                        <h3>Term</h3>
-                        <p>The basic unit in meet-Alex. It's a word or a few words combined, used to name something. For example "tomato", "table", or "dinner table", "customer", "name", "colour", "calorie". All information is basically organised by <strong>terms</strong>.</p>  
-                    
-                        <h3>Description</h3>
-                        <p>The mechanism to communicate the meaning of a <strong>term</strong> inside a <strong>collection</strong>. Here you can describe what the term represents (for example "tomato is a fruit"), and how it distincts from other terms (for example which characteristic clearly distincts a "tomato" from an "apple"?). </p>
-
-                        <h3>Relation</h3>
-                        <p>The mechanism to structure data, by connecting two <strong>terms</strong> inside a <strong>collection</strong>. <strong>Relations</strong> are always stored in the context of a <strong>collection</strong> though some of the terms which are in the <strong>relation</strong> might be used in other <strong>collections</strong>.</p>
-
-                        <h3>Collection</h3>
-                        <p>The mechanism to group a number of <strong>terms</strong> by a user. Currently we only allow creating <strong>terms</strong> through a <strong>collection</strong>. But we also allow using <strong>terms</strong> from other collections inside your collection.</p>
-                        <p><strong>Collections</strong> enable management of <strong>terms</strong> and organise collaboration on <strong>terms</strong>.</p>
-                    </div>
-                    <br><br>
-            </div>
-           
         </div>
-   </div>
+        
+        <div id="divFindTerm">
+            <find-term :change="getTerm" @hasText="switchMode"  />
+        </div>
+        <div id="buttons" v-if="!modeUp">
+            <br> <br>
+            <router-link :to="{ name: 'collections' }"> 
+                <span class="btn btn-primary"> Browse collections </span>
+            </router-link>
+        </div>
+    </div>
 </template>
 
 
 
 <script>
     import {mapGetters } from 'vuex';
-    import findterm from "components/term/partial/find-term.vue";
+    import findTerm from "components/term/partial/find-term.vue";
      
     export default {
-         components: {findterm},
+         components: {findTerm},
         data() {
             return {
                 isDropdownOpen: false,
                 viewExplain: false,
-                modeUp: false
+                modeUp: false,
+                searchText: ""
             }
         },
         mounted: function () {
+            console.log('home mounted')
             this.getLogin();
             this.$store.dispatch("FETCH_COLLECTIONS");
-             this.$store.commit('showSearchBox', false);
+            this.$store.commit('showSearchBox', false);
         },
         methods: {
              ...mapGetters(['getLogin']),
@@ -80,8 +53,8 @@
                     this.$router.push("/terms/"+ term.id);
             },
             switchMode: function(hasText) {
-                this.modeUp=hasText;
-                console.log('jajaja')
+                this.modeUp=hasText.hasText;
+                this.searchText=hasText.text;
             }
         },
          beforeDestroy: function() {
@@ -92,36 +65,15 @@
 </script>
 
 <style scoped>
-    #findTerm {
-        padding: 40px 0px 10px 0px;
+    #divFindTerm {
+        padding: 10px 0px 10px 0px;
         width:400px;
         margin:auto;
     }
     .grey {
         color:grey;
     }
-    .down:hover {
-    display: inline-block;
-    vertical-align: middle;
-    -webkit-transform: translate(0px, 10px);
-    transform: translate(0px, 10px);
-    box-shadow: 0 0 1px transparent;
-    position: relative;
-  
-    -webkit-transition-duration: 0.3s;
-    transition-duration: 0.3s;
-    }
-     .up:hover {
-    display: inline-block;
-    vertical-align: middle;
-    -webkit-transform: translate(0px, -10px);
-    transform: translate(0px, -10px);
-    box-shadow: 0 0 1px transparent;
-    position: relative;
-  
-    -webkit-transition-duration: 0.3s;
-    transition-duration: 0.3s;
-    }
+   
     .nobutton {
         background:none;
         border:none;
@@ -136,60 +88,27 @@
    .grey:hover {
          color:blue;
     }
-    #addinfo {
-        margin:auto;
-        width:800px;
-        text-align:left;
-        font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
-        font-weight: 400;
-        line-height: 1.1;
-        color: #2c3e50;
-        font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
-        font-size: 15px;
-        line-height: 1.42857143;
-        box-shadow: 2px 2px 8px grey;
-        padding:10px;
-    }
-    #addinfo h2, #addinfo h3 {
-        margin-top: 21px;
-        margin-bottom: 10.5px;
-    }
-    #addinfo h2 {
-        font-size:32px !important;
-    }
-    #addinfo h3 {
-        font-size:22px !important;
-    }
-    #addinfo p {
-            margin: 0 0 10.5px;
-    }
+   
     .alex {
     font-weight:normal;
   
     color:#000000;
-    letter-spacing:0.1em;
-    word-spacing:1em;
-    font-size:78px;
+   
+    font-size:64px;
     text-align:center;
       font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
-    line-height:0;
+   
     margin:auto;
-    padding:150px 0px 20px 0px;
+    padding:100px 0px 20px 0px;
    
     }
     .alextext {
         padding:0px 0px 30px 30px;
         vertical-align:bottom;
         color:#2c3e50;
-       
     }
      .aleximage {
-         /*
-        animation-name: bounceIn;
-        animation-duration: 450ms;
-        animation-timing-function: linear;
-        animation-fill-mode: forwards;
-        */
+       height: 100px;
     }
 
     

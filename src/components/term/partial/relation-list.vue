@@ -75,21 +75,21 @@
 
                     <tr v-if="editMode"  v-for="(relation, index) in filteredRelationList" v-on:mouseover="editRelationId=editRelationId===0?0:relation.id" v-on:click="editRelationId=relation.id">
                         <td class='edit' v-if="relation.id===editRelationId">
-                            <findterm id="ft1" :prefill="relation.subject.term_name" :relation="relation" :change="updateSubject"/>
+                            <find-term id="ft1" :prefill="relation.subject.term_name" :relation="relation" :change="updateSubject"/>
                         </td>
-                        <td class='edit' v-else >
+                        <td class='edit1' v-else >
                             {{relation.subject.term_name}}
                         </td>     
                         <td class='edit' v-if="relation.id===editRelationId ">
                             <input ref="newInput" class="form-control lightblue" type="text" v-model="relation.name" @change="updateRelName(relation)">
                         </td>
-                         <td class='edit' v-else>
+                         <td class='edit1' v-else>
                             {{relation.name}}
                         </td>
                         <td class='edit' v-if="relation.id===editRelationId">
                              <find-term id="ft2" :prefill="relation.object.term_name" :relation="relation" :change="updateObject"/>
                         </td>
-                         <td class='edit' v-else>
+                         <td class='edit1' v-else>
                             {{relation.object.term_name}}
                         </td>
                         <td>
@@ -339,13 +339,20 @@ export default {
   text-decoration: underline;
   cursor: pointer;
 }
-.edit {
+.edit1 {
   height: 30px;
     display:table-cell;
     white-space: nowrap;
-    overflow:hidden;
+    overflow:hidden; 
     text-overflow: ellipsis;
    
  
+}
+.edit {
+  height: 30px;
+    display:table-cell;
+    white-space: wrap;
+ /*   overflow:hidden; */
+    text-overflow: ellipsis;
 }
 </style>
