@@ -3,7 +3,7 @@
         <b-navbar toggleable type="dark" variant="dark" toggle-breakpoint="md">
             <b-nav-toggle target="nav_collapse"></b-nav-toggle>
             <div class="container">
-                <b-navbar-brand href="/"> ABN AMRO Lexicon</b-navbar-brand>
+                <b-navbar-brand> <router-link :to="{ name: 'Home' }" >ABN AMRO Lexicon </router-link> </b-navbar-brand>
                 <b-collapse is-nav id="nav_collapse">
                     <b-navbar-nav>
                         <b-nav-item><router-link :to="{ name: 'collections' }" >Collections </router-link></b-nav-item>
@@ -12,11 +12,9 @@
                         <b-nav-item><router-link :to="{ name: 'termDetail', params: { id:'none' } }" >Terms</router-link></b-nav-item>
                     </b-navbar-nav>
                     <b-navbar-nav>
-                   
-                            <div v-if="showSearchBox" id='searchbox'>
-                                <find-term :change="getTerm"/>
-                            </div>
-                        
+                        <div v-if="showSearchBox" id='searchbox'>
+                            <find-term :change="getTerm"/>
+                        </div>  
                     </b-navbar-nav>
                     <b-navbar-nav class="ml-auto">
                         <b-nav-item v-if="!userinfo.loggedin"><router-link :to="{ name: 'Login' }" >Login </router-link></b-nav-item>
@@ -80,11 +78,10 @@
         margin-right: 80px;
     }
     .container {
-        width:100%;
+        max-width:100%;
         flex-wrap: nowrap;
-        display: flex;
+     /*   display: flex; */
         line-height:1;
-        margin-left:30px;
-
+        margin:0px 30px;
     }
 </style>

@@ -1,7 +1,7 @@
 <template>
     <div id="coldetail" class="container1 flex" >
         <br>
-        <b-breadcrumb :items="breadCrum" />
+      <!--  <b-breadcrumb :items="breadCrum" /> -->
         <!-- Collection title and action menu -->
         <template>
           <table style="width: 100%;">

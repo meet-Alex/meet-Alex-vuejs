@@ -25,25 +25,25 @@
         </button>
       </b-navbar-nav>
     </b-navbar>
-      <div v-bind:id="'Mgraph'+id" class="svg-container">
+      <div v-bind:id="'Mgraph'" class="svg-container">
       </div>
-          <div v-if="editTerm" id="inputDialog">
-        <div class="modal-dialog">
+        <div v-if="inputDialogType!==''" id="inputDialog">
+          <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header header-xs">
-                    <h4 class="modal-title" id='inputDialog_title'></h4>
+                    <h4 class="modal-title"> {{inputDialogType}} </h4>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="dataField">
-                    <input type="text" placeholder="Enter name..." id="nameField">
+                    <input type="text" placeholder="Enter name..." v-model="inputDialogObject.name">
                     <div id="descriptionField">
-                        <tinymce id="descriptionEditor" v-model="editTerm.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
+                        <tinymce id="descriptionEditor" v-model="inputDialogObject.description" :options="tinymceOptions" @change="changed"></tinymce>
+                      
                     </div>
                 </div>
                 <div class="modal-footer header-xs">
-                    <button type="button" id='btn_newTerm' class="btn btn-info btn-xs" data-dismiss="modal">Create</button>
-                    <button type="button" id='btn_deleteTerm' class="btn btn-danger btn-xs" data-dismiss="modal">Delete</button>
-                    <button type="button" id='btn_closeInputDialog' class="btn btn-xs cancelDialog" data-dismiss="modal">Cancel</button>
+                    <button type="button" v-on:click="dialogSave()" class="btn btn-info btn-xs" data-dismiss="modal">Save</button>
+                    <button type="button" v-on:click="dialogDelete()" class="btn btn-danger btn-xs" data-dismiss="modal">Delete</button>
+                    <button type="button" v-on:click="dialogCancel()" class="btn btn-xs cancelDialog" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -59,31 +59,16 @@
 <script>
 
 const d3 = require("./libs/d3.min");
-const $ = require("./libs/jquery-2.1.1.min");
 d3.fisheye = require("./libs/fisheye").fisheye;
 var getData = require("./getData").getData();
-var Mgraph = require("./graph").Mgraph(d3, $, getData);
+var Mgraph = require("./graph").Mgraph(d3, getData);
 
 import globalData from "global_data";
 import vuex from "vuex";
 import Loader from 'components/generic/loader.vue';
 
-function changedZoom(event, zoomLevel) {
-  /*	$("#zoomSlide").bootstrapSlider('setValue', zoomLevel);*/
-}
-
-$(window).resize(function() {
-  //	$('#content').height($(window).height() - 46);
- 
- // sizeDivs();
-});
-
-
-
 import Fullscreen from "vue-fullscreen/src/component.vue"
 import Vue from "vue";
-
-
 
 import { mapState } from "vuex";
 import axios from 'vue-axios';
@@ -99,8 +84,8 @@ export default {
       type: String,
       required: false
     },
-    termId: {
-      type: Number,
+    term: {
+      type: Object,
       required: false
     },
     value: {
@@ -110,13 +95,14 @@ export default {
   },
   data() {
     return {
+      inputDialogType: '',
+      inputDialogObject:  { id: 0, name: "c", description:  "---" },
       fullscreen: false,
       content: "",
       autoFixSet: true,
       showLocksSet: false,
       relationClusterSet: Mgraph.NODECLUSTER.none,
       Mgraph: Mgraph,
-      editTerm: { id: 0, term_name: "", term_definition:  " " },
       tinymceOptions: {
         inline: false,
         plugins:
@@ -138,28 +124,30 @@ export default {
     }
   },
   methods: {
+    dialogSave: function () {
+      console.log(this.inputDialogType, this.inputDialogObject)
+      Mgraph.dialogSave()
+      this.inputDialogType=""
+    },
+    dialogCancel: function () {
+      Mgraph.dialogCancel()
+      this.inputDialogType=""
+    },
+    dialogDelete: function () {
+      Mgraph.dialogDelete()
+       this.inputDialogType=""
+    },
     toggle: function() {
         
-    this.$refs['fullscreen'].toggle()
-      //this.sizeDivs();
+      this.$refs['fullscreen'].toggle()
+      this.sizeDivs();
     },
     fullscreenChange: function(fullscreen) {
        this.fullscreen =fullscreen
        console.log(fullscreen)
     },
     sizeDivs: function() {
-      var Mgraph=$("#Mgraph"+this.id);
-      //this.fullscreen = !this.fullscreen
-    
-      // this.$nextTick(function () {
-     //       var height=this.fullscreen?screen.height:$("#MContainer"+this.id).height();
-      //      Mgraph.height(height - 38);
-      //      Mgraph.width($(parentContainer).width());
-     //   })
-     // Mgraph.height(height - 38);
-    //  Mgraph.width($(parentContainer).width());
-  
-},
+  },
     changed : function(){
       console.log(' changed');
     },
@@ -184,58 +172,52 @@ export default {
     value: function(val) {
       Mgraph.setEditMode(val);
     },
+    inputDialogObject: function(val) {
+      console.log('inputdialog',val, val.name)
+    },
     fullscreen: function(fs) {
-      var height=$(document).height()-56;
-      var widthapp=$("#app").width();
-      var widthcontainer=$(".visual").width();
-      console.log('fs', fs, height, widthapp, widthcontainer )
-      var Mgraph1=$("#Mgraph"+this.id);
+      var height=document.body.scrollHeight-60;
+      var width=document.body.scrollWidth;
+     
+      console.log('fs', fs, height, width )
+      var style;
       if (fs) {
-        Mgraph1.height(height)
-        Mgraph1.width(widthapp)
-       //   Mgraph1.css('width', '100%');
+        style="height:"+height+"px" + ";" + "width:" + width + "px"
+      } else {
+         style="height:500px" + ";" + "width:100%";
         }
-      else {
-        Mgraph1.height(500)
-       // .width(widthcontainer)
-        Mgraph1.css('width', '100%');
-        }
+       document.getElementById('Mgraph').setAttribute("style",style);
       Mgraph.setsize()
     }
   },
   created() {},
   computed: {
-    ...mapState(["userinfo"])
   },
   mounted() {
     this.sizeDivs();
-    var term_id = this.termId;
+  
     var collection_id = this.collectionId;
     getData.init(Vue, this);
-    getData.setToken(this.userinfo.token);
-
     // initialise the visualisation, and define the callback functions
-    Mgraph.initGraph({
-      id: this.id
-    });
+    Mgraph.initGraph(this);
     this.autoFix(this.autoFixSet);
     this.showLocks(this.showLockOn);
     this.relationClustering(this.relationClusterSet);
     Mgraph.setEditMode(this.value);
     // do we want to see a complete collection, or only a term?
-    $(".spinner").hide();
+   
     if (typeof collection_id !== "undefined") {
       Mgraph.showModel(collection_id);
-    //  Mgraph.loadLayout(collection_id, "name8");
     } else {
-      console.log('term selected')
-      Mgraph.showTerms([term_id]);
+      Mgraph.showTerm(this.term.id, this.term.collection_id);
     }
     //Initial configuration
   },
   beforeDestroy() {
+    console.log('beforedistroy', Mgraph.isDirty(), this.collectionId)
       // need to refetch the collection to update the store with the visual changes, and save layout of visual
-      if (Mgraph.isDirty()) {
+      if (Mgraph.isDirty()&& (typeof this.collectionId !== "undefined")) {
+          console.log('doit')
            this.$store.dispatch("FETCH_COLLECTION",this.collectionId )
            Mgraph.saveLayout(this.collectionId, "name8")
       }

@@ -1,8 +1,10 @@
 <template>
     <div class="term-container-div" v-on:mouseenter="showMenus=true" v-on:mouseleave="showMenus=false">
+      <!-- show options when mouse over div -->
         <div v-bind:class="{'div-menu-top':true, hide:!showMenus}">
             <b-nav class="float-right">
               <template v-if="term.editable">
+                <!-- show menu when you can edit the term -->
                 <button  v-bind:class="{'button-close':true, red:editMode}" v-on:click="changeEditMode">
                     <i class="fa fa-pencil" aria-hidden="true" title="Edit this term"></i>
                 </button>
@@ -17,8 +19,8 @@
                 </b-dropdown>
               </template>
               <button  v-bind:class="{'button-close':true}" v-on:click="changeVisualMode">
-                  <i v-if ="!visualMode" class="fa fa-file-image-o visual-icon" aria-hidden="true" title="Show visual"></i>
-                  <i v-if ="visualMode" class="fa fa-file-text-o visual-icon" aria-hidden="true" title="Show text"></i>
+                  <i v-if ="term.displayMode!==globalData.TERMDISPLAYMODE.VISUAL" class="fa fa-file-image-o visual-icon" aria-hidden="true" title="Show visual"></i>
+                  <i v-else class="fa fa-file-text-o visual-icon" aria-hidden="true" title="Show text"></i>
               </button>
               <button class="button-close" v-on:click="closeWindow" title="Hide this term">
                   <i class="fa fa-times" aria-hidden="true"></i>
@@ -37,7 +39,7 @@
             </td>
           </tr>
         </table>
-        <template v-if="!visualMode">
+        <template v-if="term.displayMode!==globalData.TERMDISPLAYMODE.VISUAL">
           <template v-if="!editMode">
           <div v-if="term.term_definition" class="term-desciption-div" v-html="term.term_definition"> </div>
           <div v-else class="term-desciption-div none"> No description available </div>
@@ -46,28 +48,28 @@
               <strong>Description:</strong>
               <tinymce id="nameEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
           </div>
-          <div v-if="viewType>0">
-              <div v-if="!editMode" class="term-addinfo" v-html="term.term_definition"> </div>
-          <div v-if="editMode">
-              <strong>Additional notes:</strong>
-              <tinymce id="notesEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
-          </div>
+          <div v-if="term.displayMode===globalData.TERMDISPLAYMODE.FULL">
+            <div v-if="!editMode" class="term-addinfo" v-html="term.term_definition"> </div>
+            <div v-if="editMode">
+                <strong>Additional notes:</strong>
+                <tinymce id="notesEditor" v-model="term.term_definition" :options="tinymceOptions" @change="changed"></tinymce>
+            </div>
           </div>
 
-          <div class="term-details" v-if="viewType>1">
+          <div class="term-details" v-if="term.displayMode===globalData.TERMDISPLAYMODE.FULL">
             <span class="subtitle"> Relations </span>
                 <relationList :editMode="editMode" :term="term" :index="index" :showHeader="false"/>
           </div>
           <div v-bind:class="{'div-menu-bottom':true, hide:!showMenus}">
-                    <button class="button" v-if="viewType===0" v-on:click="viewType=2" title="Hide this term">
+                    <button class="button" v-if="term.displayMode===globalData.TERMDISPLAYMODE.DEF" v-on:click="setDisplayMode(globalData.TERMDISPLAYMODE.FULL)" title="Hide this term">
                       <i class="fa fa-angle-down fa-lg grey" aria-hidden="true"></i>
                   </button>
-                  <button class="button" v-else v-on:click="viewType=0" title="Hide this term">
+                  <button class="button" v-else v-on:click="setDisplayMode(globalData.TERMDISPLAYMODE.DEF)" title="Hide this term">
                       <i class="fa fa-angle-up fa-lg grey" aria-hidden="true"></i>
                   </button>
           </div>   
         </template>  
-        <visual v-else :key="term.id" :id="term.id" v-model="editMode" :termId="term.id" />
+        <visual v-else :key="term.id" :id="term.id" v-model="editMode" :term="term" />
     </div>
 </template>
 
@@ -82,16 +84,15 @@ export default {
   name: "term-display",
   components: { relationList, visual },
   props: {
-    term: { type: Object, required: true },
+   // term: { type: Object, required: true },
     index: { type: Number, required: true },
     newTerm: { type: Boolean, required: false }
   },
 
   data() {
     return {
-      viewType: 0,
+      globalData: globalData,
       editMode: false,
-      visualMode: false,
       showMenus: false,
       viewOptions: [
         { text: "Description", value: 0 },
@@ -125,6 +126,7 @@ export default {
     if (this.newTerm) {
       this.editMode = true;
     }
+    console.log(this.term)
   },
   methods: {
     ...mapMutations(["removeTermFromList", "setTermDisplayMode"]),
@@ -141,11 +143,12 @@ export default {
       this.editMode = !this.editMode;
     },
     changeVisualMode: function() {
-      if (this.visualMode) {
-      }
-      this.visualMode = !this.visualMode;
-      
-      this.setTermDisplayMode({index:this.index, mode:TERMDISPLAYMODE.VISUAL})
+      console.log(this.term)
+      var mode=(this.term.displayMode===this.globalData.TERMDISPLAYMODE.VISUAL)?this.globalData.TERMDISPLAYMODE.DEF:this.globalData.TERMDISPLAYMODE.VISUAL
+      this.setTermDisplayMode({index:this.index, mode:mode})
+    },
+    setDisplayMode : function(mode) {
+       this.setTermDisplayMode({index:this.index, mode:mode})
     },
     closeWindow: function() {
       console.log("removing", this.index);
@@ -153,7 +156,11 @@ export default {
     }
   },
   computed: {
-    ...mapState(["showTermList", "userinfo"])
+    ...mapState(["showTermList", "userinfo"]),
+    term: function() {
+      console.log(this.showTermList[this.index])
+      return this.showTermList[this.index]
+    }
   },
   beforeDestroy: function() {
     console.log("beforedestroy");
@@ -167,119 +174,119 @@ export default {
 
 
 <style scoped>
-.visual-icon {
-  padding-right: 10px;
-}
-.none {
-  color: grey;
-  font-style: italic;
-}
+  .visual-icon {
+    padding-right: 10px;
+  }
+  .none {
+    color: grey;
+    font-style: italic;
+  }
 
-table.term-header {
-  width: calc(100% - 96px);
-}
-td.term-collection {
-  float: right;
-  color: lightgrey;
-  border: none;
-  padding: 0px 8px;
-  border-radius: 5px;
-}
+  table.term-header {
+    width: calc(100% - 96px);
+  }
+  td.term-collection {
+    float: right;
+    color: lightgrey;
+    border: none;
+    padding: 0px 8px;
+    border-radius: 5px;
+  }
 
-.term-container-div {
-  padding: 0.1em 1em 1em 1em;
-  margin-bottom: 1em;
-  position: relative;
-  box-shadow: 2px 2px 8px grey;
-}
-.term-container-div h2 {
-  font-size: 1.1em;
-  margin: 0em 0em 0em 0em;
-}
-.term-header-div {
-  font-size: 1.2em;
-  font-weight: 600;
-}
-.term-title {
-  font-size: 1.2em;
-  font-weight: 600;
-  margin-top: 0px;
-}
-.term-description-div {
-  font-size: 1em;
-  font-weight: 400;
-}
-.fa-2 {
-  width: 2rem;
-}
-div.term-addinfo {
-  font-size: 0.9rem;
-  font-weight: 400;
-  border-top: 1px solid lightgrey;
-  margin-top: 0.3em;
-}
-div.term-details {
-  font-size: 0.9rem;
-  font-weight: 400;
+  .term-container-div {
+    padding: 0.1em 1em 1em 1em;
+    margin-bottom: 1em;
+    position: relative;
+    box-shadow: 2px 2px 8px grey;
+  }
+  .term-container-div h2 {
+    font-size: 1.1em;
+    margin: 0em 0em 0em 0em;
+  }
+  .term-header-div {
+    font-size: 1.2em;
+    font-weight: 600;
+  }
+  .term-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-top: 0px;
+  }
+  .term-description-div {
+    font-size: 1em;
+    font-weight: 400;
+  }
+  .fa-2 {
+    width: 2rem;
+  }
+  div.term-addinfo {
+    font-size: 0.9rem;
+    font-weight: 400;
+    border-top: 1px solid lightgrey;
+    margin-top: 0.3em;
+  }
+  div.term-details {
+    font-size: 0.9rem;
+    font-weight: 400;
 
-  margin-top: 0.3em;
-}
-.term-header-div .nav-link {
-  font-size: 0.8rem;
-  padding: 0px;
-  font-weight: 400;
-  color: #0275d8;
-}
-.button-close {
-  padding: 5px 0px;
-  background: none;
-  border: none;
-  color: grey;
-}
-button {
-  background: none;
-  border: none;
-  color: grey;
-}
-.div-menu-top {
-  position: absolute;
-  right: 5px;
-  top: -8px;
-}
-.div-menu-bottom {
-  position: absolute;
-  left: 10px;
-  bottom: -5px;
-}
-.grey {
-  color: grey;
-}
-.red {
-  color: red;
-}
-.hide {
-  display: none;
-}
-button:focus {
-  outline: 0 !important;
-}
-button:hover,
-i:hover {
-  cursor: pointer;
-}
+    margin-top: 0.3em;
+  }
+  .term-header-div .nav-link {
+    font-size: 0.8rem;
+    padding: 0px;
+    font-weight: 400;
+    color: #0275d8;
+  }
+  .button-close {
+    padding: 5px 0px;
+    background: none;
+    border: none;
+    color: grey;
+  }
+  button {
+    background: none;
+    border: none;
+    color: grey;
+  }
+  .div-menu-top {
+    position: absolute;
+    right: 5px;
+    top: -8px;
+  }
+  .div-menu-bottom {
+    position: absolute;
+    left: 10px;
+    bottom: -5px;
+  }
+  .grey {
+    color: grey;
+  }
+  .red {
+    color: red;
+  }
+  .hide {
+    display: none;
+  }
+  button:focus {
+    outline: 0 !important;
+  }
+  button:hover,
+  i:hover {
+    cursor: pointer;
+  }
 
-.subtitle {
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-table.relations {
-  margin: 0px 0px;
-  border: none;
-  padding: 5px;
-}
-table.relations td {
-  padding: 0px 10px;
-  background-color: #f9f9f9;
-  border: 1px solid white;
-}
+  .subtitle {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+  table.relations {
+    margin: 0px 0px;
+    border: none;
+    padding: 5px;
+  }
+  table.relations td {
+    padding: 0px 10px;
+    background-color: #f9f9f9;
+    border: 1px solid white;
+  }
 </style>

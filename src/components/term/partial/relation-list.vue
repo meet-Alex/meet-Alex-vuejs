@@ -26,7 +26,7 @@
                     </tr>
                     <tr v-if="editMode&&editRelationId===0">
                         <td v-if="editCol===1">
-                           <findterm :id="'a'" v-if="editCol===1" :prefill="newRelation.subject.term_name" :new="true" :relation="newRelation" :change="updateNewRelSubject"/>
+                           <find-term :id="'a'" v-if="editCol===1" :prefill="newRelation.subject.term_name" :new="true" :relation="newRelation" :change="updateNewRelSubject"/>
                         </td>
                         <td v-else v-on:click="clickTest(0,1)">
                               <span v-if="newRelation.subject.term_name">{{newRelation.subject.term_name}}  </span>
@@ -40,7 +40,7 @@
                               <div v-else class="askinput"> provide name </div>
                         </td>
                         <td  v-if="editCol===3">
-                           <findterm :id="'b'" v-if="editCol===3" :prefill="newRelation.object.term_name" :new="true" :relation="newRelation" :change="updateNewRelObject"/>
+                           <find-term :id="'b'" v-if="editCol===3" :prefill="newRelation.object.term_name" :new="true" :relation="newRelation" :change="updateNewRelObject"/>
                         </td>
                         <td v-else v-on:click="clickTest(0,3)">
                               <span v-if="newRelation.object.term_name">{{newRelation.object.term_name}}  </span>

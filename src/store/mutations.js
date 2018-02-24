@@ -42,9 +42,16 @@ export const mutations = {
     state.showTermList.splice(index, 1);
   },
 
-  setTermDisplayMode(state, {index, modus}) {
-    console.log(index, modus);
-
+  setTermDisplayMode(state, val) {
+    if (val.mode===globalData.TERMDISPLAYMODE.VISUAL) {
+      //if there is already a visual on the screen, remove it as 2 visuals on one page is not working at the moment
+      state.showTermList.map(function(term) {
+        if (term.displayMode===globalData.TERMDISPLAYMODE.VISUAL) {
+          term.displayMode=globalData.TERMDISPLAYMODE.DEF
+        }
+      })
+    }
+    state.showTermList[val.index].displayMode=val.mode;
   },
   clearTermList(state) {
     state.showTermList = [];
@@ -53,9 +60,12 @@ export const mutations = {
   // handle term changes
   fetchTerm(state, term) {
     console.log(term);
-    term.displayModus=0;
+    term.displayMode=0;
 
     var nr = state.showTermList.findIndex(x => x.id === term.id)
+    if (nr>=0) {
+      term.displayMode=state.showTermList[nr].displayMode;
+    }
     // if term is already displayed and at same position, refresh. Otherwise remove the term, and add it at the right position
     if (nr===term.position) {
       state.showTermList.splice(term.position, 1, term)

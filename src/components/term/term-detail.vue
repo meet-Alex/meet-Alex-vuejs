@@ -1,6 +1,6 @@
 <template>
     <div class="container1 flex">
-        <b-breadcrumb :items="breadCrum" />
+      <!--  <b-breadcrumb :items="breadCrum" /> -->
       
         <div v-if="showTermList.length>0">
             <table class='toprow'> 

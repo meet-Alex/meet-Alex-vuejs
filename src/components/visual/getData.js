@@ -1,16 +1,13 @@
 var getData = function () {
     var G_termList = [];
     var G_relList = [];
-    var G_token;
+   
     var Vue;
     var That;
 
     function init(vue, that) {
         That = that;
         Vue = vue;
-    }
-    function setToken(token) {
-        G_token=token;
     }
 
     function createRelation(link) {
@@ -167,8 +164,7 @@ var getData = function () {
             callback(term);
         })
         .catch(error => {
-          console.log(error.response);
-          alert(error.response.data.message);
+          console.log(error);
         });
     }
 
@@ -382,7 +378,6 @@ var getData = function () {
         findReference,
         getTermId,
       //  loadSketch,
-        setToken
     };
 };
 exports.getData = getData;

@@ -1,7 +1,7 @@
 <template>
     <div class="container1">
         <br>
-        <b-breadcrumb :items="breadCrum" />
+     <!--   <b-breadcrumb :items="breadCrum" /> -->
         
         <span class='title-header'>Overview collections</span>
        

@@ -104,18 +104,18 @@ export default {
         (a, b) => {
           var result;
           if (foundInFilter(a.term_name) && foundInFilter(b.term_name)) {
-            console.log('both')
+       
             result=a.term_name.localeCompare(b.term_name);
           } else if (foundInFilter(a.term_name)) {
             result=-1
-            console.log('only a')
+          
           } else if (foundInFilter(b.term_name)) {
             result=1
-            console.log('only b')
+          
           } else {
              result=a.term_name.localeCompare(b.term_name);
           }
-          console.log(a,b,result)
+         
           return result
         }
            
